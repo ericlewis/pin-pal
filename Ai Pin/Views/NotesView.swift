@@ -2,14 +2,16 @@ import SwiftUI
 import OSLog
 
 struct MemoryView: View {
+    @EnvironmentObject private var colorStore: ColorStore
     
     let memory: Memory
     
     var body: some View {
         if let note = memory.data.note {
             VStack(alignment: .leading, spacing: 10) {
-                VStack(alignment: .leading) {
+                VStack(alignment: .leading, spacing: 5) {
                     Text(note.title)
+                        .foregroundStyle(colorStore.accentColor)
                         .font(.headline)
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .overlay(alignment: .topTrailing) {
@@ -19,8 +21,9 @@ struct MemoryView: View {
                                     .foregroundStyle(.red)
                             }
                         }
-                    Text(note.text)
+                    Text(.init(note.text))
                 }
+                
                 Text(memory.userCreatedAt, format: .dateTime)
                     .font(.caption)
                     .foregroundStyle(.secondary)
@@ -30,6 +33,7 @@ struct MemoryView: View {
 }
 
 struct NotesView: View {
+    @EnvironmentObject private var colorStore: ColorStore
     
     struct ViewState {
         var notes: [Memory] = []
@@ -68,6 +72,7 @@ struct NotesView: View {
                             }
                             .tint(.pink)
                         }
+                        .environmentObject(colorStore)
                 }
                 .onDelete { indexSet in
                     for i in indexSet {
