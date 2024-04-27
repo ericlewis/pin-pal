@@ -1,4 +1,5 @@
 import Foundation
+import AnyCodable
 
 // STATE: PENDING UPLOAD
 
@@ -15,7 +16,11 @@ struct DetailedDeviceInfo {
 enum Domain: String {
     case captures = "CAPTURE"
     case notes = "NOTE"
+    
     case aiMic = "Ai Mic"
+    case calls = "Calls"
+    case translation = "Translation"
+    case music = "Music"
 }
 
 struct PaymentMethod: Codable {
@@ -41,7 +46,7 @@ struct EventContent: Codable {
     let feedbackCategory: String?
     let eventType: String
     let eventIdentifier: UUID
-    let eventData: [String: String]
+    let eventData: [String: AnyCodable]
 }
 
 struct Sort: Codable {

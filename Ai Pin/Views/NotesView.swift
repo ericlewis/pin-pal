@@ -7,20 +7,22 @@ struct MemoryView: View {
     
     var body: some View {
         if let note = memory.data.note {
-            VStack(alignment: .leading) {
-                Text(note.title)
-                    .font(.headline)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .overlay(alignment: .topTrailing) {
-                        if memory.favorite {
-                            Image(systemName: "heart")
-                                .symbolVariant(.fill)
-                                .foregroundStyle(.red)
+            VStack(alignment: .leading, spacing: 10) {
+                VStack(alignment: .leading) {
+                    Text(note.title)
+                        .font(.headline)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .overlay(alignment: .topTrailing) {
+                            if memory.favorite {
+                                Image(systemName: "heart")
+                                    .symbolVariant(.fill)
+                                    .foregroundStyle(.red)
+                            }
                         }
-                    }
-                Text(note.text)
-                Text(memory.userCreatedAt, style: .date)
-                    .font(.footnote)
+                    Text(note.text)
+                }
+                Text(memory.userCreatedAt, format: .dateTime)
+                    .font(.caption)
                     .foregroundStyle(.secondary)
             }
         }

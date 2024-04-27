@@ -5,6 +5,7 @@ struct MyDataView: View {
     struct ViewState {
         var events: [EventContent] = []
         var isLoading = false
+        var selectedFilter: MyDataFilter = .aiMic
     }
     
     @State
@@ -15,9 +16,24 @@ struct MyDataView: View {
             List {
                 ForEach(state.events, id: \.eventIdentifier) { event in
                     VStack(alignment: .leading) {
-                        Text(event.eventData["request"] ?? "")
-                            .font(.headline)
-                        Text(event.eventData["response"] ?? "")
+                        if let request = event.eventData["request"]?.value as? String, let response = event.eventData["response"]?.value as? String {
+                            Text(request)
+                                .font(.headline)
+                            Text(response)
+                        }
+                        if let targetLanguage = event.eventData["targetLanguage"]?.value as? String, let originLanguage = event.eventData["originLanguage"]?.value as? String {
+                            HStack {
+                                Text(originLanguage)
+                                Spacer()
+                                Text(targetLanguage)
+                            }
+                            .overlay {
+                                Image(systemName: "arrow.forward")
+                            }
+                        }
+                        Text(event.eventCreationTime, format: .dateTime)
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
                     }
                 }
             }
@@ -25,15 +41,30 @@ struct MyDataView: View {
                 await load()
             }
             .searchable(text: .constant(""))
-            .navigationTitle("My Data")
+            .navigationTitle(state.selectedFilter.title)
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarTitleMenu {
+                    ForEach(MyDataFilter.allCases.filter({ $0 != state.selectedFilter })) { filter in
+                        Button(filter.title) {
+                            state.selectedFilter = filter
+                        }
+                    }
+                }
+            }
         }
         .overlay {
             if !state.isLoading, state.events.isEmpty {
                 ContentUnavailableView("No data yet", systemImage: "person.text.rectangle")
+            } else if state.isLoading, state.events.isEmpty {
+                ProgressView()
             }
         }
-        .task {
+        .task(id: state.selectedFilter) {
             state.isLoading = true
+            withAnimation {
+                state.events = []
+            }
             while !Task.isCancelled {
                 await load()
                 state.isLoading = false
@@ -44,7 +75,7 @@ struct MyDataView: View {
     
     func load() async {
         do {
-            let events = try await API.shared.events(domain: .aiMic, size: 100)
+            let events = try await API.shared.events(domain: state.selectedFilter.domain, size: 100)
             withAnimation {
                 self.state.events = events.content
             }
@@ -52,6 +83,41 @@ struct MyDataView: View {
             print(error)
         }
     }
+}
+
+enum MyDataFilter {
+    case aiMic
+    case calls
+    case music
+    case translations
+    
+    var title: LocalizedStringKey {
+        switch self {
+        case .aiMic:
+            "Ai Mic"
+        case .calls:
+            "Calls"
+        case .music:
+            "Music"
+        case .translations:
+            "Translation"
+        }
+    }
+    
+    var domain: Domain {
+        switch self {
+        case .aiMic: .aiMic
+        case .calls: .calls
+        case .music: .music
+        case .translations: .translation
+        }
+    }
+}
+
+extension MyDataFilter: CaseIterable {}
+
+extension MyDataFilter: Identifiable {
+    var id: Self { self }
 }
 
 #Preview {

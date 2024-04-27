@@ -23,6 +23,7 @@
 		6819B8232BDABEAA009255A0 /* MyDataView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6819B8222BDABEAA009255A0 /* MyDataView.swift */; };
 		6819B8252BDACC44009255A0 /* NavigationTitle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6819B8242BDACC44009255A0 /* NavigationTitle.swift */; };
 		68C85B802BDCA6DD0029A408 /* CreateNoteIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 68C85B7F2BDCA6DD0029A408 /* CreateNoteIntent.swift */; };
+		68C85B832BDCB2670029A408 /* AnyCodable in Frameworks */ = {isa = PBXBuildFile; productRef = 68C85B822BDCB2670029A408 /* AnyCodable */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -52,6 +53,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				68C85B832BDCB2670029A408 /* AnyCodable in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -172,6 +174,7 @@
 			);
 			name = "Ai Pin";
 			packageProductDependencies = (
+				68C85B822BDCB2670029A408 /* AnyCodable */,
 			);
 			productName = "Ai Pin";
 			productReference = 6819B7F22BD85431009255A0 /* Ai Pin.app */;
@@ -202,6 +205,7 @@
 			);
 			mainGroup = 6819B7E92BD85431009255A0;
 			packageReferences = (
+				68C85B812BDCB2670029A408 /* XCRemoteSwiftPackageReference "AnyCodable" */,
 			);
 			productRefGroup = 6819B7F32BD85431009255A0 /* Products */;
 			projectDirPath = "";
@@ -467,6 +471,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		68C85B812BDCB2670029A408 /* XCRemoteSwiftPackageReference "AnyCodable" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/Flight-School/AnyCodable";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.6.7;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		68C85B822BDCB2670029A408 /* AnyCodable */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 68C85B812BDCB2670029A408 /* XCRemoteSwiftPackageReference "AnyCodable" */;
+			productName = AnyCodable;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 6819B7EA2BD85431009255A0 /* Project object */;
 }
