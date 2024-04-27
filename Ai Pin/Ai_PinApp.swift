@@ -4,8 +4,8 @@ import AppIntents
 @main
 struct Ai_PinApp: App {
     
-    @State
-    private var sceneNavigationStore: NavigationStore
+    @State private var sceneNavigationStore: NavigationStore
+    @StateObject private var colorStore = ColorStore()
     
     init() {
         let navigationStore = NavigationStore()
@@ -18,6 +18,7 @@ struct Ai_PinApp: App {
         WindowGroup {
             ContentView()
                 .environment(sceneNavigationStore)
+                .environmentObject(colorStore)
         }
     }
 }
