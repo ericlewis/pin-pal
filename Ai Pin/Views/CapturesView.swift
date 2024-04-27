@@ -1,0 +1,69 @@
+import SwiftUI
+
+struct CapturesView: View {
+    
+    struct ViewState {
+        var isLoading = false
+        var captures: [Capture] = []
+    }
+    
+    @State
+    private var state = ViewState()
+    
+    var body: some View {
+        NavigationStack {
+            List {
+                ForEach(state.captures, id: \.uuid) { capture in
+                    Section {
+                        AsyncImage(url: URL(string: "https://webapi.prod.humane.cloud/capture/memory/\(capture.uuid)/file/\(capture.data.thumbnail!.fileUUID)")?.appending(queryItems: [
+                            .init(name: "token", value: capture.data.thumbnail!.accessToken),
+                            .init(name: "w", value: "640"),
+                            .init(name: "q", value: "100")
+                        ])) { image in
+                            image
+                                .resizable()
+                                .scaledToFit()
+                        } placeholder: {
+                            Rectangle()
+                                .aspectRatio(1.333, contentMode: .fit)
+                        }
+                        .listRowInsets(.init())
+                    }
+                }
+            }
+            .refreshable {
+                await load()
+            }
+            .listSectionSpacing(15)
+            .navigationTitle("Captures")
+        }
+        .overlay {
+            if !state.isLoading, state.captures.isEmpty {
+                ContentUnavailableView("No captures yet", systemImage: "camera.aperture")
+            }
+        }
+        .task {
+            state.isLoading = true
+            while !Task.isCancelled {
+                try? await Task.sleep(for: .milliseconds(1000))
+                await load()
+                state.isLoading = false
+            }
+        }
+    }
+    
+    func load() async {
+        do {
+            let captures = try await API.shared.captures()
+            withAnimation {
+                state.captures = captures.content
+            }
+        } catch {
+            print(error)
+        }
+    }
+}
+
+#Preview {
+    CapturesView()
+}

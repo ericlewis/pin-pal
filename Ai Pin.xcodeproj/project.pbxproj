@@ -11,6 +11,20 @@
 		6819B7F82BD85431009255A0 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6819B7F72BD85431009255A0 /* ContentView.swift */; };
 		6819B7FA2BD85432009255A0 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 6819B7F92BD85432009255A0 /* Assets.xcassets */; };
 		6819B7FE2BD85432009255A0 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 6819B7FD2BD85432009255A0 /* Preview Assets.xcassets */; };
+		6819B8052BDAA4C9009255A0 /* API.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6819B8042BDAA4C9009255A0 /* API.swift */; };
+		6819B8072BDAA4F2009255A0 /* Model.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6819B8062BDAA4F2009255A0 /* Model.swift */; };
+		6819B8092BDAA596009255A0 /* WifiQRCodeGenView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6819B8082BDAA596009255A0 /* WifiQRCodeGenView.swift */; };
+		6819B80B2BDAA5AF009255A0 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6819B80A2BDAA5AF009255A0 /* SettingsView.swift */; };
+		6819B80D2BDAA98E009255A0 /* NotesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6819B80C2BDAA98E009255A0 /* NotesView.swift */; };
+		6819B80F2BDAAACA009255A0 /* AuthenticationWebView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6819B80E2BDAAACA009255A0 /* AuthenticationWebView.swift */; };
+		6819B8122BDAABCF009255A0 /* NavigationStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6819B8112BDAABCF009255A0 /* NavigationStore.swift */; };
+		6819B8182BDAAC37009255A0 /* AddNoteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6819B8172BDAAC37009255A0 /* AddNoteView.swift */; };
+		6819B81A2BDAB040009255A0 /* ContactsAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6819B8192BDAB040009255A0 /* ContactsAPI.swift */; };
+		6819B81C2BDABBC0009255A0 /* ContactsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6819B81B2BDABBC0009255A0 /* ContactsView.swift */; };
+		6819B81F2BDABCD7009255A0 /* AuthHandlerViewModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6819B81E2BDABCD7009255A0 /* AuthHandlerViewModifier.swift */; };
+		6819B8212BDABE79009255A0 /* CapturesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6819B8202BDABE79009255A0 /* CapturesView.swift */; };
+		6819B8232BDABEAA009255A0 /* MyDataView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6819B8222BDABEAA009255A0 /* MyDataView.swift */; };
+		6819B8252BDACC44009255A0 /* NavigationTitle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6819B8242BDACC44009255A0 /* NavigationTitle.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -20,6 +34,21 @@
 		6819B7F92BD85432009255A0 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		6819B7FB2BD85432009255A0 /* Ai_Pin.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Ai_Pin.entitlements; sourceTree = "<group>"; };
 		6819B7FD2BD85432009255A0 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
+		6819B8042BDAA4C9009255A0 /* API.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = API.swift; sourceTree = "<group>"; };
+		6819B8062BDAA4F2009255A0 /* Model.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Model.swift; sourceTree = "<group>"; };
+		6819B8082BDAA596009255A0 /* WifiQRCodeGenView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WifiQRCodeGenView.swift; sourceTree = "<group>"; };
+		6819B80A2BDAA5AF009255A0 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		6819B80C2BDAA98E009255A0 /* NotesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotesView.swift; sourceTree = "<group>"; };
+		6819B80E2BDAAACA009255A0 /* AuthenticationWebView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthenticationWebView.swift; sourceTree = "<group>"; };
+		6819B8112BDAABCF009255A0 /* NavigationStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationStore.swift; sourceTree = "<group>"; };
+		6819B8172BDAAC37009255A0 /* AddNoteView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddNoteView.swift; sourceTree = "<group>"; };
+		6819B8192BDAB040009255A0 /* ContactsAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContactsAPI.swift; sourceTree = "<group>"; };
+		6819B81B2BDABBC0009255A0 /* ContactsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContactsView.swift; sourceTree = "<group>"; };
+		6819B81E2BDABCD7009255A0 /* AuthHandlerViewModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthHandlerViewModifier.swift; sourceTree = "<group>"; };
+		6819B8202BDABE79009255A0 /* CapturesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CapturesView.swift; sourceTree = "<group>"; };
+		6819B8222BDABEAA009255A0 /* MyDataView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyDataView.swift; sourceTree = "<group>"; };
+		6819B8242BDACC44009255A0 /* NavigationTitle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationTitle.swift; sourceTree = "<group>"; };
+		6819B82C2BDB5468009255A0 /* Ai-Pin-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = "Ai-Pin-Info.plist"; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -38,6 +67,7 @@
 			children = (
 				6819B7F42BD85431009255A0 /* Ai Pin */,
 				6819B7F32BD85431009255A0 /* Products */,
+				6819B8292BDB5451009255A0 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -52,11 +82,15 @@
 		6819B7F42BD85431009255A0 /* Ai Pin */ = {
 			isa = PBXGroup;
 			children = (
-				6819B7F52BD85431009255A0 /* Ai_PinApp.swift */,
-				6819B7F72BD85431009255A0 /* ContentView.swift */,
-				6819B7F92BD85432009255A0 /* Assets.xcassets */,
 				6819B7FB2BD85432009255A0 /* Ai_Pin.entitlements */,
+				6819B82C2BDB5468009255A0 /* Ai-Pin-Info.plist */,
+				6819B7F52BD85431009255A0 /* Ai_PinApp.swift */,
+				6819B7F92BD85432009255A0 /* Assets.xcassets */,
+				6819B8162BDAAC04009255A0 /* API */,
+				6819B81D2BDABCCE009255A0 /* Modifiers */,
 				6819B7FC2BD85432009255A0 /* Preview Content */,
+				6819B8102BDAABC7009255A0 /* Stores */,
+				6819B8152BDAABF0009255A0 /* Views */,
 			);
 			path = "Ai Pin";
 			sourceTree = "<group>";
@@ -67,6 +101,56 @@
 				6819B7FD2BD85432009255A0 /* Preview Assets.xcassets */,
 			);
 			path = "Preview Content";
+			sourceTree = "<group>";
+		};
+		6819B8102BDAABC7009255A0 /* Stores */ = {
+			isa = PBXGroup;
+			children = (
+				6819B8112BDAABCF009255A0 /* NavigationStore.swift */,
+			);
+			path = Stores;
+			sourceTree = "<group>";
+		};
+		6819B8152BDAABF0009255A0 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				6819B7F72BD85431009255A0 /* ContentView.swift */,
+				6819B8082BDAA596009255A0 /* WifiQRCodeGenView.swift */,
+				6819B80A2BDAA5AF009255A0 /* SettingsView.swift */,
+				6819B80C2BDAA98E009255A0 /* NotesView.swift */,
+				6819B80E2BDAAACA009255A0 /* AuthenticationWebView.swift */,
+				6819B8172BDAAC37009255A0 /* AddNoteView.swift */,
+				6819B81B2BDABBC0009255A0 /* ContactsView.swift */,
+				6819B8202BDABE79009255A0 /* CapturesView.swift */,
+				6819B8222BDABEAA009255A0 /* MyDataView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		6819B8162BDAAC04009255A0 /* API */ = {
+			isa = PBXGroup;
+			children = (
+				6819B8042BDAA4C9009255A0 /* API.swift */,
+				6819B8062BDAA4F2009255A0 /* Model.swift */,
+				6819B8192BDAB040009255A0 /* ContactsAPI.swift */,
+			);
+			path = API;
+			sourceTree = "<group>";
+		};
+		6819B81D2BDABCCE009255A0 /* Modifiers */ = {
+			isa = PBXGroup;
+			children = (
+				6819B81E2BDABCD7009255A0 /* AuthHandlerViewModifier.swift */,
+				6819B8242BDACC44009255A0 /* NavigationTitle.swift */,
+			);
+			path = Modifiers;
+			sourceTree = "<group>";
+		};
+		6819B8292BDB5451009255A0 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -85,6 +169,8 @@
 			dependencies = (
 			);
 			name = "Ai Pin";
+			packageProductDependencies = (
+			);
 			productName = "Ai Pin";
 			productReference = 6819B7F22BD85431009255A0 /* Ai Pin.app */;
 			productType = "com.apple.product-type.application";
@@ -113,6 +199,8 @@
 				Base,
 			);
 			mainGroup = 6819B7E92BD85431009255A0;
+			packageReferences = (
+			);
 			productRefGroup = 6819B7F32BD85431009255A0 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -139,8 +227,22 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6819B80D2BDAA98E009255A0 /* NotesView.swift in Sources */,
 				6819B7F82BD85431009255A0 /* ContentView.swift in Sources */,
+				6819B8252BDACC44009255A0 /* NavigationTitle.swift in Sources */,
+				6819B8052BDAA4C9009255A0 /* API.swift in Sources */,
+				6819B81C2BDABBC0009255A0 /* ContactsView.swift in Sources */,
 				6819B7F62BD85431009255A0 /* Ai_PinApp.swift in Sources */,
+				6819B8212BDABE79009255A0 /* CapturesView.swift in Sources */,
+				6819B8232BDABEAA009255A0 /* MyDataView.swift in Sources */,
+				6819B8182BDAAC37009255A0 /* AddNoteView.swift in Sources */,
+				6819B80B2BDAA5AF009255A0 /* SettingsView.swift in Sources */,
+				6819B81F2BDABCD7009255A0 /* AuthHandlerViewModifier.swift in Sources */,
+				6819B8072BDAA4F2009255A0 /* Model.swift in Sources */,
+				6819B8122BDAABCF009255A0 /* NavigationStore.swift in Sources */,
+				6819B81A2BDAB040009255A0 /* ContactsAPI.swift in Sources */,
+				6819B8092BDAA596009255A0 /* WifiQRCodeGenView.swift in Sources */,
+				6819B80F2BDAAACA009255A0 /* AuthenticationWebView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -274,6 +376,7 @@
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Ai-Pin-Info.plist";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
@@ -292,7 +395,9 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "com.ericlewis.Ai-Pin";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -312,6 +417,7 @@
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Ai-Pin-Info.plist";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
@@ -330,7 +436,9 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "com.ericlewis.Ai-Pin";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
