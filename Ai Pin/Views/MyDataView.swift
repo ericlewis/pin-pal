@@ -22,8 +22,9 @@ struct MyDataView: View {
                 }
             }
             .refreshable {
-                
+                await load()
             }
+            .searchable(text: .constant(""))
             .navigationTitle("My Data")
         }
         .overlay {
@@ -36,7 +37,7 @@ struct MyDataView: View {
             while !Task.isCancelled {
                 await load()
                 state.isLoading = false
-                try? await Task.sleep(for: .seconds(5))
+                try? await Task.sleep(for: .seconds(15))
             }
         }
     }

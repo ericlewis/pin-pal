@@ -18,6 +18,7 @@ struct ContactsView: View {
                     Text(contact.id.uuidString)
                 }
             }
+            .searchable(text: .constant(""))
             .navigationTitle("Contacts")
         }
         .overlay {

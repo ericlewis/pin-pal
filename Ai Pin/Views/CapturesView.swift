@@ -44,6 +44,7 @@ struct CapturesView: View {
                     }
                 }
             }
+            .searchable(text: .constant(""))
             .refreshable {
                 await load()
             }
@@ -58,7 +59,7 @@ struct CapturesView: View {
         .task {
             state.isLoading = true
             while !Task.isCancelled {
-                try? await Task.sleep(for: .milliseconds(1000))
+                try? await Task.sleep(for: .seconds(15))
                 await load()
                 state.isLoading = false
             }
