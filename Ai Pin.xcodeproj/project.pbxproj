@@ -10,7 +10,6 @@
 		6819B7F62BD85431009255A0 /* Ai_PinApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6819B7F52BD85431009255A0 /* Ai_PinApp.swift */; };
 		6819B7F82BD85431009255A0 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6819B7F72BD85431009255A0 /* ContentView.swift */; };
 		6819B7FA2BD85432009255A0 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 6819B7F92BD85432009255A0 /* Assets.xcassets */; };
-		6819B7FE2BD85432009255A0 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 6819B7FD2BD85432009255A0 /* Preview Assets.xcassets */; };
 		6819B8052BDAA4C9009255A0 /* API.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6819B8042BDAA4C9009255A0 /* API.swift */; };
 		6819B8072BDAA4F2009255A0 /* Model.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6819B8062BDAA4F2009255A0 /* Model.swift */; };
 		6819B8092BDAA596009255A0 /* WifiQRCodeGenView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6819B8082BDAA596009255A0 /* WifiQRCodeGenView.swift */; };
@@ -33,7 +32,6 @@
 		6819B7F72BD85431009255A0 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		6819B7F92BD85432009255A0 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		6819B7FB2BD85432009255A0 /* Ai_Pin.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Ai_Pin.entitlements; sourceTree = "<group>"; };
-		6819B7FD2BD85432009255A0 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		6819B8042BDAA4C9009255A0 /* API.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = API.swift; sourceTree = "<group>"; };
 		6819B8062BDAA4F2009255A0 /* Model.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Model.swift; sourceTree = "<group>"; };
 		6819B8082BDAA596009255A0 /* WifiQRCodeGenView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WifiQRCodeGenView.swift; sourceTree = "<group>"; };
@@ -48,7 +46,7 @@
 		6819B8202BDABE79009255A0 /* CapturesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CapturesView.swift; sourceTree = "<group>"; };
 		6819B8222BDABEAA009255A0 /* MyDataView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyDataView.swift; sourceTree = "<group>"; };
 		6819B8242BDACC44009255A0 /* NavigationTitle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationTitle.swift; sourceTree = "<group>"; };
-		6819B82C2BDB5468009255A0 /* Ai-Pin-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = "Ai-Pin-Info.plist"; sourceTree = SOURCE_ROOT; };
+		6819B82C2BDB5468009255A0 /* Ai-Pin-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "Ai-Pin-Info.plist"; path = "Ai Pin/Resources/Ai-Pin-Info.plist"; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -82,25 +80,14 @@
 		6819B7F42BD85431009255A0 /* Ai Pin */ = {
 			isa = PBXGroup;
 			children = (
-				6819B7FB2BD85432009255A0 /* Ai_Pin.entitlements */,
-				6819B82C2BDB5468009255A0 /* Ai-Pin-Info.plist */,
+				68C85B7B2BDCA1BE0029A408 /* Resources */,
 				6819B7F52BD85431009255A0 /* Ai_PinApp.swift */,
-				6819B7F92BD85432009255A0 /* Assets.xcassets */,
 				6819B8162BDAAC04009255A0 /* API */,
 				6819B81D2BDABCCE009255A0 /* Modifiers */,
-				6819B7FC2BD85432009255A0 /* Preview Content */,
 				6819B8102BDAABC7009255A0 /* Stores */,
 				6819B8152BDAABF0009255A0 /* Views */,
 			);
 			path = "Ai Pin";
-			sourceTree = "<group>";
-		};
-		6819B7FC2BD85432009255A0 /* Preview Content */ = {
-			isa = PBXGroup;
-			children = (
-				6819B7FD2BD85432009255A0 /* Preview Assets.xcassets */,
-			);
-			path = "Preview Content";
 			sourceTree = "<group>";
 		};
 		6819B8102BDAABC7009255A0 /* Stores */ = {
@@ -151,6 +138,16 @@
 			children = (
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		68C85B7B2BDCA1BE0029A408 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				6819B7FB2BD85432009255A0 /* Ai_Pin.entitlements */,
+				6819B7F92BD85432009255A0 /* Assets.xcassets */,
+				6819B82C2BDB5468009255A0 /* Ai-Pin-Info.plist */,
+			);
+			path = Resources;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -215,7 +212,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				6819B7FE2BD85432009255A0 /* Preview Assets.xcassets in Resources */,
 				6819B7FA2BD85432009255A0 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -368,15 +364,14 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = "Ai Pin/Ai_Pin.entitlements";
+				CODE_SIGN_ENTITLEMENTS = "Ai Pin/Resources/Ai_Pin.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_ASSET_PATHS = "\"Ai Pin/Preview Content\"";
 				DEVELOPMENT_TEAM = F9PGNEMEHU;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = "Ai-Pin-Info.plist";
+				INFOPLIST_FILE = "Ai Pin/Resources/Ai-Pin-Info.plist";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
@@ -409,15 +404,14 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = "Ai Pin/Ai_Pin.entitlements";
+				CODE_SIGN_ENTITLEMENTS = "Ai Pin/Resources/Ai_Pin.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_ASSET_PATHS = "\"Ai Pin/Preview Content\"";
 				DEVELOPMENT_TEAM = F9PGNEMEHU;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = "Ai-Pin-Info.plist";
+				INFOPLIST_FILE = "Ai Pin/Resources/Ai-Pin-Info.plist";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
