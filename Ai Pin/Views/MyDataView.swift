@@ -33,14 +33,17 @@ struct MyDataView: View {
         }
         .task {
             state.isLoading = true
-            await load()
-            state.isLoading = false
+            while !Task.isCancelled {
+                await load()
+                state.isLoading = false
+                try? await Task.sleep(for: .seconds(5))
+            }
         }
     }
     
     func load() async {
         do {
-            let events = try await API.shared.events(domain: .aiMic)
+            let events = try await API.shared.events(domain: .aiMic, size: 100)
             withAnimation {
                 self.state.events = events.content
             }
