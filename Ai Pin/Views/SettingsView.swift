@@ -16,6 +16,8 @@ struct SettingsView: View {
     @Environment(NavigationStore.self)
     private var navigationStore
     
+    @EnvironmentObject private var colorStore: ColorStore
+    
     var body: some View {
         @Bindable var navigationStore = navigationStore
         NavigationStack {
@@ -67,13 +69,14 @@ struct SettingsView: View {
                         }
                         .sheet(isPresented: $navigationStore.textColorPresented) {
                             AccentColorView()
+                                .environmentObject(colorStore)
                         }
                         
                         Button("App Icon") {
                             self.navigationStore.iconChangerPresented = true
                         }
                         .sheet(isPresented: $navigationStore.iconChangerPresented) {
-                            AccentColorView()
+                            IconChangerView()
                         }
                     }
                 }
