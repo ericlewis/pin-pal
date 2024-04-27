@@ -31,6 +31,11 @@ struct MyDataView: View {
                                 Image(systemName: "arrow.forward")
                             }
                         }
+                        if let p = event.eventData["prompt"]?.value as? String, let music = event.eventData["generatedPlaylist"]?.value as? String {
+                            Text(p)
+                                .font(.headline)
+                            Text(music)
+                        }
                         Text(event.eventCreationTime, format: .dateTime)
                             .font(.caption)
                             .foregroundStyle(.secondary)
