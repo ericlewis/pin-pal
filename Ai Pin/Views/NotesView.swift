@@ -112,9 +112,9 @@ struct NotesView: View {
         .task {
             state.isLoading = true
             while !Task.isCancelled {
-                try? await Task.sleep(for: .seconds(15))
                 await load()
                 state.isLoading = false
+                try? await Task.sleep(for: .seconds(15))
             }
         }
     }

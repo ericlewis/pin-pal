@@ -18,8 +18,6 @@
 		6819B80F2BDAAACA009255A0 /* AuthenticationWebView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6819B80E2BDAAACA009255A0 /* AuthenticationWebView.swift */; };
 		6819B8122BDAABCF009255A0 /* NavigationStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6819B8112BDAABCF009255A0 /* NavigationStore.swift */; };
 		6819B8182BDAAC37009255A0 /* AddNoteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6819B8172BDAAC37009255A0 /* AddNoteView.swift */; };
-		6819B81A2BDAB040009255A0 /* ContactsAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6819B8192BDAB040009255A0 /* ContactsAPI.swift */; };
-		6819B81C2BDABBC0009255A0 /* ContactsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6819B81B2BDABBC0009255A0 /* ContactsView.swift */; };
 		6819B81F2BDABCD7009255A0 /* AuthHandlerViewModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6819B81E2BDABCD7009255A0 /* AuthHandlerViewModifier.swift */; };
 		6819B8212BDABE79009255A0 /* CapturesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6819B8202BDABE79009255A0 /* CapturesView.swift */; };
 		6819B8232BDABEAA009255A0 /* MyDataView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6819B8222BDABEAA009255A0 /* MyDataView.swift */; };
@@ -41,8 +39,6 @@
 		6819B80E2BDAAACA009255A0 /* AuthenticationWebView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthenticationWebView.swift; sourceTree = "<group>"; };
 		6819B8112BDAABCF009255A0 /* NavigationStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationStore.swift; sourceTree = "<group>"; };
 		6819B8172BDAAC37009255A0 /* AddNoteView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddNoteView.swift; sourceTree = "<group>"; };
-		6819B8192BDAB040009255A0 /* ContactsAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContactsAPI.swift; sourceTree = "<group>"; };
-		6819B81B2BDABBC0009255A0 /* ContactsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContactsView.swift; sourceTree = "<group>"; };
 		6819B81E2BDABCD7009255A0 /* AuthHandlerViewModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthHandlerViewModifier.swift; sourceTree = "<group>"; };
 		6819B8202BDABE79009255A0 /* CapturesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CapturesView.swift; sourceTree = "<group>"; };
 		6819B8222BDABEAA009255A0 /* MyDataView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyDataView.swift; sourceTree = "<group>"; };
@@ -110,7 +106,6 @@
 				6819B80C2BDAA98E009255A0 /* NotesView.swift */,
 				6819B80E2BDAAACA009255A0 /* AuthenticationWebView.swift */,
 				6819B8172BDAAC37009255A0 /* AddNoteView.swift */,
-				6819B81B2BDABBC0009255A0 /* ContactsView.swift */,
 				6819B8202BDABE79009255A0 /* CapturesView.swift */,
 				6819B8222BDABEAA009255A0 /* MyDataView.swift */,
 			);
@@ -122,7 +117,6 @@
 			children = (
 				6819B8042BDAA4C9009255A0 /* API.swift */,
 				6819B8062BDAA4F2009255A0 /* Model.swift */,
-				6819B8192BDAB040009255A0 /* ContactsAPI.swift */,
 			);
 			path = API;
 			sourceTree = "<group>";
@@ -238,7 +232,6 @@
 				6819B7F82BD85431009255A0 /* ContentView.swift in Sources */,
 				6819B8252BDACC44009255A0 /* NavigationTitle.swift in Sources */,
 				6819B8052BDAA4C9009255A0 /* API.swift in Sources */,
-				6819B81C2BDABBC0009255A0 /* ContactsView.swift in Sources */,
 				6819B7F62BD85431009255A0 /* Ai_PinApp.swift in Sources */,
 				6819B8212BDABE79009255A0 /* CapturesView.swift in Sources */,
 				6819B8232BDABEAA009255A0 /* MyDataView.swift in Sources */,
@@ -248,7 +241,6 @@
 				6819B81F2BDABCD7009255A0 /* AuthHandlerViewModifier.swift in Sources */,
 				6819B8072BDAA4F2009255A0 /* Model.swift in Sources */,
 				6819B8122BDAABCF009255A0 /* NavigationStore.swift in Sources */,
-				6819B81A2BDAB040009255A0 /* ContactsAPI.swift in Sources */,
 				6819B8092BDAA596009255A0 /* WifiQRCodeGenView.swift in Sources */,
 				6819B80F2BDAAACA009255A0 /* AuthenticationWebView.swift in Sources */,
 			);

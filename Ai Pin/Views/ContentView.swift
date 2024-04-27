@@ -23,11 +23,6 @@ struct ContentView: View {
                     Label("My Data", systemImage: "person.text.rectangle")
                 }
                 .tag(Tab.myData)
-            ContactsView()
-                .tabItem {
-                    Label("Contacts", systemImage: "person.crop.circle")
-                }
-                .tag(Tab.contacts)
             SettingsView()
                 .tabItem {
                     Label("Settings", systemImage: "gear")
