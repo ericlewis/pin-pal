@@ -28,6 +28,7 @@ struct SettingsView: View {
                         LabeledContent("Plan", value: subscription.planType)
                         LabeledContent("Monthly Price", value: "$\(subscription.planPrice / 100)")
                     }
+                    
                     Section("Features") {
                         Toggle("Vision (Beta)", isOn: $state.isVisionBetaEnabled)
                             .disabled(state.isLoading)
@@ -41,6 +42,7 @@ struct SettingsView: View {
                             
                         }
                     }
+                    
                     Section {
                         Button("Mark As Lost", role: .destructive) {
                             
@@ -56,6 +58,22 @@ struct SettingsView: View {
                             LabeledContent("Serial Number", value: extendedInfo.serialNumber)
                             LabeledContent("eSIM", value: extendedInfo.iccid)
                             LabeledContent("Color", value: extendedInfo.color)
+                        }
+                    }
+                    
+                    Section("Appearance") {
+                        Button("Text Accent Color") {
+                            self.navigationStore.textColorPresented = true
+                        }
+                        .sheet(isPresented: $navigationStore.textColorPresented) {
+                            AccentColorView()
+                        }
+                        
+                        Button("App Icon") {
+                            self.navigationStore.iconChangerPresented = true
+                        }
+                        .sheet(isPresented: $navigationStore.iconChangerPresented) {
+                            AccentColorView()
                         }
                     }
                 }

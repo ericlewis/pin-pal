@@ -9,6 +9,9 @@ import AppIntents
     var authenticationPresented = false
     var newNotePresented = false
     var isWifiPresented = false
+    
+    var textColorPresented = false
+    var iconChangerPresented = false
 }
 
 
