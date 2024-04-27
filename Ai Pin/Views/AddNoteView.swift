@@ -14,6 +14,9 @@ struct AddNoteView: View {
     @Environment(\.dismiss)
     private var dismiss
     
+    @Environment(NavigationStore.self)
+    private var navigationStore
+    
     @FocusState
     private var focused
     
@@ -59,8 +62,13 @@ struct AddNoteView: View {
     func create() {
         Task {
             state.isLoading = true
-            let _ = try await API.shared.create(note: .init(text: state.text, title: state.title))
-            dismiss()
+            let intent = CreateNoteIntent(title: state.title, text: state.text)
+            intent.navigationStore = navigationStore
+            do {
+                let _ = try await intent.perform()
+            } catch {
+                print(error)
+            }
         }
     }
 }

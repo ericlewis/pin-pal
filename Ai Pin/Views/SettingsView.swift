@@ -8,13 +8,16 @@ struct SettingsView: View {
         var extendedInfo: DetailedDeviceInfo?
         var isLoading = false
         var isVisionBetaEnabled = false
-        var isWifiPresented = false
     }
     
     @State
     internal var state = ViewState()
     
+    @Environment(NavigationStore.self)
+    private var navigationStore
+    
     var body: some View {
+        @Bindable var navigationStore = navigationStore
         NavigationStack {
             List {
                 if let subscription = state.subscription {
@@ -29,9 +32,9 @@ struct SettingsView: View {
                         Toggle("Vision (Beta)", isOn: $state.isVisionBetaEnabled)
                             .disabled(state.isLoading)
                         Button("Add Wi-Fi Network") {
-                            self.state.isWifiPresented = true
+                            self.navigationStore.isWifiPresented = true
                         }
-                        .sheet(isPresented: $state.isWifiPresented) {
+                        .sheet(isPresented: $navigationStore.isWifiPresented) {
                             WifiQRCodeGenView()
                         }
                         Button("Update Passcode") {

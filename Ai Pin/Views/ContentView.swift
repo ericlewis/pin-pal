@@ -2,10 +2,11 @@ import SwiftUI
 
 struct ContentView: View {
     
-    @State
-    private var navigationStore = NavigationStore()
+    @Environment(NavigationStore.self)
+    private var navigationStore
     
     var body: some View {
+        @Bindable var navigationStore = navigationStore
         TabView(selection: $navigationStore.selectedTab) {
             NotesView()
                 .tabItem {

@@ -24,6 +24,7 @@
 		6819B8212BDABE79009255A0 /* CapturesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6819B8202BDABE79009255A0 /* CapturesView.swift */; };
 		6819B8232BDABEAA009255A0 /* MyDataView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6819B8222BDABEAA009255A0 /* MyDataView.swift */; };
 		6819B8252BDACC44009255A0 /* NavigationTitle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6819B8242BDACC44009255A0 /* NavigationTitle.swift */; };
+		68C85B802BDCA6DD0029A408 /* CreateNoteIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 68C85B7F2BDCA6DD0029A408 /* CreateNoteIntent.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -47,6 +48,7 @@
 		6819B8222BDABEAA009255A0 /* MyDataView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyDataView.swift; sourceTree = "<group>"; };
 		6819B8242BDACC44009255A0 /* NavigationTitle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationTitle.swift; sourceTree = "<group>"; };
 		6819B82C2BDB5468009255A0 /* Ai-Pin-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "Ai-Pin-Info.plist"; path = "Ai Pin/Resources/Ai-Pin-Info.plist"; sourceTree = SOURCE_ROOT; };
+		68C85B7F2BDCA6DD0029A408 /* CreateNoteIntent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateNoteIntent.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -80,6 +82,7 @@
 		6819B7F42BD85431009255A0 /* Ai Pin */ = {
 			isa = PBXGroup;
 			children = (
+				68C85B7C2BDCA5CC0029A408 /* Intents */,
 				68C85B7B2BDCA1BE0029A408 /* Resources */,
 				6819B7F52BD85431009255A0 /* Ai_PinApp.swift */,
 				6819B8162BDAAC04009255A0 /* API */,
@@ -148,6 +151,14 @@
 				6819B82C2BDB5468009255A0 /* Ai-Pin-Info.plist */,
 			);
 			path = Resources;
+			sourceTree = "<group>";
+		};
+		68C85B7C2BDCA5CC0029A408 /* Intents */ = {
+			isa = PBXGroup;
+			children = (
+				68C85B7F2BDCA6DD0029A408 /* CreateNoteIntent.swift */,
+			);
+			path = Intents;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -231,6 +242,7 @@
 				6819B7F62BD85431009255A0 /* Ai_PinApp.swift in Sources */,
 				6819B8212BDABE79009255A0 /* CapturesView.swift in Sources */,
 				6819B8232BDABEAA009255A0 /* MyDataView.swift in Sources */,
+				68C85B802BDCA6DD0029A408 /* CreateNoteIntent.swift in Sources */,
 				6819B8182BDAAC37009255A0 /* AddNoteView.swift in Sources */,
 				6819B80B2BDAA5AF009255A0 /* SettingsView.swift in Sources */,
 				6819B81F2BDABCD7009255A0 /* AuthHandlerViewModifier.swift in Sources */,

@@ -31,7 +31,6 @@ struct NotesView: View {
     
     struct ViewState {
         var notes: [Memory] = []
-        var newNotePresented = false
         var isLoading = false
     }
     
@@ -42,7 +41,8 @@ struct NotesView: View {
     private var navigationStore
     
     var body: some View {
-        NavigationStack {
+        @Bindable var navigationStore = navigationStore
+        NavigationStack(path: $navigationStore.notesNavigationPath) {
             List {
                 ForEach(state.notes, id: \.uuid) { memory in
                     MemoryView(memory: memory)
@@ -89,7 +89,7 @@ struct NotesView: View {
                 }
                 ToolbarItem(placement: .primaryAction) {
                     Button("Create note", systemImage: "plus") {
-                        self.state.newNotePresented = true
+                        self.navigationStore.newNotePresented = true
                     }
                 }
             }
@@ -102,7 +102,7 @@ struct NotesView: View {
                 ProgressView()
             }
         }
-        .sheet(isPresented: $state.newNotePresented, onDismiss: {
+        .sheet(isPresented: $navigationStore.newNotePresented, onDismiss: {
             Task {
                 await load()
             }

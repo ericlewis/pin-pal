@@ -1,16 +1,30 @@
 import SwiftUI
+import AppIntents
 
-@Observable class NavigationStore {
+@Observable final class NavigationStore: Sendable {
     var selectedTab: Tab = .notes
-    var authenticationPresented = false
+    
     var notesNavigationPath = NavigationPath()
+    
+    var authenticationPresented = false
+    var newNotePresented = false
+    var isWifiPresented = false
 }
 
-enum Tab {
+
+enum Tab: String, AppEnum {
     case notes
     case captures
     case myData
     case settings
     case contacts
-    case agents
+    
+    static var typeDisplayRepresentation: TypeDisplayRepresentation = "App Tab"
+    static var caseDisplayRepresentations: [Tab: DisplayRepresentation] = [
+        .notes: "Notes",
+        .captures: "Captures",
+        .myData: "My Data",
+        .settings: "Settings",
+        .contacts: "Contacts"
+    ]
 }
