@@ -49,34 +49,36 @@ struct NotesView: View {
     private var navigationStore
     
     var body: some View {
-        @Bindable 
-        var navigationStore = navigationStore
-        
+        @Bindable var navigationStore = navigationStore
         NavigationStack(path: $navigationStore.notesNavigationPath) {
             List {
                 ForEach(state.notes, id: \.uuid) { memory in
-                    MemoryView(memory: memory)
-                        .swipeActions(edge: .leading, allowsFullSwipe: true) {
-                            Group {
-                                if memory.favorite {
-                                    Button("Unfavorite", systemImage: "heart.slash") {
-                                        Task {
-                                            let _ = try await API.shared.unfavorite(memory: memory)
-                                            await load()
-                                        }
+                    Button {
+                        self.navigationStore.composerNote = memory.data.note
+                    } label: {
+                        MemoryView(memory: memory)
+                    }
+                    .foregroundStyle(.primary)
+                    .swipeActions(edge: .leading, allowsFullSwipe: true) {
+                        Group {
+                            if memory.favorite {
+                                Button("Unfavorite", systemImage: "heart.slash") {
+                                    Task {
+                                        let _ = try await API.shared.unfavorite(memory: memory)
+                                        await load()
                                     }
-                                } else {
-                                    Button("Favorite", systemImage: "heart") {
-                                        Task {
-                                            let _ = try await API.shared.favorite(memory: memory)
-                                            await load()
-                                        }
+                                }
+                            } else {
+                                Button("Favorite", systemImage: "heart") {
+                                    Task {
+                                        let _ = try await API.shared.favorite(memory: memory)
+                                        await load()
                                     }
                                 }
                             }
-                            .tint(.pink)
                         }
-                        .environment(colorStore)
+                        .tint(.pink)
+                    }
                 }
                 .onDelete { indexSet in
                     for i in indexSet {
@@ -100,7 +102,7 @@ struct NotesView: View {
                 }
                 ToolbarItem(placement: .primaryAction) {
                     Button("Create note", systemImage: "plus") {
-                        self.navigationStore.newNotePresented = true
+                        self.navigationStore.composerNote = Note.create()
                     }
                 }
             }
@@ -113,12 +115,12 @@ struct NotesView: View {
                 ProgressView()
             }
         }
-        .sheet(isPresented: $navigationStore.newNotePresented, onDismiss: {
+        .sheet(item: $navigationStore.composerNote, onDismiss: {
             Task {
                 await load()
             }
-        }) {
-            AddNoteView()
+        }) { note in
+            NoteComposerView(note: note)
         }
         .task {
             state.isLoading = true
