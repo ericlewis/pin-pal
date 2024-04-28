@@ -4,7 +4,7 @@
 <dict>
 	<key>CFBundleIconFiles</key>
 	<array>
-		<string>DeviceIcon.png</string>
+		<string>DeviceAppIcon.png</string>
 	</array>
 </dict>
 </plist>

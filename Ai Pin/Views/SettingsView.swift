@@ -16,7 +16,7 @@ extension Icon {
     var description: IconDescription {
         switch self {
         case .initial: return IconDescription(title: "Sensors", iconName: "", imageName: "AppIconPreview")
-        case .deviceIcon: return IconDescription(title: "Ai Pin", iconName: "DeviceIcon", imageName: "DeviceIconPreview")
+        case .deviceIcon: return IconDescription(title: "Ai Pin", iconName: "DeviceAppIcon", imageName: "DeviceAppIconPreview")
         }
     }
 }

@@ -1,7 +1,7 @@
 import SwiftUI
 import AppIntents
 
-@Observable final class NavigationStore: Sendable {
+@Observable final class NavigationStore: @unchecked Sendable {
     var selectedTab: Tab = .notes
     
     var notesNavigationPath = NavigationPath()
