@@ -9,6 +9,9 @@ import AppIntents
     var authenticationPresented = false
     var composerNote: Note?
     var isWifiPresented = false
+    
+    var textColorPresented = false
+    var iconChangerPresented = false
 }
 
 

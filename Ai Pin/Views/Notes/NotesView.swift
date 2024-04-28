@@ -2,14 +2,17 @@ import SwiftUI
 import OSLog
 
 struct MemoryView: View {
-    
     let memory: Memory
+    
+    @AppStorage(Constant.UI_CUSTOM_ACCENT_COLOR_V1)
+    private var accentColor: Color = Constant.defaultAppAccentColor
     
     var body: some View {
         if let note = memory.data.note {
             VStack(alignment: .leading, spacing: 10) {
-                VStack(alignment: .leading) {
+                VStack(alignment: .leading, spacing: 5) {
                     Text(note.title)
+                        .foregroundStyle(accentColor)
                         .font(.headline)
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .overlay(alignment: .topTrailing) {
@@ -21,6 +24,7 @@ struct MemoryView: View {
                         }
                     Text(note.text)
                 }
+                
                 Text(memory.userCreatedAt, format: .dateTime)
                     .font(.caption)
                     .foregroundStyle(.secondary)
@@ -30,16 +34,15 @@ struct MemoryView: View {
 }
 
 struct NotesView: View {
-    
     struct ViewState {
         var notes: [Memory] = []
         var isLoading = false
     }
     
-    @State
+    @State 
     private var state = ViewState()
     
-    @Environment(NavigationStore.self)
+    @Environment(NavigationStore.self) 
     private var navigationStore
     
     var body: some View {
@@ -135,7 +138,8 @@ struct NotesView: View {
         } catch APIError.notAuthorized {
             self.navigationStore.authenticationPresented = true
         } catch {
-            print(error)
+            let logger = Logger()
+            logger.error("\(error.localizedDescription)")
         }
     }
 }

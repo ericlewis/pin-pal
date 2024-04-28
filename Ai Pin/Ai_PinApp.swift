@@ -4,9 +4,12 @@ import AppIntents
 @main
 struct Ai_PinApp: App {
     
-    @State
+    @State 
     private var sceneNavigationStore: NavigationStore
     
+    @AppStorage(Constant.UI_CUSTOM_ACCENT_COLOR_V1)
+    private var accentColor: Color = Constant.defaultAppAccentColor
+
     init() {
         let navigationStore = NavigationStore()
         sceneNavigationStore = navigationStore
@@ -18,6 +21,7 @@ struct Ai_PinApp: App {
         WindowGroup {
             ContentView()
                 .environment(sceneNavigationStore)
+                .tint(accentColor)
         }
     }
 }
