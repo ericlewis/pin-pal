@@ -1,6 +1,26 @@
 import SwiftUI
 import OSLog
 
+enum Icon: String, CaseIterable, Identifiable {
+    case initial, deviceIcon
+    var id: Self { self }
+}
+
+struct IconDescription {
+    var title: String
+    var iconName: String
+    var imageName: String
+}
+
+extension Icon {
+    var description: IconDescription {
+        switch self {
+        case .initial: return IconDescription(title: "Sensors", iconName: "", imageName: "AppIconPreview")
+        case .deviceIcon: return IconDescription(title: "Ai Pin", iconName: "DeviceIcon", imageName: "DeviceIconPreview")
+        }
+    }
+}
+
 struct SettingsView: View {
     struct ViewState {
         var subscription: Subscription?
@@ -18,10 +38,13 @@ struct SettingsView: View {
     @AppStorage(Constant.UI_CUSTOM_ACCENT_COLOR_V1)
     private var accentColor: Color = Constant.defaultAppAccentColor
 
+    @AppStorage(Constant.UI_CUSTOM_APP_ICON_V1)
+    private var selectedIcon: Icon = Icon.initial
+    
     var body: some View {
         @Bindable var navigationStore = navigationStore
         NavigationStack {
-            List {
+            Form {
                 if let subscription = state.subscription {
                     Section("Device") {
                         LabeledContent("Account Number", value: subscription.accountNumber)
@@ -67,14 +90,21 @@ struct SettingsView: View {
                     Section("Appearance") {
                         ColorPicker("Theme", selection: $accentColor, supportsOpacity: false)
                         #if os(iOS)
-                        Button("App Icon") {
-                            self.navigationStore.iconChangerPresented = true
-                        }
-                        .sheet(isPresented: $navigationStore.iconChangerPresented) {
-                            IconChangerView()
-                        }
                         #endif
                     }
+                    Picker("App Icon", selection: $selectedIcon) {
+                        ForEach(Icon.allCases) { icon in
+                            HStack {
+                                Image(icon.description.imageName)
+                                    .resizable()
+                                    .scaledToFit()
+                                    .frame(width: 44, height: 44)
+                                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                                Text(icon.description.title)
+                            }
+                        }
+                    }
+                    .pickerStyle(.inline)
                 }
             }
             .refreshable {

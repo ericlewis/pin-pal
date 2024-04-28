@@ -8,4 +8,5 @@ struct Constant {
 
 extension Constant {
     static let defaultAppAccentColor = Color.blue
+    static let defaultAppIconName = ""
 }

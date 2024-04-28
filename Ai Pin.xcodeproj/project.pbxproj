@@ -8,7 +8,6 @@
 
 /* Begin PBXBuildFile section */
 		561828562BDE02B900EDADF8 /* AddNoteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 561828552BDE02B900EDADF8 /* AddNoteView.swift */; };
-		5618285C2BDE038F00EDADF8 /* IconChangerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5618285B2BDE038F00EDADF8 /* IconChangerView.swift */; };
 		5618285E2BDE03AA00EDADF8 /* AppConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5618285D2BDE03AA00EDADF8 /* AppConstants.swift */; };
 		561828602BDE045F00EDADF8 /* NavigationStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5618285F2BDE045E00EDADF8 /* NavigationStore.swift */; };
 		6819B7F62BD85431009255A0 /* Ai_PinApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6819B7F52BD85431009255A0 /* Ai_PinApp.swift */; };
@@ -33,7 +32,6 @@
 
 /* Begin PBXFileReference section */
 		561828552BDE02B900EDADF8 /* AddNoteView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddNoteView.swift; sourceTree = "<group>"; };
-		5618285B2BDE038F00EDADF8 /* IconChangerView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = IconChangerView.swift; sourceTree = "<group>"; };
 		5618285D2BDE03AA00EDADF8 /* AppConstants.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppConstants.swift; sourceTree = "<group>"; };
 		5618285F2BDE045E00EDADF8 /* NavigationStore.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NavigationStore.swift; sourceTree = "<group>"; };
 		6819B7F22BD85431009255A0 /* Ai Pin.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Ai Pin.app"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -70,15 +68,6 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		563EA6722BDCE9EF00FA645D /* Settings */ = {
-			isa = PBXGroup;
-			children = (
-				6819B80A2BDAA5AF009255A0 /* SettingsView.swift */,
-				5618285B2BDE038F00EDADF8 /* IconChangerView.swift */,
-			);
-			path = Settings;
-			sourceTree = "<group>";
-		};
 		563EA6792BDD85E400FA645D /* Notes */ = {
 			isa = PBXGroup;
 			children = (
@@ -132,11 +121,11 @@
 			isa = PBXGroup;
 			children = (
 				563EA6792BDD85E400FA645D /* Notes */,
-				563EA6722BDCE9EF00FA645D /* Settings */,
 				6819B7F72BD85431009255A0 /* ContentView.swift */,
 				6819B8082BDAA596009255A0 /* WifiQRCodeGenView.swift */,
 				6819B80E2BDAAACA009255A0 /* AuthenticationWebView.swift */,
 				6819B8172BDAAC37009255A0 /* NoteComposerView.swift */,
+				6819B80A2BDAA5AF009255A0 /* SettingsView.swift */,
 				6819B8202BDABE79009255A0 /* CapturesView.swift */,
 				6819B8222BDABEAA009255A0 /* MyDataView.swift */,
 			);
@@ -277,7 +266,6 @@
 				6819B8182BDAAC37009255A0 /* NoteComposerView.swift in Sources */,
 				68C85B872BDE87ED0029A408 /* ColorRawRepresentable.swift in Sources */,
 				6819B80B2BDAA5AF009255A0 /* SettingsView.swift in Sources */,
-				5618285C2BDE038F00EDADF8 /* IconChangerView.swift in Sources */,
 				6819B81F2BDABCD7009255A0 /* AuthHandlerViewModifier.swift in Sources */,
 				6819B8072BDAA4F2009255A0 /* Model.swift in Sources */,
 				68C85B852BDDF54E0029A408 /* UpdateNoteIntent.swift in Sources */,
