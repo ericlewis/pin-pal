@@ -18,7 +18,6 @@ struct Ai_PinApp: App {
         sceneColorStore = colorStore
 
         AppDependencyManager.shared.add(dependency: navigationStore)
-        AppDependencyManager.shared.add(dependency: colorStore)
     }
     
     var body: some Scene {
