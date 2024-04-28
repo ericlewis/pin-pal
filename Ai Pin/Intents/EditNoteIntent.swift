@@ -3,7 +3,7 @@ import AppIntents
 struct EditNoteIntent: AppIntent {
     static var title: LocalizedStringResource = "Edit Note"
     
-    @Parameter(title: "Id") var id: String
+    @Parameter(title: "Identifier") var id: String
     @Parameter(title: "Title") var title: String
     @Parameter(title: "Text") var text: String
     
