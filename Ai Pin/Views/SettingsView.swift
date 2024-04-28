@@ -72,12 +72,14 @@ struct SettingsView: View {
                                 .environment(colorStore)
                         }
                         
+                        #if os(iOS)
                         Button("App Icon") {
                             self.navigationStore.iconChangerPresented = true
                         }
                         .sheet(isPresented: $navigationStore.iconChangerPresented) {
                             IconChangerView()
                         }
+                        #endif
                     }
                 }
             }
