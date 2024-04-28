@@ -16,7 +16,7 @@ extension Icon {
     var description: IconDescription {
         switch self {
         case .initial: return IconDescription(title: "Sensors", iconName: "", imageName: "AppIconPreview")
-        case .deviceIcon: return IconDescription(title: "Ai Pin", iconName: "DeviceIcon", imageName: "DeviceIconPreview")
+        case .deviceIcon: return IconDescription(title: "Ai Pin", iconName: "DeviceAppIcon", imageName: "DeviceAppIconPreview")
         }
     }
 }
@@ -89,9 +89,8 @@ struct SettingsView: View {
                     }
                     Section("Appearance") {
                         ColorPicker("Theme", selection: $accentColor, supportsOpacity: false)
-                        #if os(iOS)
-                        #endif
                     }
+#if os(iOS)
                     Picker("App Icon", selection: $selectedIcon) {
                         ForEach(Icon.allCases) { icon in
                             HStack {
@@ -105,6 +104,7 @@ struct SettingsView: View {
                         }
                     }
                     .pickerStyle(.inline)
+#endif
                 }
             }
             .refreshable {
@@ -126,6 +126,15 @@ struct SettingsView: View {
             if !state.isLoading {
                 // TODO: handle vision toggle
             }
+        }
+        .onChange(of: selectedIcon) {
+            #if os(iOS)
+            if selectedIcon.description.iconName == Constant.defaultAppIconName {
+                UIApplication.shared.setAlternateIconName(nil)
+            } else {
+                UIApplication.shared.setAlternateIconName(selectedIcon.description.iconName)
+            }
+            #endif
         }
     }
     

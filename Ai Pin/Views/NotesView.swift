@@ -1,7 +1,7 @@
 import SwiftUI
 import OSLog
 
-struct MemoryView: View {
+struct NoteCellView: View {
     let memory: Memory
     
     @AppStorage(Constant.UI_CUSTOM_ACCENT_COLOR_V1)
@@ -22,7 +22,7 @@ struct MemoryView: View {
                                     .foregroundStyle(.red)
                             }
                         }
-                    Text(note.text)
+                    Text(LocalizedStringKey(note.text))
                 }
                 
                 Text(memory.userCreatedAt, format: .dateTime)
@@ -53,7 +53,7 @@ struct NotesView: View {
                     Button {
                         self.navigationStore.composerNote = memory.data.note
                     } label: {
-                        MemoryView(memory: memory)
+                        NoteCellView(memory: memory)
                     }
                     .foregroundStyle(.primary)
                     .swipeActions(edge: .leading, allowsFullSwipe: true) {
