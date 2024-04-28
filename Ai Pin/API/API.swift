@@ -227,7 +227,7 @@ extension API {
         try await post(url: Self.noteUrl.appending(path: "create"), body: note)
     }
     
-    func update(id: String, with note: Note) async throws -> Bool {
+    func update(id: String, with note: Note) async throws -> Any {
         try await post(url: Self.noteUrl.appending(path: id), body: note)
     }
     

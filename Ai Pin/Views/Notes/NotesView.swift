@@ -40,14 +40,16 @@ struct NotesView: View {
         var isLoading = false
     }
     
-    @State
-    private var state = ViewState()
+    @State private var state = ViewState()
     
-    @Environment(NavigationStore.self)
-    private var navigationStore
+    @State private var selectedNoteId = ""
+    @State private var selectedNote = Note(text: "", title: "")
+    
+    @Environment(NavigationStore.self) private var navigationStore
     
     var body: some View {
         @Bindable var navigationStore = navigationStore
+        
         NavigationStack(path: $navigationStore.notesNavigationPath) {
             List {
                 ForEach(state.notes, id: \.uuid) { memory in
@@ -73,6 +75,11 @@ struct NotesView: View {
                             .tint(.pink)
                         }
                         .environmentObject(colorStore)
+                        .onTapGesture {
+                            selectedNoteId = memory.uuid
+                            selectedNote = memory.data.note ?? Note(text: "", title: "")
+                            self.navigationStore.editNotePresented = true
+                        }
                 }
                 .onDelete { indexSet in
                     for i in indexSet {
@@ -115,6 +122,14 @@ struct NotesView: View {
             }
         }) {
             AddNoteView()
+        }
+        .sheet(isPresented: $navigationStore.editNotePresented, onDismiss: {
+            Task {
+                await load()
+            }
+        }) {
+            NotesEditView(noteId: selectedNoteId, note: selectedNote)
+                .environmentObject(colorStore)
         }
         .task {
             state.isLoading = true
