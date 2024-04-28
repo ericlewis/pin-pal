@@ -393,6 +393,7 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "Ai Pin/Resources/Ai-Pin-Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "Pin Pal";
 				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "Save Ai Pin captures.";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
@@ -409,7 +410,7 @@
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 14.4;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.ericlewis.Ai-Pin";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.ericlewis.pin-pal";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
@@ -436,6 +437,7 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "Ai Pin/Resources/Ai-Pin-Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "Pin Pal";
 				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "Save Ai Pin captures.";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
@@ -452,7 +454,7 @@
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 14.4;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.ericlewis.Ai-Pin";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.ericlewis.pin-pal";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
