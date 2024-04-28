@@ -1,11 +1,11 @@
 import SwiftUI
 
-class ColorStore: ObservableObject {
-    @Published var accentColor: Color = .blue;
+@Observable final class ColorStore: Sendable {
+    var accentColor: Color = .blue;
     
     init() {
-        if let colorHex = UserDefaults.standard.object(forKey: "accentColor") {
-            accentColor = loadColor()
+        if let _ = UserDefaults.standard.object(forKey: "accentColor") {
+            self.accentColor = loadColor()
         }
     }
     
