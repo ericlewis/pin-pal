@@ -28,6 +28,7 @@ struct SettingsView: View {
                         LabeledContent("Plan", value: subscription.planType)
                         LabeledContent("Monthly Price", value: "$\(subscription.planPrice / 100)")
                     }
+                    .textSelection(.enabled)
                     Section("Features") {
                         Toggle("Vision (Beta)", isOn: $state.isVisionBetaEnabled)
                             .disabled(state.isLoading)
@@ -57,6 +58,7 @@ struct SettingsView: View {
                             LabeledContent("eSIM", value: extendedInfo.iccid)
                             LabeledContent("Color", value: extendedInfo.color)
                         }
+                        .textSelection(.enabled)
                     }
                 }
             }
