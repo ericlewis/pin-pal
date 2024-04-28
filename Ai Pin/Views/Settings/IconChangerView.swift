@@ -1,10 +1,23 @@
 import SwiftUI
 
-struct IconItem: Identifiable {
-    var id: UUID
+enum Icon: String, CaseIterable, Identifiable {
+    case initial, deviceIcon
+    var id: Self { self }
+}
+
+struct IconDescription {
     var title: String
     var iconName: String
     var imageName: String
+}
+
+extension Icon {
+    var selectedIcon: IconDescription {
+        switch self {
+        case .initial: return IconDescription(title: "Sensors", iconName: "", imageName: "AppIconPreview")
+        case .deviceIcon: return IconDescription(title: "Ai Pin", iconName: "DeviceIcon", imageName: "DeviceIconPreview")
+        }
+    }
 }
 
 struct IconChangerView: View {
@@ -14,37 +27,38 @@ struct IconChangerView: View {
     @State
     private var isLoading = false
     
-    var icons = [
-        IconItem(id: UUID(), title: "Sensors", iconName: "", imageName: "AppIconPreview"),
-        IconItem(id: UUID(), title: "Ai Pin", iconName: "DeviceIcon", imageName: "DeviceIconPreview")]
-    
+    @State
+    private var selectedIcon: Icon = .initial
+
     var body: some View {
         NavigationStack {
-            ScrollView(.horizontal) {
-                HStack(spacing: 40) {
-                    ForEach(icons, id: \.self.id) { icon in
-                        Button {
-                            changeAppIcon(to: icon.iconName)
-                        } label: {
-                            VStack(alignment: .center, spacing: 8) {
-                                Image(icon.imageName)
-                                    .resizable()
-                                    .frame(width: 130, height: 130)
-                                    .scaledToFit()
-                                    .clipShape(RoundedRectangle(cornerRadius: 20.0))
-                                Text(icon.title)
-                                    .font(Font.system(.title2))
-                                    .foregroundStyle(.white)
-                            }
+            Form {
+                Picker("", selection: $selectedIcon) {
+                    ForEach(Icon.allCases) { icon in
+                        HStack(spacing: 15) {
+                            Image(icon.selectedIcon.imageName)
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 80, height: 80)
+                                .clipShape(RoundedRectangle(cornerRadius: 15))
+                            
+                            Text(icon.selectedIcon.title)
                         }
                     }
                 }
-                .padding([.leading, .trailing])
+                .pickerStyle(.inline)
             }
-            .scrollIndicators(.hidden)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") {
+                        dismiss()
+                    }
+                }
+                
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Save") {
+                        isLoading = true
+                        changeAppIcon(to: selectedIcon)
                         dismiss()
                     }
                 }
@@ -53,18 +67,30 @@ struct IconChangerView: View {
         }
         .disabled(isLoading)
         .interactiveDismissDisabled(isLoading)
+        .onAppear() {
+            let result = loadAppIconName()
+            selectedIcon = result
+        }
     }
     
-    
-    private func changeAppIcon(to iconName: String) {
-        UIApplication.shared.setAlternateIconName(iconName != "" ? iconName : nil) { error in
+    private func changeAppIcon(to iconName: Icon) {
+        UIApplication.shared.setAlternateIconName(iconName.selectedIcon.iconName != "" ? iconName.selectedIcon.iconName : nil) { error in
             if let error = error {
                 print("Error setting alternate icon \(error.localizedDescription)")
+                return
             }
-
         }
         
-        dismiss()
+        UserDefaults.standard.set(iconName.rawValue, forKey: Constants.UI_CUSTOM_APP_ICON_V1)
+    }
+    
+    func loadAppIconName() -> Icon {
+        guard let iconRawValue = UserDefaults.standard.string(forKey: Constants.UI_CUSTOM_APP_ICON_V1),
+              let iconCase = Icon(rawValue: iconRawValue) else {
+            return .initial
+        }
+
+        return iconCase
     }
 }
 
