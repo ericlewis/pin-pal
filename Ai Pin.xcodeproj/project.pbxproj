@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		561828562BDE02B900EDADF8 /* AddNoteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 561828552BDE02B900EDADF8 /* AddNoteView.swift */; };
 		5618285E2BDE03AA00EDADF8 /* AppConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5618285D2BDE03AA00EDADF8 /* AppConstants.swift */; };
 		561828602BDE045F00EDADF8 /* NavigationStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5618285F2BDE045E00EDADF8 /* NavigationStore.swift */; };
 		6819B7F62BD85431009255A0 /* Ai_PinApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6819B7F52BD85431009255A0 /* Ai_PinApp.swift */; };
@@ -31,7 +30,6 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		561828552BDE02B900EDADF8 /* AddNoteView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddNoteView.swift; sourceTree = "<group>"; };
 		5618285D2BDE03AA00EDADF8 /* AppConstants.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppConstants.swift; sourceTree = "<group>"; };
 		5618285F2BDE045E00EDADF8 /* NavigationStore.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NavigationStore.swift; sourceTree = "<group>"; };
 		6819B7F22BD85431009255A0 /* Ai Pin.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Ai Pin.app"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -68,15 +66,6 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		563EA6792BDD85E400FA645D /* Notes */ = {
-			isa = PBXGroup;
-			children = (
-				561828552BDE02B900EDADF8 /* AddNoteView.swift */,
-				6819B80C2BDAA98E009255A0 /* NotesView.swift */,
-			);
-			path = Notes;
-			sourceTree = "<group>";
-		};
 		6819B7E92BD85431009255A0 = {
 			isa = PBXGroup;
 			children = (
@@ -120,13 +109,13 @@
 		6819B8152BDAABF0009255A0 /* Views */ = {
 			isa = PBXGroup;
 			children = (
-				563EA6792BDD85E400FA645D /* Notes */,
 				6819B7F72BD85431009255A0 /* ContentView.swift */,
 				6819B8082BDAA596009255A0 /* WifiQRCodeGenView.swift */,
 				6819B80E2BDAAACA009255A0 /* AuthenticationWebView.swift */,
 				6819B8172BDAAC37009255A0 /* NoteComposerView.swift */,
 				6819B80A2BDAA5AF009255A0 /* SettingsView.swift */,
 				6819B8202BDABE79009255A0 /* CapturesView.swift */,
+				6819B80C2BDAA98E009255A0 /* NotesView.swift */,
 				6819B8222BDABEAA009255A0 /* MyDataView.swift */,
 			);
 			path = Views;
@@ -262,7 +251,6 @@
 				6819B8212BDABE79009255A0 /* CapturesView.swift in Sources */,
 				6819B8232BDABEAA009255A0 /* MyDataView.swift in Sources */,
 				68C85B802BDCA6DD0029A408 /* CreateNoteIntent.swift in Sources */,
-				561828562BDE02B900EDADF8 /* AddNoteView.swift in Sources */,
 				6819B8182BDAAC37009255A0 /* NoteComposerView.swift in Sources */,
 				68C85B872BDE87ED0029A408 /* ColorRawRepresentable.swift in Sources */,
 				6819B80B2BDAA5AF009255A0 /* SettingsView.swift in Sources */,
