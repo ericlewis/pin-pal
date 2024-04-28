@@ -2,6 +2,11 @@ import SwiftUI
 
 struct NoteComposerView: View {
     
+    enum Field: Hashable {
+        case title
+        case text
+    }
+    
     struct ViewState {
         var isLoading = false
     }
@@ -16,7 +21,7 @@ struct NoteComposerView: View {
     private var navigationStore
     
     @FocusState
-    private var focused
+    private var focus: Field?
     
     @Bindable
     var note: Note
@@ -28,10 +33,16 @@ struct NoteComposerView: View {
     var body: some View {
         NavigationStack {
             Form {
-                TextField("Title", text: $note.title)
-                    .focused($focused)
-                TextField("Text", text: $note.text, axis: .vertical)
-                    .submitLabel(.done)
+                TextField("Note Title", text: $note.title)
+                    .font(.headline)
+                    .submitLabel(.next)
+                    .focused($focus, equals: .title)
+                    .onSubmit {
+                        self.focus = .text
+                    }
+                TextField("Note Text", text: $note.text, axis: .vertical)
+                    .focused($focus, equals: .text)
+                    .submitLabel(.return)
                     .onSubmit {
                         if !state.isLoading, !note.title.isEmpty, !note.text.isEmpty {
                             save()
@@ -39,7 +50,11 @@ struct NoteComposerView: View {
                     }
             }
             .onAppear {
-                focused = true
+                if !isEditing {
+                    self.focus = .title
+                } else {
+                    self.focus = .text
+                }
             }
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
