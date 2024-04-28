@@ -133,10 +133,48 @@ struct ResponseContainer: Codable {
     let first: Bool
 }
 
-struct Note: Codable, Equatable {
+@Observable class Note: Codable, Equatable {
     var uuid: UUID? = nil
     var text: String
     var title: String
+    
+    var memoryId: UUID? = nil
+    
+    static func create() -> Note {
+        Note(text: "", title: "")
+    }
+    
+    init(uuid: UUID? = nil, text: String, title: String) {
+        self.uuid = uuid
+        self.text = text
+        self.title = title
+    }
+    
+    required init(from decoder: any Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.uuid = try container.decodeIfPresent(UUID.self, forKey: .uuid)
+        self.text = try container.decode(String.self, forKey: .text)
+        self.title = try container.decode(String.self, forKey: .title)
+    }
+    
+    func encode(to encoder: any Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        if let uuid {
+            try container.encode(uuid, forKey: .uuid)
+        }
+        try container.encode(text, forKey: .text)
+        try container.encode(title, forKey: .title)
+    }
+    
+    enum CodingKeys: CodingKey {
+        case uuid
+        case text
+        case title
+    }
+    
+    static func == (lhs: Note, rhs: Note) -> Bool {
+        lhs.uuid == rhs.uuid && lhs.title == rhs.title && lhs.text == rhs.text
+    }
 }
 
 extension Note: Identifiable {
@@ -216,8 +254,8 @@ struct MemoriesResponse: Codable {
 }
 
 struct Memory: Codable, Equatable {
-    let uuid: String
-    let data: DataClass
+    let uuid: UUID
+    var data: DataClass
     let userLastModified: Date
     let userCreatedAt: Date
     let originClientId: String
@@ -232,9 +270,27 @@ struct Memory: Codable, Equatable {
         let state: String
         
         let note: Note?
-//        let location: String
-//        let latitude: String
-//        let longitude: String
+    }
+    
+    init(from decoder: any Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+  
+        self.uuid = try container.decode(UUID.self, forKey: .uuid)
+        self.data = try container.decode(DataClass.self, forKey: .data)
+        self.userLastModified = try container.decode(Date.self, forKey: .userLastModified)
+        self.userCreatedAt = try container.decode(Date.self, forKey: .userCreatedAt)
+        self.originClientId = try container.decode(String.self, forKey: .originClientId)
+        self.favorite = try container.decode(Bool.self, forKey: .favorite)
+        self.data.note?.memoryId = self.uuid
+    }
+    
+    enum CodingKeys: CodingKey {
+        case uuid
+        case data
+        case userLastModified
+        case userCreatedAt
+        case originClientId
+        case favorite
     }
 }
 

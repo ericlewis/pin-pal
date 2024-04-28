@@ -1,7 +1,10 @@
 import AppIntents
 
-struct CreateNoteIntent: AppIntent {
-    static var title: LocalizedStringResource = "Create Note"
+struct UpdateNoteIntent: AppIntent {
+    static var title: LocalizedStringResource = "Update Note"
+    
+    @Parameter(title: "Identifier", description: "The identifier is from the parent memory.")
+    var identifier: String
     
     @Parameter(title: "Title")
     var title: String
@@ -9,7 +12,8 @@ struct CreateNoteIntent: AppIntent {
     @Parameter(title: "Text")
     var text: String
     
-    init(title: String, text: String) {
+    init(identifier: String, title: String, text: String) {
+        self.identifier = identifier
         self.title = title
         self.text = text
     }
@@ -23,7 +27,7 @@ struct CreateNoteIntent: AppIntent {
     var navigationStore: NavigationStore
 
     func perform() async throws -> some IntentResult {
-        let _ = try await API.shared.create(note: .init(text: text, title: title))
+        let _ = try await API.shared.update(id: self.identifier, with: .init(text: self.text, title: self.title))
         navigationStore.composerNote = nil
         return .result()
     }

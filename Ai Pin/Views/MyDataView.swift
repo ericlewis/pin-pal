@@ -80,7 +80,7 @@ struct MyDataView: View {
     
     func load() async {
         do {
-            let events = try await API.shared.events(domain: state.selectedFilter.domain, size: 100)
+            let events = try await API.shared.events(domain: state.selectedFilter.domain, size: 20)
             withAnimation {
                 self.state.events = events.content
             }
