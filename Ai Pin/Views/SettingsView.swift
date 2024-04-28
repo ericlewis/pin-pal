@@ -2,7 +2,6 @@ import SwiftUI
 import OSLog
 
 struct SettingsView: View {
-    
     struct ViewState {
         var subscription: Subscription?
         var extendedInfo: DetailedDeviceInfo?
@@ -16,7 +15,8 @@ struct SettingsView: View {
     @Environment(NavigationStore.self)
     private var navigationStore
     
-    @EnvironmentObject private var colorStore: ColorStore
+    @Environment(ColorStore.self)
+    private var colorStore: ColorStore
     
     var body: some View {
         @Bindable var navigationStore = navigationStore
@@ -69,7 +69,7 @@ struct SettingsView: View {
                         }
                         .sheet(isPresented: $navigationStore.textColorPresented) {
                             AccentColorView()
-                                .environmentObject(colorStore)
+                                .environment(colorStore)
                         }
                         
                         Button("App Icon") {

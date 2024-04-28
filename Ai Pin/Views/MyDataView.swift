@@ -11,7 +11,8 @@ struct MyDataView: View {
     @State
     private var state = ViewState()
     
-    @EnvironmentObject private var colorStore: ColorStore
+    @Environment(ColorStore.self)
+    private var colorStore: ColorStore
     
     var body: some View {
         NavigationStack {

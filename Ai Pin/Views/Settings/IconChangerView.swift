@@ -8,7 +8,8 @@ struct IconItem: Identifiable {
 }
 
 struct IconChangerView: View {
-    @Environment(\.dismiss) private var dismiss
+    @Environment(\.dismiss) 
+    private var dismiss
     
     var icons = [
         IconItem(id: UUID(), title: "Classic", iconName: "", imageName: "AppIconPreview"),

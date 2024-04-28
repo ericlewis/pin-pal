@@ -8,13 +8,20 @@
 import SwiftUI
 
 struct AccentColorView: View {
-    @EnvironmentObject private var colorStore: ColorStore
+    @Environment(ColorStore.self)
+    private var colorStore: ColorStore
     
-    @State private var accentColor = Color.blue
-    @State private var originalColor = Color.blue
-    @State private var triggerSave = false
+    @State 
+    private var accentColor = Color.blue
     
-    @Environment(\.dismiss) private var dismiss
+    @State
+    private var originalColor = Color.blue
+    
+    @State
+    private var triggerSave = false
+    
+    @Environment(\.dismiss) 
+    private var dismiss
     
     var body: some View {
         VStack(alignment: .leading) {

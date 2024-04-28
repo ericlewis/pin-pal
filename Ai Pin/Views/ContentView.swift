@@ -1,12 +1,16 @@
 import SwiftUI
 
 struct ContentView: View {
+    @Environment(NavigationStore.self) 
+    private var navigationStore
     
-    @Environment(NavigationStore.self) private var navigationStore
-    @EnvironmentObject private var colorStore: ColorStore
+    @Environment(ColorStore.self)
+    private var colorStore: ColorStore
     
     var body: some View {
-        @Bindable var navigationStore = navigationStore
+        @Bindable 
+        var navigationStore = navigationStore
+        
         TabView(selection: $navigationStore.selectedTab) {
             NotesView()
                 .tabItem {
@@ -31,7 +35,7 @@ struct ContentView: View {
         }
         .modifier(AuthHandlerViewModifier())
         .environment(navigationStore)
-        .environmentObject(colorStore)
+        .environment(colorStore)
     }
 }
 
