@@ -1,15 +1,15 @@
-//
-//  AccentColorView.swift
-//  Ai Pin
-//
-//  Created by Diego Gutierrez on 27/04/24.
-//
-
 import SwiftUI
 
 struct AccentColorView: View {
     @Environment(ColorStore.self)
     private var colorStore: ColorStore
+    
+    @State
+    private var notes: [Note] = [
+        Note(text: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco", title: "Lorem Ipsum"),
+        Note(text: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco", title: "Lorem Ipsum"),
+        Note(text: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco", title: "Lorem Ipsum")
+    ]
     
     @State 
     private var accentColor = Color.blue
@@ -18,77 +18,84 @@ struct AccentColorView: View {
     private var originalColor = Color.blue
     
     @State
-    private var triggerSave = false
+    private var triggerSaveHatic = false
+    
+    @State
+    private var isLoading = false
     
     @Environment(\.dismiss) 
     private var dismiss
     
     var body: some View {
-        VStack(alignment: .leading) {
-            Text("This is an example title")
-                .foregroundStyle(accentColor)
-                .padding([.bottom], 5)
-                .bold()
-                .font(Font.system(size: 20))
-            Text("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum sem lacus, scelerisque ut ultrices in, aliquam ut massa. Vestibulum sed iaculis diam. In pulvinar felis nibh, ultrices bibendum tellus elementum ut. Ut non turpis feugiat, molestie justo sed.")
-                .foregroundStyle(.foreground)
-        }
-        .padding()
-        .background(.thinMaterial)
-        .clipShape(RoundedRectangle(cornerRadius: 25.0))
-        .padding(13)
-        .padding([.top], 20)
-        .onAppear() {
-            let tempColor = colorStore.loadColor()
-            accentColor = tempColor
-            originalColor = tempColor
-        }
-        
-        Spacer()
-        
-        ColorPicker("", selection: $accentColor, supportsOpacity: true)
-            .labelsHidden()
-            .foregroundStyle(.foreground)
-            .padding()
-            .scaleEffect(CGSize(width: 2.5, height: 2.5))
-            .padding([.bottom])
-        
-        HStack(spacing: 8) {
-            Button {
-                triggerSave.toggle()
-                colorStore.setColor(color: accentColor)
-                dismiss()
-            } label: {
-                HStack(spacing: 5) {
-                    Text("Save")
-                        .bold()
-                    Image(systemName: "checkmark")
-                }
-            }
-            .foregroundStyle(.white)
-            .padding()
-            .background(.blue)
-            .clipShape(RoundedRectangle(cornerRadius: 15.0))
-            .sensoryFeedback(.selection, trigger: triggerSave)
-            
-            if (originalColor != accentColor) {
-                Button {
-                    colorStore.setColor(color: originalColor)
-                    accentColor = originalColor
-                } label: {
-                    HStack(spacing: 5) {
-                        Text("Reset")
-                            .bold()
-                        Image(systemName: "arrow.counterclockwise")
+        NavigationStack {
+            VStack {
+                VStack {
+                    List {
+                        ForEach(notes, id: \.id) { note in
+                            VStack(alignment: .leading, spacing: 10) {
+                                VStack(alignment: .leading, spacing: 5) {
+                                    Text(note.title)
+                                        .foregroundStyle(accentColor)
+                                        .font(.headline)
+                                        .frame(maxWidth: .infinity, alignment: .leading)
+                                    Text(note.text)
+                                }
+                                
+                                Text("24/4/2024, 9:01 p.m.")
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
+                        }
                     }
                 }
-                .foregroundStyle(.black)
-                .padding()
-                .background(.white)
-                .clipShape(RoundedRectangle(cornerRadius: 15.0))
+                
+                Spacer()
+                
+                ColorPicker("", selection: $accentColor, supportsOpacity: true)
+                    .labelsHidden()
+                    .foregroundStyle(.foreground)
+                    .padding()
+                    .scaleEffect(CGSize(width: 2.5, height: 2.5))
+                    .padding([.bottom])
             }
+            .toolbar {
+                ToolbarItem(placement: .confirmationAction) {
+                    if isLoading {
+                        ProgressView()
+                    } else {
+                        Button("Save") {
+                            isLoading = true
+                            triggerSaveHatic.toggle()
+                            colorStore.setColor(color: accentColor)
+                            dismiss()
+                        }
+                        .tint(accentColor)
+                    }
+                }
+                ToolbarItem(placement: .cancellationAction) {
+                    if (originalColor == accentColor) {
+                        Button("Cancel") {
+                            dismiss()
+                        }
+                        .tint(accentColor)
+                    } else {
+                        Button("Reset") {
+                            colorStore.setColor(color: originalColor)
+                            accentColor = originalColor
+                        }
+                        .tint(accentColor)
+                    }
+                }
+            }
+            .navigationTitle("Edit Accent Color")
         }
-        .padding([.bottom], 20)
+        .disabled(isLoading)
+        .interactiveDismissDisabled(isLoading)
+        .sensoryFeedback(.success, trigger: triggerSaveHatic)
+        .onAppear() {
+            accentColor = colorStore.accentColor
+            originalColor = colorStore.accentColor
+        }
     }
 }
 

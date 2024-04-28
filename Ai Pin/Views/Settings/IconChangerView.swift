@@ -11,38 +11,48 @@ struct IconChangerView: View {
     @Environment(\.dismiss) 
     private var dismiss
     
+    @State
+    private var isLoading = false
+    
     var icons = [
-        IconItem(id: UUID(), title: "Classic", iconName: "", imageName: "AppIconPreview"),
-        IconItem(id: UUID(), title: "Stargaze", iconName: "StarIcon", imageName: "StarIconPreview"),
-        IconItem(id: UUID(), title: "Ai Pin", iconName: "DeviceIcon", imageName: "DeviceIconPreview"),
-        IconItem(id: UUID(), title: ".Center", iconName: "LogoIconDark", imageName: "LogoIconDarkPreview"),
-        IconItem(id: UUID(), title: "Sensors", iconName: "SensorsIcon", imageName: "SensorsIconPreview"),
-        IconItem(id: UUID(), title: "Ai Pin Dark", iconName: "TextLogoDark", imageName: "TextLogoDarkPreview"),
-        IconItem(id: UUID(), title: "Ai Pin Light", iconName: "TextLogoLight", imageName: "TextLogoLightPreview")]
+        IconItem(id: UUID(), title: "Sensors", iconName: "", imageName: "AppIconPreview"),
+        IconItem(id: UUID(), title: "Ai Pin", iconName: "DeviceIcon", imageName: "DeviceIconPreview")]
     
     var body: some View {
-        ScrollView(.horizontal) {
-            HStack(spacing: 40) {
-                ForEach(icons, id: \.self.id) { icon in
-                    Button {
-                        changeAppIcon(to: icon.iconName)
-                    } label: {
-                        VStack(alignment: .center, spacing: 8) {
-                            Image(icon.imageName)
-                                .resizable()
-                                .frame(width: 130, height: 130)
-                                .scaledToFit()
-                                .clipShape(RoundedRectangle(cornerRadius: 20.0))
-                            Text(icon.title)
-                                .font(Font.system(.title2))
-                                .foregroundStyle(.white)
+        NavigationStack {
+            ScrollView(.horizontal) {
+                HStack(spacing: 40) {
+                    ForEach(icons, id: \.self.id) { icon in
+                        Button {
+                            changeAppIcon(to: icon.iconName)
+                        } label: {
+                            VStack(alignment: .center, spacing: 8) {
+                                Image(icon.imageName)
+                                    .resizable()
+                                    .frame(width: 130, height: 130)
+                                    .scaledToFit()
+                                    .clipShape(RoundedRectangle(cornerRadius: 20.0))
+                                Text(icon.title)
+                                    .font(Font.system(.title2))
+                                    .foregroundStyle(.white)
+                            }
                         }
                     }
                 }
+                .padding([.leading, .trailing])
             }
-            .padding([.leading, .trailing])
+            .scrollIndicators(.hidden)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Cancel") {
+                        dismiss()
+                    }
+                }
+            }
+            .navigationTitle("Change App Icon")
         }
-        .scrollIndicators(.hidden)
+        .disabled(isLoading)
+        .interactiveDismissDisabled(isLoading)
     }
     
     
