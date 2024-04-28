@@ -29,6 +29,9 @@ struct IconChangerView: View {
     
     @State
     private var selectedIcon: Icon = .initial
+    
+    @State
+    private var triggerSaveHaptic = false
 
     var body: some View {
         NavigationStack {
@@ -59,6 +62,7 @@ struct IconChangerView: View {
                     Button("Save") {
                         isLoading = true
                         changeAppIcon(to: selectedIcon)
+                        triggerSaveHaptic.toggle()
                         dismiss()
                     }
                 }
@@ -71,6 +75,7 @@ struct IconChangerView: View {
             let result = loadAppIconName()
             selectedIcon = result
         }
+        .sensoryFeedback(.success, trigger: triggerSaveHaptic)
     }
     
     private func changeAppIcon(to iconName: Icon) {
