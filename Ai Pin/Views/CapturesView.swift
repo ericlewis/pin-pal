@@ -25,7 +25,11 @@ struct CapturesView: View {
                                 .scaledToFit()
                         } placeholder: {
                             Rectangle()
+                                .fill(.bar)
                                 .aspectRatio(1.333, contentMode: .fit)
+                                .overlay {
+                                    ProgressView()
+                                }
                         }
                         .listRowInsets(.init())
                         .contextMenu {

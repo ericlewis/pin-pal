@@ -22,13 +22,14 @@
 		6819B80D2BDAA98E009255A0 /* NotesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6819B80C2BDAA98E009255A0 /* NotesView.swift */; };
 		6819B80F2BDAAACA009255A0 /* AuthenticationWebView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6819B80E2BDAAACA009255A0 /* AuthenticationWebView.swift */; };
 		6819B8122BDAABCF009255A0 /* NavigationStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6819B8112BDAABCF009255A0 /* NavigationStore.swift */; };
-		6819B8182BDAAC37009255A0 /* AddNoteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6819B8172BDAAC37009255A0 /* AddNoteView.swift */; };
+		6819B8182BDAAC37009255A0 /* NoteComposerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6819B8172BDAAC37009255A0 /* NoteComposerView.swift */; };
 		6819B81F2BDABCD7009255A0 /* AuthHandlerViewModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6819B81E2BDABCD7009255A0 /* AuthHandlerViewModifier.swift */; };
 		6819B8212BDABE79009255A0 /* CapturesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6819B8202BDABE79009255A0 /* CapturesView.swift */; };
 		6819B8232BDABEAA009255A0 /* MyDataView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6819B8222BDABEAA009255A0 /* MyDataView.swift */; };
 		6819B8252BDACC44009255A0 /* NavigationTitle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6819B8242BDACC44009255A0 /* NavigationTitle.swift */; };
 		68C85B802BDCA6DD0029A408 /* CreateNoteIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 68C85B7F2BDCA6DD0029A408 /* CreateNoteIntent.swift */; };
 		68C85B832BDCB2670029A408 /* AnyCodable in Frameworks */ = {isa = PBXBuildFile; productRef = 68C85B822BDCB2670029A408 /* AnyCodable */; };
+		68C85B852BDDF54E0029A408 /* UpdateNoteIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 68C85B842BDDF54E0029A408 /* UpdateNoteIntent.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -49,13 +50,14 @@
 		6819B80C2BDAA98E009255A0 /* NotesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotesView.swift; sourceTree = "<group>"; };
 		6819B80E2BDAAACA009255A0 /* AuthenticationWebView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthenticationWebView.swift; sourceTree = "<group>"; };
 		6819B8112BDAABCF009255A0 /* NavigationStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationStore.swift; sourceTree = "<group>"; };
-		6819B8172BDAAC37009255A0 /* AddNoteView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddNoteView.swift; sourceTree = "<group>"; };
+		6819B8172BDAAC37009255A0 /* NoteComposerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteComposerView.swift; sourceTree = "<group>"; };
 		6819B81E2BDABCD7009255A0 /* AuthHandlerViewModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthHandlerViewModifier.swift; sourceTree = "<group>"; };
 		6819B8202BDABE79009255A0 /* CapturesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CapturesView.swift; sourceTree = "<group>"; };
 		6819B8222BDABEAA009255A0 /* MyDataView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyDataView.swift; sourceTree = "<group>"; };
 		6819B8242BDACC44009255A0 /* NavigationTitle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationTitle.swift; sourceTree = "<group>"; };
 		6819B82C2BDB5468009255A0 /* Ai-Pin-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "Ai-Pin-Info.plist"; path = "Ai Pin/Resources/Ai-Pin-Info.plist"; sourceTree = SOURCE_ROOT; };
 		68C85B7F2BDCA6DD0029A408 /* CreateNoteIntent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateNoteIntent.swift; sourceTree = "<group>"; };
+		68C85B842BDDF54E0029A408 /* UpdateNoteIntent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateNoteIntent.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -138,6 +140,7 @@
 				6819B8082BDAA596009255A0 /* WifiQRCodeGenView.swift */,
 				6819B80A2BDAA5AF009255A0 /* SettingsView.swift */,
 				6819B80E2BDAAACA009255A0 /* AuthenticationWebView.swift */,
+				6819B8172BDAAC37009255A0 /* NoteComposerView.swift */,
 				6819B8202BDABE79009255A0 /* CapturesView.swift */,
 				6819B8222BDABEAA009255A0 /* MyDataView.swift */,
 			);
@@ -183,7 +186,7 @@
 			isa = PBXGroup;
 			children = (
 				68C85B7F2BDCA6DD0029A408 /* CreateNoteIntent.swift */,
-				563EA67C2BDD996500FA645D /* EditNoteIntent.swift */,
+				68C85B842BDDF54E0029A408 /* UpdateNoteIntent.swift */,
 			);
 			path = Intents;
 			sourceTree = "<group>";
@@ -274,13 +277,12 @@
 				6819B8232BDABEAA009255A0 /* MyDataView.swift in Sources */,
 				563EA67D2BDD996500FA645D /* EditNoteIntent.swift in Sources */,
 				68C85B802BDCA6DD0029A408 /* CreateNoteIntent.swift in Sources */,
-				563EA6742BDCEA0200FA645D /* AccentColorView.swift in Sources */,
-				6819B8182BDAAC37009255A0 /* AddNoteView.swift in Sources */,
+				6819B8182BDAAC37009255A0 /* NoteComposerView.swift in Sources */,
 				6819B80B2BDAA5AF009255A0 /* SettingsView.swift in Sources */,
 				6819B81F2BDABCD7009255A0 /* AuthHandlerViewModifier.swift in Sources */,
 				6819B8072BDAA4F2009255A0 /* Model.swift in Sources */,
 				6819B8122BDAABCF009255A0 /* NavigationStore.swift in Sources */,
-				563EA6762BDCF0BF00FA645D /* IconChangerView.swift in Sources */,
+				68C85B852BDDF54E0029A408 /* UpdateNoteIntent.swift in Sources */,
 				6819B8092BDAA596009255A0 /* WifiQRCodeGenView.swift in Sources */,
 				6819B80F2BDAAACA009255A0 /* AuthenticationWebView.swift in Sources */,
 			);

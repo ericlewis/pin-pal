@@ -137,7 +137,7 @@ extension API {
     }
     
     func delete(memory: Memory) async throws -> String {
-        try await delete(url: Self.memoryUrl.appending(path: memory.uuid))
+        try await delete(url: Self.memoryUrl.appending(path: memory.uuid.uuidString))
     }
     
     func delete(memoryId: UUID) async throws -> String {
@@ -212,11 +212,11 @@ extension API {
     }
     
     func favorite(memory: Memory) async throws {
-        try await post(url: Self.memoryUrl.appending(path: memory.uuid).appending(path: "favorite"))
+        try await post(url: Self.memoryUrl.appending(path: memory.uuid.uuidString).appending(path: "favorite"))
     }
     
     func unfavorite(memory: Memory) async throws {
-        try await post(url: Self.memoryUrl.appending(path: memory.uuid).appending(path: "unfavorite"))
+        try await post(url: Self.memoryUrl.appending(path: memory.uuid.uuidString).appending(path: "unfavorite"))
     }
     
     func notes() async throws -> NotesResponseContainer {
@@ -227,7 +227,7 @@ extension API {
         try await post(url: Self.noteUrl.appending(path: "create"), body: note)
     }
     
-    func update(id: String, with note: Note) async throws -> Any {
+    func update(id: String, with note: Note) async throws -> Memory {
         try await post(url: Self.noteUrl.appending(path: id), body: note)
     }
     

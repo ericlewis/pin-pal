@@ -31,6 +31,7 @@ struct SettingsView: View {
                         LabeledContent("Monthly Price", value: "$\(subscription.planPrice / 100)")
                     }
                     
+                    .textSelection(.enabled)
                     Section("Features") {
                         Toggle("Vision (Beta)", isOn: $state.isVisionBetaEnabled)
                             .disabled(state.isLoading)
@@ -61,6 +62,26 @@ struct SettingsView: View {
                             LabeledContent("eSIM", value: extendedInfo.iccid)
                             LabeledContent("Color", value: extendedInfo.color)
                         }
+                        .textSelection(.enabled)
+                    }
+                    
+                    Section("Appearance") {
+                        Button("Text Accent Color") {
+                            self.navigationStore.textColorPresented = true
+                        }
+                        .sheet(isPresented: $navigationStore.textColorPresented) {
+                            AccentColorView()
+                                .environment(colorStore)
+                        }
+                        
+                        #if os(iOS)
+                        Button("App Icon") {
+                            self.navigationStore.iconChangerPresented = true
+                        }
+                        .sheet(isPresented: $navigationStore.iconChangerPresented) {
+                            IconChangerView()
+                        }
+                        #endif
                     }
                     
                     Section("Appearance") {

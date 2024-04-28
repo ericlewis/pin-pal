@@ -7,7 +7,7 @@ import AppIntents
     var notesNavigationPath = NavigationPath()
     
     var authenticationPresented = false
-    var newNotePresented = false
+    var composerNote: Note?
     var isWifiPresented = false
     
     var textColorPresented = false
