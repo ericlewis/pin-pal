@@ -41,7 +41,7 @@ struct MyDataView: View {
                             Text(p)
                                 .font(.headline)
                                 .foregroundStyle(colorStore.accentColor)
-                                .padding([.bottom], 5)
+                                .padding(.bottom, 5)
                             Text(music)
                         }
                         Text(event.eventCreationTime, format: .dateTime)
