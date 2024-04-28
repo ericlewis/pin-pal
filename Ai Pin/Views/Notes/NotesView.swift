@@ -2,7 +2,8 @@ import SwiftUI
 import OSLog
 
 struct MemoryView: View {
-    @EnvironmentObject private var colorStore: ColorStore
+    @Environment(ColorStore.self)
+    private var colorStore: ColorStore
     
     let memory: Memory
     
@@ -21,7 +22,7 @@ struct MemoryView: View {
                                     .foregroundStyle(.red)
                             }
                         }
-                    Text(.init(note.text))
+                    Text(note.text)
                 }
                 
                 Text(memory.userCreatedAt, format: .dateTime)
@@ -33,22 +34,23 @@ struct MemoryView: View {
 }
 
 struct NotesView: View {
-    @EnvironmentObject private var colorStore: ColorStore
+    @Environment(ColorStore.self)
+    private var colorStore: ColorStore
     
     struct ViewState {
         var notes: [Memory] = []
         var isLoading = false
     }
     
-    @State private var state = ViewState()
+    @State 
+    private var state = ViewState()
     
-    @State private var selectedNoteId = ""
-    @State private var selectedNote = Note(text: "", title: "")
-    
-    @Environment(NavigationStore.self) private var navigationStore
+    @Environment(NavigationStore.self) 
+    private var navigationStore
     
     var body: some View {
-        @Bindable var navigationStore = navigationStore
+        @Bindable 
+        var navigationStore = navigationStore
         
         NavigationStack(path: $navigationStore.notesNavigationPath) {
             List {
@@ -74,12 +76,7 @@ struct NotesView: View {
                             }
                             .tint(.pink)
                         }
-                        .environmentObject(colorStore)
-                        .onTapGesture {
-                            selectedNoteId = memory.uuid
-                            selectedNote = memory.data.note ?? Note(text: "", title: "")
-                            self.navigationStore.editNotePresented = true
-                        }
+                        .environment(colorStore)
                 }
                 .onDelete { indexSet in
                     for i in indexSet {
@@ -122,14 +119,6 @@ struct NotesView: View {
             }
         }) {
             AddNoteView()
-        }
-        .sheet(isPresented: $navigationStore.editNotePresented, onDismiss: {
-            Task {
-                await load()
-            }
-        }) {
-            NotesEditView(noteId: selectedNoteId, note: selectedNote)
-                .environmentObject(colorStore)
         }
         .task {
             state.isLoading = true
