@@ -86,11 +86,11 @@ struct IconChangerView: View {
             }
         }
         
-        UserDefaults.standard.set(iconName.rawValue, forKey: Constants.UI_CUSTOM_APP_ICON_V1)
+        UserDefaults.standard.set(iconName.rawValue, forKey: Constant.UI_CUSTOM_APP_ICON_V1)
     }
     
     func loadAppIconName() -> Icon {
-        guard let iconRawValue = UserDefaults.standard.string(forKey: Constants.UI_CUSTOM_APP_ICON_V1),
+        guard let iconRawValue = UserDefaults.standard.string(forKey: Constant.UI_CUSTOM_APP_ICON_V1),
               let iconCase = Icon(rawValue: iconRawValue) else {
             return .initial
         }

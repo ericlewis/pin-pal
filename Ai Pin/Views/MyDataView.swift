@@ -11,9 +11,9 @@ struct MyDataView: View {
     @State
     private var state = ViewState()
     
-    @Environment(ColorStore.self)
-    private var colorStore: ColorStore
-    
+    @AppStorage(Constant.UI_CUSTOM_ACCENT_COLOR_V1)
+    private var accentColor: Color = Constant.defaultAppAccentColor
+
     var body: some View {
         NavigationStack {
             List {
@@ -22,17 +22,17 @@ struct MyDataView: View {
                         if let request = event.eventData["request"]?.value as? String, let response = event.eventData["response"]?.value as? String {
                             Text(request)
                                 .font(.headline)
-                                .foregroundStyle(colorStore.accentColor)
+                                .foregroundStyle(accentColor)
                                 .padding([.bottom], 5)
                             Text(response)
                         }
                         if let targetLanguage = event.eventData["targetLanguage"]?.value as? String, let originLanguage = event.eventData["originLanguage"]?.value as? String {
                             HStack {
                                 Text(originLanguage)
-                                    .foregroundStyle(colorStore.accentColor)
+                                    .foregroundStyle(accentColor)
                                 Spacer()
                                 Text(targetLanguage)
-                                    .foregroundStyle(colorStore.accentColor)
+                                    .foregroundStyle(accentColor)
                             }
                             .overlay {
                                 Image(systemName: "arrow.forward")
@@ -41,7 +41,7 @@ struct MyDataView: View {
                         if let p = event.eventData["prompt"]?.value as? String, let music = event.eventData["generatedPlaylist"]?.value as? String {
                             Text(p)
                                 .font(.headline)
-                                .foregroundStyle(colorStore.accentColor)
+                                .foregroundStyle(accentColor)
                                 .padding(.bottom, 5)
                             Text(music)
                         }

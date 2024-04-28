@@ -2,17 +2,17 @@ import SwiftUI
 import OSLog
 
 struct MemoryView: View {
-    @Environment(ColorStore.self)
-    private var colorStore: ColorStore
-    
     let memory: Memory
+    
+    @AppStorage(Constant.UI_CUSTOM_ACCENT_COLOR_V1)
+    private var accentColor: Color = Constant.defaultAppAccentColor
     
     var body: some View {
         if let note = memory.data.note {
             VStack(alignment: .leading, spacing: 10) {
                 VStack(alignment: .leading, spacing: 5) {
                     Text(note.title)
-                        .foregroundStyle(colorStore.accentColor)
+                        .foregroundStyle(accentColor)
                         .font(.headline)
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .overlay(alignment: .topTrailing) {
@@ -34,9 +34,6 @@ struct MemoryView: View {
 }
 
 struct NotesView: View {
-    @Environment(ColorStore.self)
-    private var colorStore: ColorStore
-    
     struct ViewState {
         var notes: [Memory] = []
         var isLoading = false

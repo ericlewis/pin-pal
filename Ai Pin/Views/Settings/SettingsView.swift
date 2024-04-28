@@ -15,9 +15,9 @@ struct SettingsView: View {
     @Environment(NavigationStore.self)
     private var navigationStore
     
-    @Environment(ColorStore.self)
-    private var colorStore: ColorStore
-    
+    @AppStorage(Constant.UI_CUSTOM_ACCENT_COLOR_V1)
+    private var accentColor: Color = Constant.defaultAppAccentColor
+
     var body: some View {
         @Bindable var navigationStore = navigationStore
         NavigationStack {
@@ -64,16 +64,8 @@ struct SettingsView: View {
                         }
                         .textSelection(.enabled)
                     }
-                    
                     Section("Appearance") {
-                        Button("Text Accent Color") {
-                            self.navigationStore.textColorPresented = true
-                        }
-                        .sheet(isPresented: $navigationStore.textColorPresented) {
-                            AccentColorView()
-                                .environment(colorStore)
-                        }
-                        
+                        ColorPicker("Theme", selection: $accentColor, supportsOpacity: false)
                         #if os(iOS)
                         Button("App Icon") {
                             self.navigationStore.iconChangerPresented = true

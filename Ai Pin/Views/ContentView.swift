@@ -3,10 +3,7 @@ import SwiftUI
 struct ContentView: View {
     @Environment(NavigationStore.self) 
     private var navigationStore
-    
-    @Environment(ColorStore.self)
-    private var colorStore: ColorStore
-    
+
     var body: some View {
         @Bindable 
         var navigationStore = navigationStore
@@ -35,7 +32,6 @@ struct ContentView: View {
         }
         .modifier(AuthHandlerViewModifier())
         .environment(navigationStore)
-        .environment(colorStore)
     }
 }
 
