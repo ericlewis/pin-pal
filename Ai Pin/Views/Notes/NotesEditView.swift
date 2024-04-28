@@ -2,10 +2,13 @@ import SwiftUI
 import OSLog
 
 struct NotesEditView: View {
-    @Environment(NavigationStore.self) private var navigationStore
-    @Environment(\.dismiss) private var dismiss
+    @Environment(NavigationStore.self)
+    private var navigationStore
+    
+    @Environment(\.dismiss) 
+    private var dismiss
+    
     @State private var triggerSaveHatic = false
-    @State private var triggerCancelHatic = false
     @State var noteId: String
     @State var note: Note
     @State var isLoading = false
@@ -46,7 +49,6 @@ struct NotesEditView: View {
                 }
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") {
-                        triggerCancelHatic.toggle()
                         dismiss()
                     }
                 }
@@ -55,6 +57,7 @@ struct NotesEditView: View {
         }
         .disabled(isLoading)
         .interactiveDismissDisabled(isLoading)
+        .sensoryFeedback(.success, trigger: triggerSaveHatic)
     }
 }
 
