@@ -8,6 +8,7 @@ import AppIntents
     
     var authenticationPresented = false
     var newNotePresented = false
+    var editNotePresented = false
     var isWifiPresented = false
     
     var textColorPresented = false
