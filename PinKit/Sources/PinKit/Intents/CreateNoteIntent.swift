@@ -23,10 +23,10 @@ public struct CreateNoteIntent: AppIntent {
     public var navigationStore: NavigationStore
     
     @Dependency
-    public var api: HumaneCenterService
+    public var api: HumaneCenterService?
 
     public func perform() async throws -> some IntentResult {
-        let _ = try await api.create(.init(text: text, title: title))
+        let _ = try await (api ?? HumaneCenterService.live()).create(.init(text: text, title: title))
         navigationStore.activeNote = nil
         return .result()
     }

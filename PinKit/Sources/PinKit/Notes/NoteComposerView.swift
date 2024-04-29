@@ -20,6 +20,9 @@ public struct NoteComposerView: View {
     @Environment(NavigationStore.self)
     private var navigationStore
     
+    @Environment(HumaneCenterService.self)
+    private var api
+    
     @FocusState
     private var focus: Field?
     
@@ -93,10 +96,12 @@ public struct NoteComposerView: View {
                 if let uuid = note.memoryId {
                     let intent = UpdateNoteIntent(identifier: uuid.uuidString, title: note.title, text: note.text)
                     intent.navigationStore = navigationStore
+                    intent.api = api
                     let _ = try await intent.perform()
                 } else {
                     let intent = CreateNoteIntent(title: note.title, text: note.text)
                     intent.navigationStore = navigationStore
+                    intent.api = api
                     let _ = try await intent.perform()
                 }
             } catch {

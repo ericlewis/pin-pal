@@ -21,6 +21,18 @@ extension Icon {
     }
 }
 
+struct LoaderRow: View {
+    var body: some View {
+        HStack {
+            Spacer()
+            ProgressView()
+            Spacer()
+        }
+        .padding()
+        .listRowInsets(.init())
+    }
+}
+
 struct SettingsView: View {
     struct ViewState {
         var subscription: Subscription?
@@ -48,77 +60,75 @@ struct SettingsView: View {
         @Bindable var navigationStore = navigationStore
         NavigationStack {
             Form {
-                if let subscription = state.subscription {
-                    Section("Device") {
+                Section("Device") {
+                    if let subscription = state.subscription {
                         LabeledContent("Account Number", value: subscription.accountNumber)
                         LabeledContent("Phone Number", value: subscription.phoneNumber)
                         LabeledContent("Status", value: subscription.status)
                         LabeledContent("Plan", value: subscription.planType)
                         LabeledContent("Monthly Price", value: "$\(subscription.planPrice / 100)")
+                    } else {
+                        LoaderRow()
                     }
-                    
-                    .textSelection(.enabled)
-                    Section("Features") {
-                        Toggle("Vision (Beta)", isOn: $state.isVisionBetaEnabled)
-                            .disabled(state.isLoading)
-                        Button("Add Wi-Fi Network") {
-                            self.navigationStore.isWifiCodeGeneratorPresented = true
-                        }
-                        .sheet(isPresented: $navigationStore.isWifiCodeGeneratorPresented) {
-                            WifiQRCodeGenView()
-                        }
-                        Button("Update Passcode") {
-                            
-                        }
-                    }
-                    
-                    Section {
-                        Button("Mark As Lost", role: .destructive) {
-                            
-                        }
-                    } header: {
-                        Text("Security")
-                    } footer: {
-                        Text("Marking your Ai Pin as lost or stolen keeps your .Center data safe and remotely locks your Pin. If your Pin is successfully unlocked while in this state, access to any of your .Center data will still be blocked. Once you recover your Pin, remember to disable this setting.")
-                    }
-                    if let extendedInfo = state.extendedInfo {
-                        Section("Miscellaneous") {
-                            LabeledContent("Identifier", value: extendedInfo.id)
-                            LabeledContent("Serial Number", value: extendedInfo.serialNumber)
-                            LabeledContent("eSIM", value: extendedInfo.iccid)
-                            LabeledContent("Color", value: extendedInfo.color)
-                        }
-                        .textSelection(.enabled)
-                    }
-                    Section("Appearance") {
-                        ColorPicker("Theme", selection: $accentColor, supportsOpacity: false)
-                    }
-#if os(iOS)
-                    Picker("App Icon", selection: $selectedIcon) {
-                        ForEach(Icon.allCases) { icon in
-                            HStack {
-                                Image(icon.description.imageName)
-                                    .resizable()
-                                    .scaledToFit()
-                                    .frame(width: 44, height: 44)
-                                    .clipShape(RoundedRectangle(cornerRadius: 8))
-                                Text(icon.description.title)
-                            }
-                        }
-                    }
-                    .pickerStyle(.inline)
-#endif
                 }
+                .textSelection(.enabled)
+                Section("Features") {
+                    Toggle("Vision (Beta)", isOn: $state.isVisionBetaEnabled)
+                    Button("Add Wi-Fi Network") {
+                        self.navigationStore.isWifiCodeGeneratorPresented = true
+                    }
+                    .sheet(isPresented: $navigationStore.isWifiCodeGeneratorPresented) {
+                        WifiQRCodeGenView()
+                    }
+                    Button("Update Passcode") {
+                        
+                    }
+                }
+                .disabled(state.isLoading)
+                Section {
+                    Button("Mark As Lost", role: .destructive) {
+                        
+                    }
+                    .disabled(state.isLoading)
+                } header: {
+                    Text("Security")
+                } footer: {
+                    Text("Marking your Ai Pin as lost or stolen keeps your .Center data safe and remotely locks your Pin. If your Pin is successfully unlocked while in this state, access to any of your .Center data will still be blocked. Once you recover your Pin, remember to disable this setting.")
+                }
+                Section("Miscellaneous") {
+                    if let extendedInfo = state.extendedInfo {
+                        LabeledContent("Identifier", value: extendedInfo.id)
+                        LabeledContent("Serial Number", value: extendedInfo.serialNumber)
+                        LabeledContent("eSIM", value: extendedInfo.iccid)
+                        LabeledContent("Color", value: extendedInfo.color)
+                    } else {
+                        LoaderRow()
+                    }
+                }
+                .textSelection(.enabled)
+                Section("Appearance") {
+                    ColorPicker("Theme", selection: $accentColor, supportsOpacity: false)
+                }
+#if os(iOS)
+                Picker("App Icon", selection: $selectedIcon) {
+                    ForEach(Icon.allCases) { icon in
+                        HStack {
+                            Image(icon.description.imageName)
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 44, height: 44)
+                                .clipShape(RoundedRectangle(cornerRadius: 8))
+                            Text(icon.description.title)
+                        }
+                    }
+                }
+                .pickerStyle(.inline)
+#endif
             }
             .refreshable {
                 await load()
             }
             .navigationTitle("Settings")
-        }
-        .overlay {
-            if state.subscription == nil, state.isLoading {
-                ProgressView()
-            }
         }
         .task {
             self.state.isLoading = true
