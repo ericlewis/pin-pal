@@ -23,6 +23,16 @@ struct ContentCellView: View {
                         }
                         .aspectRatio(1, contentMode: .fill)
                 }
+                .overlay(alignment: .bottomLeading) {
+                    if content.favorite {
+                        Image(systemName: "heart")
+                            .symbolVariant(.fill)
+                            .imageScale(.small)
+                            .padding(5)
+                            .foregroundStyle(.white)
+                            .shadow(radius: 3)
+                    }
+                }
             case let .note(note):
                 VStack(alignment: .leading, spacing: 5) {
                     Text(note.title)

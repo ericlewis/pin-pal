@@ -16,19 +16,36 @@ struct CapturesView: View {
     var body: some View {
         NavigationStack {
             ScrollView {
-                LazyVGrid(columns: [.init(.adaptive(minimum: 100, maximum: 300), spacing: 0)], spacing: 0) {
+                LazyVGrid(columns: [.init(.adaptive(minimum: 100, maximum: 300), spacing: 1)], spacing: 1) {
                     ForEach(state.captures, id: \.uuid) { capture in
                         ContentCellView(content: capture)
                             .contextMenu {
                                 // TODO: video handling
-                                Button("Copy Photo", systemImage: "doc.on.doc") {
-                                    Task {
-                                        try await UIPasteboard.general.image = image(for: capture)
+                                Section {
+                                    Button("Copy", systemImage: "doc.on.doc") {
+                                        Task {
+                                            try await UIPasteboard.general.image = image(for: capture)
+                                        }
+                                    }
+                                    Button("Save to Camera Roll", systemImage: "square.and.arrow.down") {
+                                        Task {
+                                            try await save(capture: capture)
+                                        }
+                                    }
+                                    if capture.favorite {
+                                        Button("Unfavorite", systemImage: "heart") {
+                                            // TODO:
+                                        }
+                                        .symbolVariant(.slash)
+                                    } else {
+                                        Button("Favorite", systemImage: "heart") {
+                                            // TODO:
+                                        }
                                     }
                                 }
-                                Button("Save Photo", systemImage: "square.and.arrow.down") {
-                                    Task {
-                                        try await save(capture: capture)
+                                Section {
+                                    Button("Delete", systemImage: "trash", role: .destructive) {
+                                        
                                     }
                                 }
                             }
@@ -45,6 +62,8 @@ struct CapturesView: View {
         .overlay {
             if !state.isLoading, state.captures.isEmpty {
                 ContentUnavailableView("No captures yet", systemImage: "camera.aperture")
+            } else if state.isLoading, state.captures.isEmpty {
+                ProgressView()
             }
         }
         .task {
