@@ -28,7 +28,7 @@ struct UpdateNoteIntent: AppIntent {
 
     func perform() async throws -> some IntentResult {
         let _ = try await API.shared.update(id: self.identifier, with: .init(text: self.text, title: self.title))
-        navigationStore.composerNote = nil
+        navigationStore.activeNote = nil
         return .result()
     }
 }

@@ -24,7 +24,7 @@ struct CreateNoteIntent: AppIntent {
 
     func perform() async throws -> some IntentResult {
         let _ = try await API.shared.create(note: .init(text: text, title: title))
-        navigationStore.composerNote = nil
+        navigationStore.activeNote = nil
         return .result()
     }
 }

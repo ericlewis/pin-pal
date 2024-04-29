@@ -1,14 +1,14 @@
 import SwiftUI
 import AppIntents
 
-@Observable final class NavigationStore: @unchecked Sendable {
+@Observable class NavigationStore: @unchecked Sendable {
     var selectedTab: Tab = .notes
     
     var notesNavigationPath = NavigationPath()
     
     var authenticationPresented = false
-    var composerNote: Note?
-    var isWifiPresented = false
+    var activeNote: Note?
+    var isWifiCodeGeneratorPresented = false
     
     var textColorPresented = false
     var iconChangerPresented = false

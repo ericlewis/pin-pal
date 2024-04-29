@@ -51,7 +51,7 @@ struct NotesView: View {
             List {
                 ForEach(state.notes, id: \.uuid) { memory in
                     Button {
-                        self.navigationStore.composerNote = memory.data.note
+                        self.navigationStore.activeNote = memory.data.note
                     } label: {
                         NoteCellView(memory: memory)
                     }
@@ -99,7 +99,7 @@ struct NotesView: View {
                 }
                 ToolbarItem(placement: .primaryAction) {
                     Button("Create note", systemImage: "plus") {
-                        self.navigationStore.composerNote = Note.create()
+                        self.navigationStore.activeNote = Note.create()
                     }
                 }
             }
@@ -112,7 +112,7 @@ struct NotesView: View {
                 ProgressView()
             }
         }
-        .sheet(item: $navigationStore.composerNote, onDismiss: {
+        .sheet(item: $navigationStore.activeNote, onDismiss: {
             Task {
                 await load()
             }

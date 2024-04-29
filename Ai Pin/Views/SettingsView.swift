@@ -59,9 +59,9 @@ struct SettingsView: View {
                         Toggle("Vision (Beta)", isOn: $state.isVisionBetaEnabled)
                             .disabled(state.isLoading)
                         Button("Add Wi-Fi Network") {
-                            self.navigationStore.isWifiPresented = true
+                            self.navigationStore.isWifiCodeGeneratorPresented = true
                         }
-                        .sheet(isPresented: $navigationStore.isWifiPresented) {
+                        .sheet(isPresented: $navigationStore.isWifiCodeGeneratorPresented) {
                             WifiQRCodeGenView()
                         }
                         Button("Update Passcode") {
