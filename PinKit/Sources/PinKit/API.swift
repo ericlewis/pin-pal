@@ -1,11 +1,11 @@
 import Foundation
 
-enum APIError: Error {
+public enum APIError: Error {
     case notAuthorized
 }
 
-@Observable class API {
-    static let shared = API()
+@Observable public class API {
+    public static let shared = API()
     
     private static let rootUrl = URL(string: "https://webapi.prod.humane.cloud/")!
     private static let captureUrl = rootUrl.appending(path: "capture")
@@ -117,7 +117,7 @@ extension API {
         try await unauthenticatedRequest(url: sessionUrl)
     }
     
-    func captures(page: Int = 0, size: Int = 10, sort: String = "userCreatedAt,DESC", onlyContainingFavorited: Bool = false) async throws -> CapturesResponseContainer {
+    public func captures(page: Int = 0, size: Int = 10, sort: String = "userCreatedAt,DESC", onlyContainingFavorited: Bool = false) async throws -> CapturesResponseContainer {
         try await get(url: Self.captureUrl.appending(path: "captures").appending(queryItems: [
             .init(name: "page", value: String(page)),
             .init(name: "size", value: String(size)),
@@ -136,7 +136,7 @@ extension API {
         try await get(url: Self.memoryUrl.appending(path: id, directoryHint: .notDirectory))
     }
     
-    func delete(memory: Memory) async throws -> String {
+    public func delete(memory: Memory) async throws -> String {
         try await delete(url: Self.memoryUrl.appending(path: memory.uuid.uuidString))
     }
     
@@ -164,7 +164,7 @@ extension API {
         try await get(url: Self.deviceAssignmentUrl.appending(path: "devices"))
     }
 
-    func events(domain: Domain = .captures, page: Int = 0, size: Int = 10, sort: String = "eventCreationTime,ASC") async throws -> ResponseContainer {
+    public func events(domain: Domain = .captures, page: Int = 0, size: Int = 10, sort: String = "eventCreationTime,ASC") async throws -> ResponseContainer {
         try await get(url: Self.eventsUrl.appending(path: "mydata").appending(queryItems: [
             .init(name: "domain", value: domain.rawValue),
             .init(name: "page", value: String(page)),
@@ -211,23 +211,23 @@ extension API {
         try await get(url: Self.captureUrl.appending(path: "memories"))
     }
     
-    func favorite(memory: Memory) async throws {
+    public func favorite(memory: Memory) async throws {
         try await post(url: Self.memoryUrl.appending(path: memory.uuid.uuidString).appending(path: "favorite"))
     }
     
-    func unfavorite(memory: Memory) async throws {
+    public func unfavorite(memory: Memory) async throws {
         try await post(url: Self.memoryUrl.appending(path: memory.uuid.uuidString).appending(path: "unfavorite"))
     }
     
-    func notes() async throws -> NotesResponseContainer {
+    public func notes() async throws -> NotesResponseContainer {
         try await get(url: Self.captureUrl.appending(path: "notes"))
     }
     
-    func create(note: Note) async throws -> Memory {
+    public func create(note: Note) async throws -> Memory {
         try await post(url: Self.noteUrl.appending(path: "create"), body: note)
     }
     
-    func update(id: String, with note: Note) async throws -> Memory {
+    public func update(id: String, with note: Note) async throws -> Memory {
         try await post(url: Self.noteUrl.appending(path: id), body: note)
     }
     
@@ -235,7 +235,7 @@ extension API {
         try await delete(url: Self.noteUrl)
     }
     
-    func subscription() async throws -> Subscription {
+    public func subscription() async throws -> Subscription {
         try await get(url: Self.subscriptionV3Url)
     }
         
@@ -268,11 +268,11 @@ extension API {
         ]))
     }
     
-    func featureFlag(name: String) async throws -> FeatureFlagResponse {
+    public func featureFlag(name: String) async throws -> FeatureFlagResponse {
         try await get(url: Self.featureFlagsUrl.appending(path: name))
     }
     
-    func retrieveDetailedDeviceInfo() async throws -> DetailedDeviceInfo {
+    public func retrieveDetailedDeviceInfo() async throws -> DetailedDeviceInfo {
         let d = try await URLSession.shared.data(from: URL(string: "https://humane.center/account/devices")!).0
         let string = String(data: d, encoding: .utf8)!
 

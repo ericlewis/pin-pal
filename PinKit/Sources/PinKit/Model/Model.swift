@@ -5,15 +5,23 @@ import AnyCodable
 
 // MARK: API
 
-struct DetailedDeviceInfo {
+public struct DetailedDeviceInfo {
     let id: String
     let iccid: String
     let serialNumber: String
     let sku: String
     let color: String
+    
+    public init(id: String, iccid: String, serialNumber: String, sku: String, color: String) {
+        self.id = id
+        self.iccid = iccid
+        self.serialNumber = serialNumber
+        self.sku = sku
+        self.color = color
+    }
 }
 
-enum Domain: String {
+public enum Domain: String {
     case captures = "CAPTURE"
     case notes = "NOTE"
     
@@ -23,13 +31,13 @@ enum Domain: String {
     case music = "Music"
 }
 
-struct PaymentMethod: Codable {
+public struct PaymentMethod: Codable {
     let last4: String
     let brand: String
     let source: String
 }
 
-struct Subscription: Codable {
+public struct Subscription: Codable {
     let status: String
     let phoneNumber: String
     let accountNumber: String
@@ -37,9 +45,19 @@ struct Subscription: Codable {
     let defaultPaymentMethod: PaymentMethod
     let pinSetAt: Date?
     let planPrice: Int
+    
+    public init(status: String, phoneNumber: String, accountNumber: String, planType: String, defaultPaymentMethod: PaymentMethod, pinSetAt: Date?, planPrice: Int) {
+        self.status = status
+        self.phoneNumber = phoneNumber
+        self.accountNumber = accountNumber
+        self.planType = planType
+        self.defaultPaymentMethod = defaultPaymentMethod
+        self.pinSetAt = pinSetAt
+        self.planPrice = planPrice
+    }
 }
 
-struct EventContent: Codable {
+public struct EventContent: Codable {
     let originatorIdentifier: String
     let feedbackUUID: UUID?
     let eventCreationTime: Date
@@ -49,13 +67,13 @@ struct EventContent: Codable {
     let eventData: [String: AnyCodable]
 }
 
-struct Sort: Codable {
+public struct Sort: Codable {
     let empty: Bool
     let sorted: Bool
     let unsorted: Bool
 }
 
-struct Pageable: Codable {
+public struct Pageable: Codable {
     let unpaged: Bool
     let pageNumber: Int
     let offset: Int
@@ -64,13 +82,13 @@ struct Pageable: Codable {
     let paged: Bool
 }
 
-struct Thumbnail: Codable {
+public struct Thumbnail: Codable {
     let fileUUID: UUID
     let accessToken: String
 }
 
-struct Capture: Codable {
-    let uuid: String
+public struct Capture: Codable {
+    let uuid: UUID
     let data: DataClass
     let userLastModified: Date
     let userCreatedAt: Date
@@ -78,20 +96,17 @@ struct Capture: Codable {
     let favorite: Bool
     
     // MARK: - DataClass
-    struct DataClass: Codable {
+    public struct DataClass: Codable {
         let type: String
         let uuid: UUID
         let createdAt: Date
         let state: String
         
         let thumbnail: Thumbnail?
-//        let location: String
-//        let latitude: String
-//        let longitude: String
     }
 }
 
-struct CapturesResponseContainer: Codable {
+public struct CapturesResponseContainer: Codable {
     let number: Int
     let content: [Capture]
     let pageable: Pageable
@@ -105,7 +120,7 @@ struct CapturesResponseContainer: Codable {
     let first: Bool
 }
 
-struct NotesResponseContainer: Codable {
+public struct NotesResponseContainer: Codable {
     let number: Int
     let content: [Memory]
     let pageable: Pageable
@@ -119,7 +134,7 @@ struct NotesResponseContainer: Codable {
     let first: Bool
 }
 
-struct ResponseContainer: Codable {
+public struct ResponseContainer: Codable {
     let number: Int
     let content: [EventContent]
     let pageable: Pageable
@@ -133,31 +148,31 @@ struct ResponseContainer: Codable {
     let first: Bool
 }
 
-@Observable class Note: Codable, Equatable {
+@Observable public class Note: Codable, Equatable {
     var uuid: UUID? = nil
     var text: String
     var title: String
     
     var memoryId: UUID? = nil
     
-    static func create() -> Note {
+    public static func create() -> Note {
         Note(text: "", title: "")
     }
     
-    init(uuid: UUID? = nil, text: String, title: String) {
+    public init(uuid: UUID? = nil, text: String, title: String) {
         self.uuid = uuid
         self.text = text
         self.title = title
     }
     
-    required init(from decoder: any Decoder) throws {
+    public required init(from decoder: any Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         self.uuid = try container.decodeIfPresent(UUID.self, forKey: .uuid)
         self.text = try container.decode(String.self, forKey: .text)
         self.title = try container.decode(String.self, forKey: .title)
     }
     
-    func encode(to encoder: any Encoder) throws {
+    public func encode(to encoder: any Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         if let uuid {
             try container.encode(uuid, forKey: .uuid)
@@ -172,17 +187,17 @@ struct ResponseContainer: Codable {
         case title
     }
     
-    static func == (lhs: Note, rhs: Note) -> Bool {
+    public static func == (lhs: Note, rhs: Note) -> Bool {
         lhs.uuid == rhs.uuid && lhs.title == rhs.title && lhs.text == rhs.text
     }
 }
 
 extension Note: Identifiable {
-    var id: UUID? { uuid }
+    public var id: UUID? { uuid }
 }
 
-struct EventOverview: Decodable {
-    struct Counts: Codable {
+public struct EventOverview: Decodable {
+    public struct Counts: Codable {
         let todayCount: Int
         let totalCount: Int
     }
@@ -209,7 +224,7 @@ struct EventOverview: Decodable {
     let translation: Counts
     let music: Counts
 
-    init(from decoder: any Decoder) throws {
+    public init(from decoder: any Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         let overviewContainer = try container.nestedContainer(keyedBy: AdditionalCodingKeys.self, forKey: .overview)
         self.photos = try overviewContainer.decode(Counts.self, forKey: .photos)
@@ -222,11 +237,11 @@ struct EventOverview: Decodable {
     }
 }
 
-struct Session: Codable {
+public struct Session: Codable {
     let accessToken: String
 }
 
-struct Addon: Codable {
+public struct Addon: Codable {
     let provisionedSuccessfully: Bool?
     let price: Int?
     let name: String
@@ -241,7 +256,7 @@ struct Addon: Codable {
 }
 
 // TODO: these are not strings lol
-struct MemoriesResponse: Codable {
+public struct MemoriesResponse: Codable {
     let aiSessions: [Memory]?
     let photoCollections: [Memory]?
     let aiDJEvents: [Memory]?
@@ -253,7 +268,7 @@ struct MemoriesResponse: Codable {
     let messages: [Memory]?
 }
 
-struct Memory: Codable, Equatable {
+public struct Memory: Codable, Equatable {
     let uuid: UUID
     var data: DataClass
     let userLastModified: Date
@@ -262,7 +277,7 @@ struct Memory: Codable, Equatable {
     let favorite: Bool
     
     // MARK: - DataClass
-    struct DataClass: Codable, Equatable {
+    public struct DataClass: Codable, Equatable {
         let type: String
         let uuid: UUID
         let createdAt: Date
@@ -272,7 +287,7 @@ struct Memory: Codable, Equatable {
         let note: Note?
     }
     
-    init(from decoder: any Decoder) throws {
+    public init(from decoder: any Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
   
         self.uuid = try container.decode(UUID.self, forKey: .uuid)
@@ -294,13 +309,13 @@ struct Memory: Codable, Equatable {
     }
 }
 
-struct LostDeviceResponse: Codable {
+public struct LostDeviceResponse: Codable {
     let isLost: Bool
     let deviceId: String
 }
 
-struct FeatureFlagResponse: Codable {
-    enum State: String, Codable {
+public struct FeatureFlagResponse: Codable {
+    public enum State: String, Codable {
         case enabled
         case disabled
     }

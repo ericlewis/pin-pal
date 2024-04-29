@@ -1,11 +1,13 @@
 import SwiftUI
 
-struct ContentView: View {
-    @Environment(NavigationStore.self) 
+public struct ContentView: View {
+    @Environment(NavigationStore.self)
     private var navigationStore
+    
+    public init() {}
 
-    var body: some View {
-        @Bindable 
+    public var body: some View {
+        @Bindable
         var navigationStore = navigationStore
         
         TabView(selection: $navigationStore.selectedTab) {

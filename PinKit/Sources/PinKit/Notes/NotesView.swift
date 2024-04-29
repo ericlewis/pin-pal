@@ -33,7 +33,7 @@ struct NoteCellView: View {
     }
 }
 
-struct NotesView: View {
+public struct NotesView: View {
     struct ViewState {
         var notes: [Memory] = []
         var isLoading = false
@@ -45,7 +45,9 @@ struct NotesView: View {
     @Environment(NavigationStore.self) 
     private var navigationStore
     
-    var body: some View {
+    public init() {}
+    
+    public var body: some View {
         @Bindable var navigationStore = navigationStore
         NavigationStack(path: $navigationStore.notesNavigationPath) {
             List {

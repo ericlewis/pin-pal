@@ -2,7 +2,7 @@ import SwiftUI
 import WebKit
 import OSLog
 
-@Observable class AuthenticationWebViewModel {
+@Observable final class AuthenticationWebViewModel {
     
     private var webView: WKWebView?
     private var logger = Logger(subsystem: "WebViewModel", category: "model")
@@ -53,11 +53,13 @@ struct AuthenticationWebView: UIViewRepresentable {
     @Environment(AuthenticationWebViewModel.self)
     private var model
     
-    func makeUIView(context: Context) -> some UIView {
+    public init() {}
+    
+    public func makeUIView(context: Context) -> some UIView {
         model.makeView()
     }
     
-    func updateUIView(_ uiView: UIViewType, context: Context) {}
+    public func updateUIView(_ uiView: UIViewType, context: Context) {}
 }
 
 #Preview {

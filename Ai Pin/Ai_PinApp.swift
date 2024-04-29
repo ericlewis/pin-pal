@@ -1,5 +1,6 @@
 import SwiftUI
 import AppIntents
+import PinKit
 
 @main
 struct Ai_PinApp: App {

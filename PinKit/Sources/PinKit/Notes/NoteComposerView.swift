@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct NoteComposerView: View {
+public struct NoteComposerView: View {
     
     enum Field: Hashable {
         case title
@@ -26,11 +26,15 @@ struct NoteComposerView: View {
     @Bindable
     var note: Note
     
+    public init(note: Note) {
+        self.note = note
+    }
+    
     var isEditing: Bool {
         note.uuid != nil
     }
     
-    var body: some View {
+    public var body: some View {
         NavigationStack {
             Form {
                 TextField("Note Title", text: $note.title)

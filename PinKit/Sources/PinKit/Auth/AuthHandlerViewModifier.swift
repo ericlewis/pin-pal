@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct AuthHandlerViewModifier: ViewModifier {
+public struct AuthHandlerViewModifier: ViewModifier {
     
     @Environment(NavigationStore.self)
     private var navigationStore
@@ -8,7 +8,9 @@ struct AuthHandlerViewModifier: ViewModifier {
     @State
     private var authenticationWebView = AuthenticationWebViewModel()
     
-    func body(content: Content) -> some View {
+    public init() {}
+    
+    public func body(content: Content) -> some View {
         @Bindable var navigationStore = navigationStore
         @Bindable var webView = authenticationWebView
         content
