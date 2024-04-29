@@ -1,4 +1,5 @@
 import SwiftUI
+import SDWebImageSwiftUI
 
 struct ContentCellView: View {
     let content: ContentEnvelope
@@ -10,17 +11,17 @@ struct ContentCellView: View {
         VStack(alignment: .leading, spacing: 10) {
             switch content.data {
             case let .capture(capture):
-                AsyncImage(url: makeThumbnailURL(capture: capture)) { image in
+                WebImage(url: makeThumbnailURL(capture: capture)) { image in
                     image
                         .resizable()
-                        .scaledToFit()
+                        .aspectRatio(1, contentMode: .fill)
                 } placeholder: {
                     Rectangle()
                         .fill(.bar)
-                        .aspectRatio(1.333, contentMode: .fit)
                         .overlay {
                             ProgressView()
                         }
+                        .aspectRatio(1, contentMode: .fill)
                 }
             case let .note(note):
                 VStack(alignment: .leading, spacing: 5) {
