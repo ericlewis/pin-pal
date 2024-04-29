@@ -158,12 +158,24 @@ struct CapturesView: View {
             }
             if capture.favorite {
                 Button("Unfavorite", systemImage: "heart") {
-                    // TODO:
+                    Task {
+                        do {
+                            try await api.unfavorite(capture)
+                        } catch {
+                            print(error)
+                        }
+                    }
                 }
                 .symbolVariant(.slash)
             } else {
                 Button("Favorite", systemImage: "heart") {
-                    // TODO:
+                    Task {
+                        do {
+                            try await api.favorite(capture)
+                        } catch {
+                            print(error)
+                        }
+                    }
                 }
             }
         }
