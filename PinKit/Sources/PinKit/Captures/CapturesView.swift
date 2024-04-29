@@ -1,4 +1,5 @@
 import SwiftUI
+import SDWebImageSwiftUI
 
 struct CapturesView: View {
     
@@ -18,37 +19,22 @@ struct CapturesView: View {
             ScrollView {
                 LazyVGrid(columns: [.init(.adaptive(minimum: 100, maximum: 300), spacing: 1)], spacing: 1) {
                     ForEach(state.captures, id: \.uuid) { capture in
-                        ContentCellView(content: capture)
-                            .contextMenu {
-                                // TODO: video handling
-                                Section {
-                                    Button("Copy", systemImage: "doc.on.doc") {
-                                        Task {
-                                            try await UIPasteboard.general.image = image(for: capture)
-                                        }
-                                    }
-                                    Button("Save to Camera Roll", systemImage: "square.and.arrow.down") {
-                                        Task {
-                                            try await save(capture: capture)
-                                        }
-                                    }
-                                    if capture.favorite {
-                                        Button("Unfavorite", systemImage: "heart") {
-                                            // TODO:
-                                        }
-                                        .symbolVariant(.slash)
-                                    } else {
-                                        Button("Favorite", systemImage: "heart") {
-                                            // TODO:
-                                        }
+                        NavigationLink {
+                            WebImage(url: makeThumbnailURL(content: capture, capture: capture.get()!))
+                                .resizable()
+                                .scaledToFit()
+                                .toolbar {
+                                    Menu("Options", systemImage: "ellipsis.circle") {
+                                        makeMenuContents(for: capture)
                                     }
                                 }
-                                Section {
-                                    Button("Delete", systemImage: "trash", role: .destructive) {
-                                        
-                                    }
-                                }
-                            }
+                                .navigationTitle("Capture")
+                        } label: {
+                            ContentCellView(content: capture)
+                        }
+                        .contextMenu {
+                            makeMenuContents(for: capture)
+                        }
                     }
                 }
             }
@@ -87,22 +73,63 @@ struct CapturesView: View {
         }
     }
     
+    func makeThumbnailURL(content: ContentEnvelope, capture: CaptureEnvelope) -> URL? {
+        URL(string: "https://webapi.prod.humane.cloud/capture/memory/\(content.uuid.uuidString)/file/\(capture.thumbnail!.fileUUID)")?.appending(queryItems: [
+            .init(name: "token", value: capture.thumbnail!.accessToken),
+            .init(name: "w", value: "640"),
+            .init(name: "q", value: "100")
+        ])
+    }
+
+    @ViewBuilder
+    func makeMenuContents(for capture: ContentEnvelope) -> some View {
+        Section {
+            Button("Copy", systemImage: "doc.on.doc") {
+                Task {
+                    try await UIPasteboard.general.image = image(for: capture)
+                }
+            }
+            Button("Save to Camera Roll", systemImage: "square.and.arrow.down") {
+                Task {
+                    try await save(capture: capture)
+                }
+            }
+            if capture.favorite {
+                Button("Unfavorite", systemImage: "heart") {
+                    // TODO:
+                }
+                .symbolVariant(.slash)
+            } else {
+                Button("Favorite", systemImage: "heart") {
+                    // TODO:
+                }
+            }
+        }
+        Section {
+            Button("Delete", systemImage: "trash", role: .destructive) {
+                
+            }
+        }
+    }
+
     func save(capture: ContentEnvelope) async throws {
         try await UIImageWriteToSavedPhotosAlbum(image(for: capture), nil, nil, nil)
     }
-    
+
     func image(for capture: ContentEnvelope) async throws -> UIImage {
-//        let (data, _) = try await URLSession.shared.data(from: URL(string: "https://webapi.prod.humane.cloud/capture/memory/\(capture.uuid)/file/\(capture.data.thumbnail!.fileUUID)")!.appending(queryItems: [
-//            .init(name: "token", value: capture.data.thumbnail!.accessToken),
-//            .init(name: "w", value: "640"),
-//            .init(name: "q", value: "100")
-//        ]))
-//        guard let image = UIImage(data: data) else {
-//            fatalError()
-//        }
-//        return image
+        guard let cap: CaptureEnvelope = capture.get() else { return UIImage() }
+        let (data, _) = try await URLSession.shared.data(from: URL(string: "https://webapi.prod.humane.cloud/capture/memory/\(capture.uuid)/file/\(cap.thumbnail!.fileUUID)")!.appending(queryItems: [
+            .init(name: "token", value: cap.thumbnail!.accessToken),
+            .init(name: "w", value: "640"),
+            .init(name: "q", value: "100")
+        ]))
+        guard let image = UIImage(data: data) else {
+            fatalError()
+        }
+        return image
         UIImage()
     }
+
 }
 
 #Preview {
