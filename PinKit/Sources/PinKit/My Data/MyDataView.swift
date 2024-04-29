@@ -11,6 +11,9 @@ struct MyDataView: View {
     @State
     private var state = ViewState()
     
+    @Environment(HumaneCenterService.self)
+    private var api
+    
     @AppStorage(Constant.UI_CUSTOM_ACCENT_COLOR_V1)
     private var accentColor: Color = Constant.defaultAppAccentColor
 
@@ -90,7 +93,7 @@ struct MyDataView: View {
     
     func load() async {
         do {
-            let events = try await API.shared.events(domain: state.selectedFilter.domain, size: 20)
+            let events = try await api.events(domain: state.selectedFilter.domain, size: 20)
             withAnimation {
                 self.state.events = events.content
             }
@@ -137,5 +140,6 @@ extension MyDataFilter: Identifiable {
 
 #Preview {
     MyDataView()
+        .environment(HumaneCenterService.shared)
 }
 

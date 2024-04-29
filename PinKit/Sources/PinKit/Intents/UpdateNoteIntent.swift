@@ -25,9 +25,12 @@ public struct UpdateNoteIntent: AppIntent {
     
     @Dependency
     public var navigationStore: NavigationStore
+    
+    @Dependency
+    public var api: HumaneCenterService
 
     public func perform() async throws -> some IntentResult {
-        let _ = try await API.shared.update(id: self.identifier, with: .init(text: self.text, title: self.title))
+        let _ = try await api.update(id: self.identifier, with: .init(text: self.text, title: self.title))
         navigationStore.activeNote = nil
         return .result()
     }

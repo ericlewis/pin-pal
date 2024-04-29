@@ -45,6 +45,9 @@ public struct NotesView: View {
     @Environment(NavigationStore.self) 
     private var navigationStore
     
+    @Environment(HumaneCenterService.self)
+    private var api
+    
     public init() {}
     
     public var body: some View {
@@ -63,14 +66,14 @@ public struct NotesView: View {
                             if memory.favorite {
                                 Button("Unfavorite", systemImage: "heart.slash") {
                                     Task {
-                                        let _ = try await API.shared.unfavorite(memory: memory)
+                                        let _ = try await api.unfavorite(memory: memory)
                                         await load()
                                     }
                                 }
                             } else {
                                 Button("Favorite", systemImage: "heart") {
                                     Task {
-                                        let _ = try await API.shared.favorite(memory: memory)
+                                        let _ = try await api.favorite(memory: memory)
                                         await load()
                                     }
                                 }
@@ -84,7 +87,7 @@ public struct NotesView: View {
                         withAnimation {
                             let note = state.notes.remove(at: i)
                             Task {
-                                try await API.shared.delete(memory: note)
+                                try await api.delete(memory: note)
                             }
                         }
                     }
@@ -133,7 +136,7 @@ public struct NotesView: View {
     
     func load() async {
         do {
-            let notes = try await API.shared.notes().content
+            let notes = try await api.notes().content
             withAnimation {
                 self.state.notes = notes
             }
@@ -148,4 +151,5 @@ public struct NotesView: View {
 
 #Preview {
     NotesView()
+        .environment(HumaneCenterService.shared)
 }

@@ -5,6 +5,9 @@ public struct AuthHandlerViewModifier: ViewModifier {
     @Environment(NavigationStore.self)
     private var navigationStore
     
+    @Environment(HumaneCenterService.self)
+    private var api
+    
     @State
     private var authenticationWebView = AuthenticationWebViewModel()
     
@@ -27,7 +30,7 @@ public struct AuthHandlerViewModifier: ViewModifier {
                     .interactiveDismissDisabled()
             }
             .onAppear {
-                self.navigationStore.authenticationPresented = !API.shared.isLoggedIn()
+                self.navigationStore.authenticationPresented = !api.isLoggedIn()
             }
     }
 }

@@ -4,8 +4,8 @@ public enum APIError: Error {
     case notAuthorized
 }
 
-@Observable public class API {
-    public static let shared = API()
+@Observable public class HumaneCenterService {
+    public static let shared = HumaneCenterService()
     
     private static let rootUrl = URL(string: "https://webapi.prod.humane.cloud/")!
     private static let captureUrl = rootUrl.appending(path: "capture")
@@ -112,7 +112,7 @@ public enum APIError: Error {
     }
 }
 
-extension API {
+extension HumaneCenterService {
     func session() async throws -> Session {
         try await unauthenticatedRequest(url: sessionUrl)
     }

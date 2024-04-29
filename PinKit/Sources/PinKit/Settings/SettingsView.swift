@@ -35,6 +35,9 @@ struct SettingsView: View {
     @Environment(NavigationStore.self)
     private var navigationStore
     
+    @Environment(HumaneCenterService.self)
+    private var api
+    
     @AppStorage(Constant.UI_CUSTOM_ACCENT_COLOR_V1)
     private var accentColor: Color = Constant.defaultAppAccentColor
 
@@ -141,16 +144,16 @@ struct SettingsView: View {
     func load() async {
         do {
             do {
-                let flag = try await API.shared.featureFlag(name: "visionAccess")
+                let flag = try await api.featureFlag(name: "visionAccess")
                 self.state.isVisionBetaEnabled = flag.bool
             } catch {
                 print(error)
             }
-            let sub = try await API.shared.subscription()
+            let sub = try await api.subscription()
             withAnimation {
                 self.state.subscription = sub
             }
-            let extendedInfo = try await API.shared.retrieveDetailedDeviceInfo()
+            let extendedInfo = try await api.retrieveDetailedDeviceInfo()
             withAnimation {
                 self.state.extendedInfo = extendedInfo
             }
@@ -163,4 +166,5 @@ struct SettingsView: View {
 
 #Preview {
     SettingsView()
+        .environment(HumaneCenterService.shared)
 }
