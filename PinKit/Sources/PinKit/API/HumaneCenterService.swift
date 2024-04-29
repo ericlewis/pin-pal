@@ -6,7 +6,11 @@ public enum APIError: Error {
 
 extension HumaneCenterService {
     actor Service {
-        private var accessToken: String?
+        private var accessToken: String? {
+            didSet {
+                UserDefaults.standard.setValue(accessToken, forKey: Constant.ACCESS_TOKEN)
+            }
+        }
         private var lastSessionUpdate: Date?
         private let decoder: JSONDecoder
         private let encoder = JSONEncoder()
