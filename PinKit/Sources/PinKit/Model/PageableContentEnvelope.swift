@@ -1,6 +1,10 @@
 import Foundation
 
 struct MusicEvent: Codable {
+    let artistName: String?
+    let albumName: String?
+    let trackTitle: String?
+    let prompt: String?
     let sourceService: String
 }
 

@@ -15,9 +15,20 @@ struct DataCellView: View {
                     .foregroundStyle(accentColor)
                 Text(event.response)
             case let .music(event):
-                Text("Music Event")
-                    .font(.headline)
-                    .foregroundStyle(accentColor)
+                LabeledContent {} label: {
+                    if let title = event.trackTitle ?? event.prompt {
+                        Text(title)
+                            .font(.headline)
+                            .foregroundStyle(accentColor)
+                    }
+                    if let artistName = event.artistName {
+                        Text(artistName)
+                    }
+                    if let albumName = event.albumName {
+                        Text(albumName)
+                    }
+                    
+                }
             case let .call(event):
                 Text(event.peers.map(\.displayName).joined(separator: ","))
                     .font(.headline)
