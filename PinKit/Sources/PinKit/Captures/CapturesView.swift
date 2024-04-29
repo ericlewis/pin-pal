@@ -4,7 +4,7 @@ struct CapturesView: View {
     
     struct ViewState {
         var isLoading = false
-        var captures: [Capture] = []
+        var captures: [ContentEnvelope] = []
     }
     
     @State
@@ -18,22 +18,7 @@ struct CapturesView: View {
             List {
                 ForEach(state.captures, id: \.uuid) { capture in
                     Section {
-                        AsyncImage(url: URL(string: "https://webapi.prod.humane.cloud/capture/memory/\(capture.uuid)/file/\(capture.data.thumbnail!.fileUUID)")?.appending(queryItems: [
-                            .init(name: "token", value: capture.data.thumbnail!.accessToken),
-                            .init(name: "w", value: "640"),
-                            .init(name: "q", value: "100")
-                        ])) { image in
-                            image
-                                .resizable()
-                                .scaledToFit()
-                        } placeholder: {
-                            Rectangle()
-                                .fill(.bar)
-                                .aspectRatio(1.333, contentMode: .fit)
-                                .overlay {
-                                    ProgressView()
-                                }
-                        }
+                        ContentCellView(content: capture)
                         .listRowInsets(.init())
                         .contextMenu {
                             // TODO: video handling
@@ -84,20 +69,21 @@ struct CapturesView: View {
         }
     }
     
-    func save(capture: Capture) async throws {
+    func save(capture: ContentEnvelope) async throws {
         try await UIImageWriteToSavedPhotosAlbum(image(for: capture), nil, nil, nil)
     }
     
-    func image(for capture: Capture) async throws -> UIImage {
-        let (data, _) = try await URLSession.shared.data(from: URL(string: "https://webapi.prod.humane.cloud/capture/memory/\(capture.uuid)/file/\(capture.data.thumbnail!.fileUUID)")!.appending(queryItems: [
-            .init(name: "token", value: capture.data.thumbnail!.accessToken),
-            .init(name: "w", value: "640"),
-            .init(name: "q", value: "100")
-        ]))
-        guard let image = UIImage(data: data) else {
-            fatalError()
-        }
-        return image
+    func image(for capture: ContentEnvelope) async throws -> UIImage {
+//        let (data, _) = try await URLSession.shared.data(from: URL(string: "https://webapi.prod.humane.cloud/capture/memory/\(capture.uuid)/file/\(capture.data.thumbnail!.fileUUID)")!.appending(queryItems: [
+//            .init(name: "token", value: capture.data.thumbnail!.accessToken),
+//            .init(name: "w", value: "640"),
+//            .init(name: "q", value: "100")
+//        ]))
+//        guard let image = UIImage(data: data) else {
+//            fatalError()
+//        }
+//        return image
+        UIImage()
     }
 }
 

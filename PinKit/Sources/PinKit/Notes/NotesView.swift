@@ -1,41 +1,9 @@
 import SwiftUI
 import OSLog
 
-struct NoteCellView: View {
-    let memory: Memory
-    
-    @AppStorage(Constant.UI_CUSTOM_ACCENT_COLOR_V1)
-    private var accentColor: Color = Constant.defaultAppAccentColor
-    
-    var body: some View {
-        if let note = memory.data.note {
-            VStack(alignment: .leading, spacing: 10) {
-                VStack(alignment: .leading, spacing: 5) {
-                    Text(note.title)
-                        .foregroundStyle(accentColor)
-                        .font(.headline)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .overlay(alignment: .topTrailing) {
-                            if memory.favorite {
-                                Image(systemName: "heart")
-                                    .symbolVariant(.fill)
-                                    .foregroundStyle(.red)
-                            }
-                        }
-                    Text(LocalizedStringKey(note.text))
-                }
-                
-                Text(memory.userCreatedAt, format: .dateTime)
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-            }
-        }
-    }
-}
-
 public struct NotesView: View {
     struct ViewState {
-        var notes: [Memory] = []
+        var notes: [ContentEnvelope] = []
         var isLoading = false
     }
     
@@ -56,9 +24,9 @@ public struct NotesView: View {
             List {
                 ForEach(state.notes, id: \.uuid) { memory in
                     Button {
-                        self.navigationStore.activeNote = memory.data.note
+                        self.navigationStore.activeNote = memory.get()
                     } label: {
-                        NoteCellView(memory: memory)
+                        ContentCellView(content: memory)
                     }
                     .foregroundStyle(.primary)
                     .swipeActions(edge: .leading, allowsFullSwipe: true) {
@@ -143,8 +111,7 @@ public struct NotesView: View {
         } catch APIError.notAuthorized {
             self.navigationStore.authenticationPresented = true
         } catch {
-            let logger = Logger()
-            logger.error("\(error.localizedDescription)")
+            print("\(error.localizedDescription)")
         }
     }
 }

@@ -3,7 +3,7 @@ import SwiftUI
 struct MyDataView: View {
     
     struct ViewState {
-        var events: [EventContent] = []
+        var events: [EventContentEnvelope] = []
         var isLoading = false
         var selectedFilter: MyDataFilter = .aiMic
     }
@@ -13,46 +13,12 @@ struct MyDataView: View {
     
     @Environment(HumaneCenterService.self)
     private var api
-    
-    @AppStorage(Constant.UI_CUSTOM_ACCENT_COLOR_V1)
-    private var accentColor: Color = Constant.defaultAppAccentColor
 
     var body: some View {
         NavigationStack {
             List {
                 ForEach(state.events, id: \.eventIdentifier) { event in
-                    VStack(alignment: .leading) {
-                        if let request = event.eventData["request"]?.value as? String, let response = event.eventData["response"]?.value as? String {
-                            Text(request)
-                                .font(.headline)
-                                .foregroundStyle(accentColor)
-                                .padding([.bottom], 5)
-                            Text(response)
-                        }
-                        if let targetLanguage = event.eventData["targetLanguage"]?.value as? String, let originLanguage = event.eventData["originLanguage"]?.value as? String {
-                            HStack {
-                                Text(originLanguage)
-                                    .foregroundStyle(accentColor)
-                                Spacer()
-                                Text(targetLanguage)
-                                    .foregroundStyle(accentColor)
-                            }
-                            .overlay {
-                                Image(systemName: "arrow.forward")
-                            }
-                        }
-                        if let p = event.eventData["prompt"]?.value as? String, let music = event.eventData["generatedPlaylist"]?.value as? String {
-                            Text(p)
-                                .font(.headline)
-                                .foregroundStyle(accentColor)
-                                .padding(.bottom, 5)
-                            Text(music)
-                        }
-                        Text(event.eventCreationTime, format: .dateTime)
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                            .padding([.top], 10)
-                    }
+                    DataCellView(event: event)
                 }
             }
             .refreshable {
@@ -122,7 +88,7 @@ enum MyDataFilter {
         }
     }
     
-    var domain: Domain {
+    var domain: EventDomain {
         switch self {
         case .aiMic: .aiMic
         case .calls: .calls

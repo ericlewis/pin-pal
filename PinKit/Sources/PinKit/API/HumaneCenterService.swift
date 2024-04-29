@@ -97,7 +97,7 @@ extension HumaneCenterService {
             try await unauthenticatedRequest(url: sessionUrl)
         }
         
-        public func captures(page: Int = 0, size: Int = 10, sort: String = "userCreatedAt,DESC", onlyContainingFavorited: Bool = false) async throws -> CapturesResponseContainer {
+        public func captures(page: Int = 0, size: Int = 10, sort: String = "userCreatedAt,DESC", onlyContainingFavorited: Bool = false) async throws -> PageableMemoryContentEnvelope {
             try await get(url: captureUrl.appending(path: "captures").appending(queryItems: [
                 .init(name: "page", value: String(page)),
                 .init(name: "size", value: String(size)),
@@ -106,7 +106,7 @@ extension HumaneCenterService {
             ]))
         }
         
-        public func events(domain: Domain = .captures, page: Int = 0, size: Int = 10, sort: String = "eventCreationTime,ASC") async throws -> ResponseContainer {
+        public func events(domain: EventDomain, page: Int = 0, size: Int = 10, sort: String = "eventCreationTime,ASC") async throws -> PageableEventContentEnvelope {
             try await get(url: eventsUrl.appending(path: "mydata").appending(queryItems: [
                 .init(name: "domain", value: domain.rawValue),
                 .init(name: "page", value: String(page)),
@@ -115,23 +115,23 @@ extension HumaneCenterService {
             ]))
         }
 
-        public func favorite(memory: Memory) async throws {
+        public func favorite(memory: ContentEnvelope) async throws {
             try await post(url: memoryUrl.appending(path: memory.uuid.uuidString).appending(path: "favorite"))
         }
         
-        public func unfavorite(memory: Memory) async throws {
+        public func unfavorite(memory: ContentEnvelope) async throws {
             try await post(url: memoryUrl.appending(path: memory.uuid.uuidString).appending(path: "unfavorite"))
         }
         
-        public func notes() async throws -> NotesResponseContainer {
+        public func notes() async throws -> PageableMemoryContentEnvelope {
             try await get(url: captureUrl.appending(path: "notes"))
         }
         
-        public func create(note: Note) async throws -> Memory {
+        public func create(note: Note) async throws -> ContentEnvelope {
             try await post(url: noteUrl.appending(path: "create"), body: note)
         }
         
-        public func update(id: String, with note: Note) async throws -> Memory {
+        public func update(id: String, with note: Note) async throws -> ContentEnvelope {
             try await post(url: noteUrl.appending(path: id), body: note)
         }
         
@@ -139,7 +139,7 @@ extension HumaneCenterService {
             try await get(url: subscriptionV3Url)
         }
         
-        public func featureFlag(name: String) async throws -> FeatureFlagResponse {
+        public func featureFlag(name: String) async throws -> FeatureFlagEnvelope {
             try await get(url: featureFlagsUrl.appending(path: name))
         }
         
@@ -156,7 +156,7 @@ extension HumaneCenterService {
             )
         }
         
-        public func delete(memory: Memory) async throws -> String {
+        public func delete(memory: ContentEnvelope) async throws -> String {
             try await delete(url: memoryUrl.appending(path: memory.uuid.uuidString))
         }
     }
@@ -206,33 +206,33 @@ extension HumaneCenterService {
     private var lastSessionUpdate: Date?
     
     public var session: () async throws -> Session
-    public var notes: () async throws -> NotesResponseContainer
-    public var captures: (Int) async throws -> CapturesResponseContainer
-    public var events: (Domain, Int) async throws -> ResponseContainer
-    public var featureFlag: (String) async throws -> FeatureFlagResponse
+    public var notes: () async throws -> PageableMemoryContentEnvelope
+    public var captures: (Int) async throws -> PageableMemoryContentEnvelope
+    public var events: (EventDomain, Int) async throws -> PageableEventContentEnvelope
+    public var featureFlag: (String) async throws -> FeatureFlagEnvelope
     public var subscription: () async throws -> Subscription
     public var detailedDeviceInformation: () async throws -> DetailedDeviceInfo
-    public var create: (Note) async throws -> Memory
-    public var update: (String, Note) async throws -> Memory
-    public var favorite: (Memory) async throws -> Void
-    public var unfavorite: (Memory) async throws -> Void
-    public var delete: (Memory) async throws -> Void
+    public var create: (Note) async throws -> ContentEnvelope
+    public var update: (String, Note) async throws -> ContentEnvelope
+    public var favorite: (ContentEnvelope) async throws -> Void
+    public var unfavorite: (ContentEnvelope) async throws -> Void
+    public var delete: (ContentEnvelope) async throws -> Void
 
     required public init(
         accessToken: String? = nil,
         userDefaults: UserDefaults = .standard,
         session: @escaping () async throws -> Session,
-        notes: @escaping () async throws -> NotesResponseContainer,
-        captures: @escaping (Int) async throws -> CapturesResponseContainer,
-        events: @escaping (Domain, Int) async throws -> ResponseContainer,
-        featureFlag: @escaping (String) async throws -> FeatureFlagResponse,
+        notes: @escaping () async throws -> PageableMemoryContentEnvelope,
+        captures: @escaping (Int) async throws -> PageableMemoryContentEnvelope,
+        events: @escaping (EventDomain, Int) async throws -> PageableEventContentEnvelope,
+        featureFlag: @escaping (String) async throws -> FeatureFlagEnvelope,
         subscription: @escaping () async throws -> Subscription,
         detailedDeviceInformation: @escaping () async throws -> DetailedDeviceInfo,
-        create: @escaping (Note) async throws -> Memory,
-        update: @escaping (String, Note) async throws -> Memory,
-        favorite: @escaping (Memory) async throws -> Void,
-        unfavorite: @escaping (Memory) async throws -> Void,
-        delete: @escaping (Memory) async throws -> Void
+        create: @escaping (Note) async throws -> ContentEnvelope,
+        update: @escaping (String, Note) async throws -> ContentEnvelope,
+        favorite: @escaping (ContentEnvelope) async throws -> Void,
+        unfavorite: @escaping (ContentEnvelope) async throws -> Void,
+        delete: @escaping (ContentEnvelope) async throws -> Void
     ) {
         self.userDefaults = userDefaults
         let decoder = JSONDecoder()
