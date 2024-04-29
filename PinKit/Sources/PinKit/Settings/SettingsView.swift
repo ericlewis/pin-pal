@@ -144,7 +144,7 @@ struct SettingsView: View {
     func load() async {
         do {
             do {
-                let flag = try await api.featureFlag(name: "visionAccess")
+                let flag = try await api.featureFlag("visionAccess")
                 self.state.isVisionBetaEnabled = flag.bool
             } catch {
                 print(error)
@@ -153,7 +153,7 @@ struct SettingsView: View {
             withAnimation {
                 self.state.subscription = sub
             }
-            let extendedInfo = try await api.retrieveDetailedDeviceInfo()
+            let extendedInfo = try await api.detailedDeviceInformation()
             withAnimation {
                 self.state.extendedInfo = extendedInfo
             }
@@ -166,5 +166,5 @@ struct SettingsView: View {
 
 #Preview {
     SettingsView()
-        .environment(HumaneCenterService.shared)
+        .environment(HumaneCenterService.live())
 }

@@ -108,5 +108,5 @@ public struct NoteComposerView: View {
 
 #Preview {
     NoteComposerView(note: .init(text: "", title: ""))
-        .environment(HumaneCenterService.shared)
+        .environment(HumaneCenterService.live())
 }

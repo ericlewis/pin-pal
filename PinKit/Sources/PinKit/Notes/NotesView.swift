@@ -66,14 +66,14 @@ public struct NotesView: View {
                             if memory.favorite {
                                 Button("Unfavorite", systemImage: "heart.slash") {
                                     Task {
-                                        let _ = try await api.unfavorite(memory: memory)
+                                        let _ = try await api.unfavorite(memory)
                                         await load()
                                     }
                                 }
                             } else {
                                 Button("Favorite", systemImage: "heart") {
                                     Task {
-                                        let _ = try await api.favorite(memory: memory)
+                                        let _ = try await api.favorite(memory)
                                         await load()
                                     }
                                 }
@@ -87,7 +87,7 @@ public struct NotesView: View {
                         withAnimation {
                             let note = state.notes.remove(at: i)
                             Task {
-                                try await api.delete(memory: note)
+                                try await api.delete(note)
                             }
                         }
                     }
@@ -151,5 +151,5 @@ public struct NotesView: View {
 
 #Preview {
     NotesView()
-        .environment(HumaneCenterService.shared)
+        .environment(HumaneCenterService.live())
 }

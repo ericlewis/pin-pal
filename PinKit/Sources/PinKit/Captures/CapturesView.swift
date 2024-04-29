@@ -75,7 +75,7 @@ struct CapturesView: View {
     
     func load() async {
         do {
-            let captures = try await api.captures(size: 100)
+            let captures = try await api.captures(100)
             withAnimation {
                 state.captures = captures.content
             }
@@ -103,5 +103,5 @@ struct CapturesView: View {
 
 #Preview {
     CapturesView()
-        .environment(HumaneCenterService.shared)
+        .environment(HumaneCenterService.live())
 }

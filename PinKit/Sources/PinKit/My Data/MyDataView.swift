@@ -93,7 +93,7 @@ struct MyDataView: View {
     
     func load() async {
         do {
-            let events = try await api.events(domain: state.selectedFilter.domain, size: 20)
+            let events = try await api.events(state.selectedFilter.domain, 20)
             withAnimation {
                 self.state.events = events.content
             }
@@ -140,6 +140,6 @@ extension MyDataFilter: Identifiable {
 
 #Preview {
     MyDataView()
-        .environment(HumaneCenterService.shared)
+        .environment(HumaneCenterService.live())
 }
 

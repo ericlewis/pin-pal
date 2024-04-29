@@ -18,7 +18,7 @@ struct Ai_PinApp: App {
         let navigationStore = NavigationStore()
         sceneNavigationStore = navigationStore
         
-        let api = HumaneCenterService()
+        let api = HumaneCenterService.live()
         sceneApi = api
 
         AppDependencyManager.shared.add(dependency: navigationStore)
