@@ -102,9 +102,21 @@ public struct Thumbnail: Codable {
     let accessToken: String
 }
 
+struct Video: Codable {
+    let fileUUID: UUID
+    let accessToken: String
+}
+
+enum CaptureType: String, Codable {
+    case photo = "PHOTO"
+    case video = "VIDEO"
+}
+
 public struct CaptureEnvelope: Codable {
     let uuid: UUID
-    let thumbnail: Thumbnail?
+    let type: CaptureType
+    let thumbnail: Thumbnail
+    let video: Video?
 }
 
 public struct ContentEnvelope: Codable {

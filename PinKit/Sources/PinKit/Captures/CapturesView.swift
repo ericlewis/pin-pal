@@ -74,8 +74,8 @@ struct CapturesView: View {
     }
     
     func makeThumbnailURL(content: ContentEnvelope, capture: CaptureEnvelope) -> URL? {
-        URL(string: "https://webapi.prod.humane.cloud/capture/memory/\(content.uuid.uuidString)/file/\(capture.thumbnail!.fileUUID)")?.appending(queryItems: [
-            .init(name: "token", value: capture.thumbnail!.accessToken),
+        URL(string: "https://webapi.prod.humane.cloud/capture/memory/\(content.uuid.uuidString)/file/\(capture.thumbnail.fileUUID)")?.appending(queryItems: [
+            .init(name: "token", value: capture.thumbnail.accessToken),
             .init(name: "w", value: "640"),
             .init(name: "q", value: "100")
         ])
@@ -118,8 +118,8 @@ struct CapturesView: View {
 
     func image(for capture: ContentEnvelope) async throws -> UIImage {
         guard let cap: CaptureEnvelope = capture.get() else { return UIImage() }
-        let (data, _) = try await URLSession.shared.data(from: URL(string: "https://webapi.prod.humane.cloud/capture/memory/\(capture.uuid)/file/\(cap.thumbnail!.fileUUID)")!.appending(queryItems: [
-            .init(name: "token", value: cap.thumbnail!.accessToken),
+        let (data, _) = try await URLSession.shared.data(from: URL(string: "https://webapi.prod.humane.cloud/capture/memory/\(capture.uuid)/file/\(cap.thumbnail.fileUUID)")!.appending(queryItems: [
+            .init(name: "token", value: cap.thumbnail.accessToken),
             .init(name: "w", value: "640"),
             .init(name: "q", value: "100")
         ]))
@@ -129,7 +129,6 @@ struct CapturesView: View {
         return image
         UIImage()
     }
-
 }
 
 #Preview {
