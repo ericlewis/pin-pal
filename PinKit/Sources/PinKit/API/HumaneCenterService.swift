@@ -165,6 +165,10 @@ extension HumaneCenterService {
         public func delete(memory: ContentEnvelope) async throws -> String {
             try await delete(url: memoryUrl.appending(path: memory.uuid.uuidString))
         }
+        
+        func delete(event: EventContentEnvelope) async throws -> Bool {
+            try await delete(url: eventsUrl.appending(path: "event").appending(path: event.id.uuidString))
+        }
     }
     
     public static func live() -> Self {
@@ -181,7 +185,8 @@ extension HumaneCenterService {
             update: { try await service.update(id: $0, with: $1) },
             favorite: { try await service.favorite(memory: $0) },
             unfavorite: { try await service.unfavorite(memory: $0) },
-            delete: { try await service.delete(memory: $0) }
+            delete: { try await service.delete(memory: $0) },
+            deleteEvent: { try await service.delete(event: $0) }
         )
     }
 }
@@ -226,6 +231,7 @@ extension HumaneCenterService {
     public var favorite: (ContentEnvelope) async throws -> Void
     public var unfavorite: (ContentEnvelope) async throws -> Void
     public var delete: (ContentEnvelope) async throws -> Void
+    public var deleteEvent: (EventContentEnvelope) async throws -> Void
 
     required public init(
         accessToken: String? = nil,
@@ -241,7 +247,8 @@ extension HumaneCenterService {
         update: @escaping (String, Note) async throws -> ContentEnvelope,
         favorite: @escaping (ContentEnvelope) async throws -> Void,
         unfavorite: @escaping (ContentEnvelope) async throws -> Void,
-        delete: @escaping (ContentEnvelope) async throws -> Void
+        delete: @escaping (ContentEnvelope) async throws -> Void,
+        deleteEvent: @escaping (EventContentEnvelope) async throws -> Void
     ) {
         self.userDefaults = userDefaults
         let decoder = JSONDecoder()
@@ -263,6 +270,7 @@ extension HumaneCenterService {
         self.favorite = favorite
         self.unfavorite = unfavorite
         self.delete = delete
+        self.deleteEvent = deleteEvent
     }
     
     public func isLoggedIn() -> Bool {
@@ -354,11 +362,6 @@ func extractValue(from text: String, forKey key: String) -> String? {
 //    
 //    func deleteAllNotes() async throws -> Bool {
 //        try await delete(url: Self.noteUrl)
-//    }
-//    
-//    // TODO: result is wrong
-//    func delete(event id: String) async throws -> Bool {
-//        try await delete(url: Self.eventsUrl.appending(path: "event").appending(path: id, directoryHint: .notDirectory))
 //    }
 //
 //    func eventsOverview() async throws -> EventOverview {

@@ -71,6 +71,20 @@ extension MyDataRepository {
         logger.debug("next page: \(nextPage)")
         await load(page: nextPage)
     }
+    
+    public func remove(offsets: IndexSet) async {
+        do {
+            for i in offsets {
+                let event = withAnimation {
+                    content[selectedFilter]?.remove(at: i)
+                }
+                guard let event else { return }
+                try await api.deleteEvent(event)
+            }
+        } catch {
+            logger.debug("\(error)")
+        }
+    }
 }
 
 enum MyDataFilter {

@@ -23,6 +23,11 @@ struct MyDataView: View {
                         UnknownCellView()
                     }
                 }
+                .onDelete { indexSet in
+                    Task {
+                        await repository.remove(offsets: indexSet)
+                    }
+                }
                 if repository.hasMoreData {
                     HStack {
                         Spacer()
