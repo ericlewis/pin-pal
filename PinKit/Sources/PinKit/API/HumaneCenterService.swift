@@ -342,7 +342,7 @@ func extractValue(from text: String, forKey key: String) -> String? {
 // Note: Commented out because they aren't currently used, but will be used and are thus a useful reference
 //
 //extension HumaneCenterService {
-//    
+//
 //    func capturesList(for uuids: [UUID]) async throws -> Bool {
 //        try await get(url: Self.captureUrl.appending(path: "captures").appending(path: "list").appending(queryItems: [
 //            .init(name: "uuid", value: uuids.map(\.uuidString).joined(separator: ","))
@@ -356,23 +356,23 @@ func extractValue(from text: String, forKey key: String) -> String? {
 //    func memoryOriginals(for id: String) async throws -> ResponseContainer {
 //        try await get(url: Self.memoryUrl.appending(path: id).appending(path: "originals"))
 //    }
-//        
+//
 //    func index(memory id: String) async throws -> ResponseContainer {
 //        try await post(url: Self.memoryUrl.appending(path: id).appending(path: "index"))
 //    }
-//    
+//
 //    func tag(memory id: String) async throws -> ResponseContainer {
 //        try await post(url: Self.memoryUrl.appending(path: id).appending(path: "tag"))
 //    }
-//    
+//
 //    func remove(tag id: String, from memory: String) async throws -> ResponseContainer {
 //        try await delete(url: Self.memoryUrl.appending(path: id).appending(path: "tag"))
 //    }
-//    
+//
 //    func save(search: String) async throws -> Bool {
 //        try await get(url: Self.captureUrl.appending(path: "search").appending(path: "save"))
 //    }
-//        
+//
 //    func memories() async throws -> MemoriesResponse {
 //        try await get(url: Self.captureUrl.appending(path: "memories"))
 //    }
@@ -384,7 +384,7 @@ func extractValue(from text: String, forKey key: String) -> String? {
 //    func eventsOverview() async throws -> EventOverview {
 //        try await get(url: Self.eventsUrl.appending(path: "mydata").appending(path: "overview"))
 //    }
-//    
+//
 //    func memoryDerivatives(for id: String) async throws -> ResponseContainer {
 //        try await get(url: Self.memoryUrl.appending(path: id).appending(path: "derivatives"))
 //    }
@@ -393,25 +393,25 @@ func extractValue(from text: String, forKey key: String) -> String? {
 //    func pauseSubscription() async throws -> Bool {
 //        try await get(url: Self.subscriptionV3Url)
 //    }
-//    
+//
 //    // TODO: use correct method
 //    func unpauseSubscription() async throws -> Bool {
 //        try await get(url: Self.subscriptionV3Url)
 //    }
-//    
+//
 //    // has a postable version
 //    func addons() async throws -> [Addon] {
 //        try await get(url: Self.addonsUrl)
 //    }
-//    
+//
 //    func delete(addon: Addon) async throws -> Bool {
 //        try await delete(url: Self.addonsUrl.appending(path: addon.spid))
 //    }
-//    
+//
 //    func availableAddons() async throws -> [Addon] {
 //        try await get(url: Self.addonsUrl.appending(path: "types"))
 //    }
-//    
+//
 //    func lostStatus(deviceId: String) async throws -> LostDeviceResponse {
 //        try await get(url: Self.subscriptionUrl.appending(path: "deviceAuthorization").appending(path: "lostDevice").appending(queryItems: [
 //            .init(name: "deviceId", value: deviceId)
