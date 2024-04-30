@@ -75,7 +75,17 @@ struct SettingsView: View {
                 }
                 .labeledContentStyle(AsyncValueLabelContentStyle(isLoading: state.subscription == nil))
                 Section("Features") {
-                    Toggle("Vision (Beta)", isOn: $state.isVisionBetaEnabled)
+                    Toggle(isOn: $state.isVisionBetaEnabled) {
+                        HStack {
+                            Text("Vision")
+                            Text("BETA")
+                                .padding(1)
+                                .padding(.horizontal, 2)
+                                .font(.footnote.bold())
+                                .foregroundStyle(.white)
+                                .background(RoundedRectangle(cornerRadius: 5).fill(.red))
+                        }
+                    }
                         .disabled(state.isLoading)
                     Button("Add Wi-Fi Network") {
                         self.navigationStore.isWifiCodeGeneratorPresented = true
