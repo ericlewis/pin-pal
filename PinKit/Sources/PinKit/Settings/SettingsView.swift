@@ -56,6 +56,9 @@ struct SettingsView: View {
     @AppStorage(Constants.UI_CUSTOM_APP_ICON_V1)
     private var selectedIcon: Icon = Icon.initial
     
+    @Environment(\.openURL)
+    private var openURL
+    
     var body: some View {
         @Bindable var navigationStore = navigationStore
         NavigationStack {
@@ -74,7 +77,7 @@ struct SettingsView: View {
                     }
                 }
                 .labeledContentStyle(AsyncValueLabelContentStyle(isLoading: state.subscription == nil))
-                Section("Features") {
+                Section {
                     Toggle(isOn: $state.isVisionBetaEnabled) {
                         HStack {
                             Text("Vision")
@@ -97,14 +100,17 @@ struct SettingsView: View {
                         
                     }
                     .disabled(true)
-                }
-                Section {
-                    Button("Mark As Lost", role: .destructive) {
+                    if canDevicePlaceCalls(), let number = state.subscription?.phoneNumber, let url = URL(string: "tel://\(number)") {
+                        Button("Call your Pin") {
+                            openURL(url.appending(path: number))
+                        }
+                    }
+                    Button("Mark as Lost", role: .destructive) {
                         
                     }
                     .disabled(true)
                 } header: {
-                    Text("Security")
+                    Text("Features")
                 } footer: {
                     Text("Marking your Ai Pin as lost or stolen keeps your .Center data safe and remotely locks your Pin. If your Pin is successfully unlocked while in this state, access to any of your .Center data will still be blocked. Once you recover your Pin, remember to disable this setting.")
                 }
@@ -182,6 +188,14 @@ struct SettingsView: View {
         } catch {
             let logger = Logger(subsystem: "app", category: "settings")
             logger.error("\(error.localizedDescription)")
+        }
+    }
+    
+    func canDevicePlaceCalls() -> Bool {
+        if let url = URL(string: "tel://"), UIApplication.shared.canOpenURL(url) {
+            return true
+        } else {
+            return false
         }
     }
 }
