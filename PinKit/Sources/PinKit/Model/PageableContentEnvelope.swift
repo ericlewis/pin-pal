@@ -5,6 +5,7 @@ struct MusicEvent: Codable {
     let albumName: String?
     let trackTitle: String?
     let prompt: String?
+    let albumArtUuid: UUID?
     let sourceService: String
 }
 

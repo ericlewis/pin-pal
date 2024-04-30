@@ -1,4 +1,5 @@
 import SwiftUI
+import SDWebImageSwiftUI
 
 struct DataCellView: View {
     let event: EventContentEnvelope
@@ -15,7 +16,15 @@ struct DataCellView: View {
                     .foregroundStyle(accentColor)
                 Text(event.response)
             case let .music(event):
-                LabeledContent {} label: {
+                LabeledContent {
+                    if let id = event.albumArtUuid {
+                        WebImage(url: makeAlbumURL(id: id))
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 60)
+                            .clipShape(RoundedRectangle(cornerRadius: 8))
+                    }
+                } label: {
                     if let title = event.trackTitle ?? event.prompt {
                         Text(title)
                             .font(.headline)
@@ -55,5 +64,9 @@ struct DataCellView: View {
                 .font(.caption)
                 .foregroundStyle(.secondary)
         }
+    }
+    
+    func makeAlbumURL(id: UUID) -> URL? {
+        URL(string: "https://humane.center/_next/image?url=https://resources.tidal.com/images/\(id.uuidString.split(separator: "-").joined(separator: "/"))/160x160.jpg&w=256&q=75".lowercased())
     }
 }
