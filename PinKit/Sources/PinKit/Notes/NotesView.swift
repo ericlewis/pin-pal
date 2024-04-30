@@ -6,13 +6,13 @@ struct NotesView: View {
     private var navigationStore
 
     @Environment(NotesRepository.self)
-    private var notesRepository
+    private var repository
         
     var body: some View {
         @Bindable var navigationStore = navigationStore
         NavigationStack(path: $navigationStore.notesNavigationPath) {
             List {
-                ForEach(notesRepository.content) { memory in
+                ForEach(repository.content) { memory in
                     Button {
                         self.navigationStore.activeNote = memory.get()
                     } label: {
@@ -22,7 +22,7 @@ struct NotesView: View {
                     .swipeActions(edge: .leading, allowsFullSwipe: true) {
                         Button(memory.favorite ? "Unfavorite" : "Favorite", systemImage: "heart") {
                             Task {
-                                await notesRepository.toggleFavorite(content: memory)
+                                await repository.toggleFavorite(content: memory)
                             }
                         }
                         .tint(.pink)
@@ -31,21 +31,21 @@ struct NotesView: View {
                 }
                 .onDelete { indexSet in
                     Task {
-                        await notesRepository.remove(offsets: indexSet)
+                        await repository.remove(offsets: indexSet)
                     }
                 }
-                if notesRepository.hasMoreData {
+                if repository.hasMoreData {
                     HStack {
                         Spacer()
                         ProgressView()
                         Spacer()
                     }
                     .task {
-                        await notesRepository.loadMore()
+                        await repository.loadMore()
                     }
                 }
             }
-            .refreshable(action: notesRepository.reload)
+            .refreshable(action: repository.reload)
             .searchable(text: .constant(""))
             .toolbar {
                 ToolbarItem(placement: .navigation) {
@@ -60,16 +60,16 @@ struct NotesView: View {
             .navigationTitle("Notes")
         }
         .overlay {
-            if !notesRepository.hasContent, notesRepository.isLoading {
+            if !repository.hasContent, repository.isLoading {
                 ProgressView()
-            } else if !notesRepository.hasContent, notesRepository.isFinished {
+            } else if !repository.hasContent, repository.isFinished {
                 ContentUnavailableView("No notes yet", systemImage: "note.text")
             }
         }
         .sheet(item: $navigationStore.activeNote) { note in
             NoteComposerView(note: note)
         }
-        .task(notesRepository.initial)
+        .task(repository.initial)
     }
 }
 

@@ -17,6 +17,9 @@ struct Ai_PinApp: App {
     @State
     private var sceneCapturesRepository: CapturesRepository
     
+    @State
+    private var sceneMyDataRepository: MyDataRepository
+    
     @AppStorage(Constant.UI_CUSTOM_ACCENT_COLOR_V1)
     private var accentColor: Color = Constant.defaultAppAccentColor
 
@@ -32,10 +35,14 @@ struct Ai_PinApp: App {
         
         let capturesRepository = CapturesRepository(api: api)
         sceneCapturesRepository = capturesRepository
+        
+        let myDataRepository = MyDataRepository(api: api)
+        sceneMyDataRepository = myDataRepository
 
         AppDependencyManager.shared.add(dependency: navigationStore)
         AppDependencyManager.shared.add(dependency: notesRepository)
         AppDependencyManager.shared.add(dependency: capturesRepository)
+        AppDependencyManager.shared.add(dependency: myDataRepository)
     }
     
     var body: some Scene {
@@ -44,6 +51,7 @@ struct Ai_PinApp: App {
                 .environment(sceneNotesRepository)
                 .environment(sceneCapturesRepository)
                 .environment(sceneNavigationStore)
+                .environment(sceneMyDataRepository)
                 .environment(sceneApi)
                 .tint(accentColor)
         }

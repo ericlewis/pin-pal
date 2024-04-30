@@ -1,6 +1,5 @@
 import SwiftUI
 import SDWebImageSwiftUI
-import UniformTypeIdentifiers
 import AVKit
 
 extension URL {
@@ -67,7 +66,7 @@ struct VideoView: View {
 struct CapturesView: View {
 
     @Environment(CapturesRepository.self)
-    private var capturesRepository
+    private var repository
     
     @Environment(NavigationStore.self)
     private var navigationStore
@@ -77,7 +76,7 @@ struct CapturesView: View {
         NavigationStack(path: $navigationStore.capturesNavigationPath) {
             ScrollView {
                 LazyVGrid(columns: [.init(.adaptive(minimum: 100, maximum: 300), spacing: 2)], spacing: 2) {
-                    ForEach(capturesRepository.content) { capture in
+                    ForEach(repository.content) { capture in
                         NavigationLink {
                             VStack {
                                 if let vidUrl = capture.videoDownloadUrl() {
@@ -101,29 +100,29 @@ struct CapturesView: View {
                             makeMenuContents(for: capture)
                         }
                     }
-                    if capturesRepository.hasMoreData {
+                    if repository.hasMoreData {
                         Rectangle()
                             .fill(.bar)
                             .overlay(ProgressView())
                             .task {
-                                await capturesRepository.loadMore()
+                                await repository.loadMore()
                             }
                     }
                 }
             }
-            .refreshable(action: capturesRepository.reload)
+            .refreshable(action: repository.reload)
             .searchable(text: .constant(""))
             .listSectionSpacing(15)
             .navigationTitle("Captures")
         }
         .overlay {
-            if !capturesRepository.hasContent, capturesRepository.isLoading {
+            if !repository.hasContent, repository.isLoading {
                 ProgressView()
-            } else if !capturesRepository.hasContent, capturesRepository.isFinished {
+            } else if !repository.hasContent, repository.isFinished {
                 ContentUnavailableView("No captures yet", systemImage: "camera.aperture")
             }
         }
-        .task(capturesRepository.initial)
+        .task(repository.initial)
     }
 
     @ViewBuilder
@@ -131,17 +130,17 @@ struct CapturesView: View {
         Section {
             Button("Copy", systemImage: "doc.on.doc") {
                 Task {
-                    await capturesRepository.copyToClipboard(capture: capture)
+                    await repository.copyToClipboard(capture: capture)
                 }
             }
             Button("Save to Camera Roll", systemImage: "square.and.arrow.down") {
                 Task {
-                    await capturesRepository.save(capture: capture)
+                    await repository.save(capture: capture)
                 }
             }
             Button(capture.favorite ? "Unfavorite" : "Favorite", systemImage: "heart") {
                 Task {
-                    await capturesRepository.toggleFavorite(content: capture)
+                    await repository.toggleFavorite(content: capture)
                 }
             }
             .symbolVariant(capture.favorite ? .slash : .none)
@@ -149,7 +148,7 @@ struct CapturesView: View {
         Section {
             Button("Delete", systemImage: "trash", role: .destructive) {
                 Task {
-                    await capturesRepository.remove(content: capture)
+                    await repository.remove(content: capture)
                 }
             }
         }

@@ -82,6 +82,10 @@ public struct EventContentEnvelope: Codable {
     let eventData: EventDataEnvelope
 }
 
+extension EventContentEnvelope: Identifiable {
+    public var id: UUID { eventIdentifier }
+}
+
 public struct Sort: Codable {
     let empty: Bool
     let sorted: Bool
