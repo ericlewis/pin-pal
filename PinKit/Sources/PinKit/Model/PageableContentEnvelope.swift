@@ -172,6 +172,10 @@ public struct CaptureEnvelope: Codable {
     let type: CaptureType
     let thumbnail: Thumbnail
     let video: Video?
+    
+    let originalThumbnails: [Thumbnail]?
+    let originals: [Thumbnail]?
+    let derivatives: [Thumbnail]?
 }
 
 public struct ContentEnvelope: Codable, Identifiable {
@@ -212,6 +216,7 @@ public struct ContentEnvelope: Codable, Identifiable {
     var favorite: Bool
     let userLastModified: Date
     let userCreatedAt: Date
+    let location: String?
     
     var data: DataClass
     
@@ -226,6 +231,7 @@ public struct ContentEnvelope: Codable, Identifiable {
         self.userCreatedAt = try container.decode(Date.self, forKey: .userCreatedAt)
         self.originClientId = try container.decode(String.self, forKey: .originClientId)
         self.favorite = try container.decode(Bool.self, forKey: .favorite)
+        self.location = try container.decodeIfPresent(String.self, forKey: .location)
         
         if case var .note(note) = self.data {
             note.memoryId = self.uuid
@@ -240,6 +246,7 @@ public struct ContentEnvelope: Codable, Identifiable {
         case userCreatedAt
         case originClientId
         case favorite
+        case location
     }
 }
 

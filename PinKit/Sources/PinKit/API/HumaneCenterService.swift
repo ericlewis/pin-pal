@@ -193,7 +193,7 @@ extension HumaneCenterService {
             ]))
         }
         
-        public func note(uuid: UUID) async throws -> ContentEnvelope {
+        public func memory(uuid: UUID) async throws -> ContentEnvelope {
             try await get(url: memoryUrl.appending(path: uuid.uuidString))
         }
         
@@ -222,7 +222,7 @@ extension HumaneCenterService {
             unfavorite: { try await service.unfavorite(memory: $0) },
             delete: { try await service.delete(memory: $0) },
             deleteEvent: { try await service.delete(event: $0) },
-            note: { try await service.note(uuid: $0) },
+            memory: { try await service.memory(uuid: $0) },
             toggleFeatureFlag: { try await service.toggleFeatureFlag($0) }
         )
     }
@@ -270,7 +270,7 @@ extension HumaneCenterService {
     public var unfavorite: (ContentEnvelope) async throws -> Void
     public var delete: (ContentEnvelope) async throws -> Void
     public var deleteEvent: (EventContentEnvelope) async throws -> Void
-    public var note: (UUID) async throws -> ContentEnvelope
+    public var memory: (UUID) async throws -> ContentEnvelope
     public var toggleFeatureFlag: (FeatureFlag) async throws -> FeatureFlagEnvelope
     
     required public init(
@@ -290,7 +290,7 @@ extension HumaneCenterService {
         unfavorite: @escaping (ContentEnvelope) async throws -> Void,
         delete: @escaping (ContentEnvelope) async throws -> Void,
         deleteEvent: @escaping (EventContentEnvelope) async throws -> Void,
-        note: @escaping (UUID) async throws -> ContentEnvelope,
+        memory: @escaping (UUID) async throws -> ContentEnvelope,
         toggleFeatureFlag: @escaping (FeatureFlag) async throws -> FeatureFlagEnvelope
     ) {
         self.userDefaults = userDefaults
@@ -315,7 +315,7 @@ extension HumaneCenterService {
         self.unfavorite = unfavorite
         self.delete = delete
         self.deleteEvent = deleteEvent
-        self.note = note
+        self.memory = memory
         self.toggleFeatureFlag = toggleFeatureFlag
     }
     

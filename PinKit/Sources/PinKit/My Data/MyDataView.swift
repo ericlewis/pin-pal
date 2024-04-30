@@ -16,6 +16,9 @@ struct MyDataView: View {
                 .navigationTitle(repository.selectedFilter.title)
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbar {
+                    ToolbarItem(placement: .topBarLeading) {
+                        EditButton()
+                    }
                     ToolbarTitleMenu {
                         ForEach(MyDataFilter.allCases.filter({ $0 != repository.selectedFilter })) { filter in
                             Button(filter.title, systemImage: filter.systemImage) {
