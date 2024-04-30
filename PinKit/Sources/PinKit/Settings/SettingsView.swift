@@ -80,7 +80,7 @@ struct SettingsView: View {
                     .sheet(isPresented: $navigationStore.isWifiCodeGeneratorPresented) {
                         WifiQRCodeGenView()
                     }
-                    Button("Update Passcode") {
+                    Button("Update Account Passcode") {
                         
                     }
                 }
