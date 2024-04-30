@@ -97,10 +97,6 @@ struct SettingsView: View {
                     .sheet(isPresented: $navigationStore.isWifiCodeGeneratorPresented) {
                         WifiQRCodeGenView()
                     }
-                    Button("Update Account Passcode") {
-                        
-                    }
-                    .disabled(true)
                     if canDevicePlaceCalls() {
                         Button("Call my device") {
                             if let number = state.subscription?.phoneNumber, let url = URL(string: "tel://\(number)") {
