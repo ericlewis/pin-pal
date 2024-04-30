@@ -203,6 +203,22 @@ extension HumaneCenterService {
             let _: String = try await put(url: featureFlagsUrl.appending(path: flag.rawValue), body: flagResponse)
             return try await featureFlag(name: flag.rawValue)
         }
+        
+        func lostDeviceStatus(deviceId: String) async throws -> LostDeviceEnvelope {
+            try await get(url: subscriptionUrl.appending(path: "deviceAuthorization").appending(path: "lostDevice").appending(queryItems: [
+                .init(name: "deviceId", value: deviceId)
+            ]))
+        }
+        
+        func toggleLostDeviceStatus(deviceId: String) async throws -> LostDeviceEnvelope {
+            var status = try await lostDeviceStatus(deviceId: deviceId)
+            status.isLost = !status.isLost
+            return try await post(url: subscriptionUrl.appending(path: "deviceAuthorization").appending(path: "lostDevice"), body: status)
+        }
+        
+        func deviceIdentifiers() async throws -> [String] {
+            try await get(url: deviceAssignmentUrl.appending(path: "devices"))
+        }
     }
     
     public static func live() -> Self {
@@ -223,7 +239,10 @@ extension HumaneCenterService {
             delete: { try await service.delete(memory: $0) },
             deleteEvent: { try await service.delete(event: $0) },
             memory: { try await service.memory(uuid: $0) },
-            toggleFeatureFlag: { try await service.toggleFeatureFlag($0) }
+            toggleFeatureFlag: { try await service.toggleFeatureFlag($0) },
+            lostDeviceStatus: { try await service.lostDeviceStatus(deviceId: $0) },
+            toggleLostDeviceStatus: { try await service.toggleLostDeviceStatus(deviceId: $0) },
+            deviceIdentifiers: { try await service.deviceIdentifiers() }
         )
     }
 }
@@ -272,7 +291,10 @@ extension HumaneCenterService {
     public var deleteEvent: (EventContentEnvelope) async throws -> Void
     public var memory: (UUID) async throws -> ContentEnvelope
     public var toggleFeatureFlag: (FeatureFlag) async throws -> FeatureFlagEnvelope
-    
+    public var lostDeviceStatus: (String) async throws -> LostDeviceEnvelope
+    public var toggleLostDeviceStatus: (String) async throws -> LostDeviceEnvelope
+    public var deviceIdentifiers: () async throws -> [String]
+
     required public init(
         accessToken: String? = nil,
         userDefaults: UserDefaults = .standard,
@@ -291,7 +313,10 @@ extension HumaneCenterService {
         delete: @escaping (ContentEnvelope) async throws -> Void,
         deleteEvent: @escaping (EventContentEnvelope) async throws -> Void,
         memory: @escaping (UUID) async throws -> ContentEnvelope,
-        toggleFeatureFlag: @escaping (FeatureFlag) async throws -> FeatureFlagEnvelope
+        toggleFeatureFlag: @escaping (FeatureFlag) async throws -> FeatureFlagEnvelope,
+        lostDeviceStatus: @escaping (String) async throws -> LostDeviceEnvelope,
+        toggleLostDeviceStatus: @escaping (String) async throws -> LostDeviceEnvelope,
+        deviceIdentifiers: @escaping () async throws -> [String]
     ) {
         self.userDefaults = userDefaults
         let decoder = JSONDecoder()
@@ -317,6 +342,9 @@ extension HumaneCenterService {
         self.deleteEvent = deleteEvent
         self.memory = memory
         self.toggleFeatureFlag = toggleFeatureFlag
+        self.lostDeviceStatus = lostDeviceStatus
+        self.toggleLostDeviceStatus = toggleLostDeviceStatus
+        self.deviceIdentifiers = deviceIdentifiers
     }
     
     public func isLoggedIn() -> Bool {

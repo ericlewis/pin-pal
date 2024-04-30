@@ -39,6 +39,7 @@ struct SettingsView: View {
         var extendedInfo: DetailedDeviceInfo?
         var isLoading = false
         var isVisionBetaEnabled = false
+        var isDeviceLost = false
     }
     
     @State
@@ -101,17 +102,15 @@ struct SettingsView: View {
                     }
                     .disabled(true)
                     if canDevicePlaceCalls() {
-                        Button("Call your Pin") {
+                        Button("Call my device") {
                             if let number = state.subscription?.phoneNumber, let url = URL(string: "tel://\(number)") {
                                 openURL(url.appending(path: number))
                             }
                         }
                         .disabled(state.subscription == nil)
                     }
-                    Button("Mark as Lost", role: .destructive) {
-                        
-                    }
-                    .disabled(true)
+                    Toggle("Block my device", isOn: $state.isDeviceLost)
+                        .disabled(state.isLoading)
                 } header: {
                     Text("Features")
                 } footer: {
@@ -161,6 +160,13 @@ struct SettingsView: View {
                 }
             }
         }
+        .onChange(of: state.isDeviceLost) {
+            if !state.isLoading, let id = state.extendedInfo?.id {
+                Task {
+                    try await api.toggleLostDeviceStatus(id)
+                }
+            }
+        }
         .onChange(of: selectedIcon) {
 #if os(iOS)
             if selectedIcon.description.iconName == Constants.defaultAppIconName {
@@ -187,6 +193,12 @@ struct SettingsView: View {
             let extendedInfo = try await api.detailedDeviceInformation()
             withAnimation {
                 self.state.extendedInfo = extendedInfo
+            }
+            do {
+                let status = try await api.lostDeviceStatus(extendedInfo.id)
+                print(status)
+            } catch {
+                print(error)
             }
         } catch {
             let logger = Logger(subsystem: "app", category: "settings")
