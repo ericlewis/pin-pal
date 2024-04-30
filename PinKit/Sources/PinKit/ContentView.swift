@@ -11,6 +11,11 @@ public struct ContentView: View {
         var navigationStore = navigationStore
         
         TabView(selection: $navigationStore.selectedTab) {
+            DashboardView()
+                .tabItem {
+                    Label("Memories", systemImage: "memories")
+                }
+                .tag(Tab.dashboard)
             NotesView()
                 .tabItem {
                     Label("Notes", systemImage: "note.text")
