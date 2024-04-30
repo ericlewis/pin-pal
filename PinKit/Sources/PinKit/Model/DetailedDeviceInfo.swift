@@ -1,6 +1,6 @@
 import Foundation
 
-public struct DetailedDeviceInfo {
+public struct DetailedDeviceInfo: Codable {
     let id: String
     let iccid: String
     let serialNumber: String

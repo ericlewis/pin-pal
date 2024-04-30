@@ -20,6 +20,9 @@ struct Ai_PinApp: App {
     @State
     private var sceneMyDataRepository: MyDataRepository
     
+    @State
+    private var sceneSettingsRepository: SettingsRepository
+    
     @AccentColor
     private var accentColor: Color
 
@@ -38,11 +41,15 @@ struct Ai_PinApp: App {
         
         let myDataRepository = MyDataRepository(api: api)
         sceneMyDataRepository = myDataRepository
+        
+        let settingsRepository = SettingsRepository(service: api)
+        sceneSettingsRepository = settingsRepository
 
         AppDependencyManager.shared.add(dependency: navigationStore)
         AppDependencyManager.shared.add(dependency: notesRepository)
         AppDependencyManager.shared.add(dependency: capturesRepository)
         AppDependencyManager.shared.add(dependency: myDataRepository)
+        AppDependencyManager.shared.add(dependency: settingsRepository)
     }
     
     var body: some Scene {
@@ -52,6 +59,7 @@ struct Ai_PinApp: App {
                 .environment(sceneCapturesRepository)
                 .environment(sceneNavigationStore)
                 .environment(sceneMyDataRepository)
+                .environment(sceneSettingsRepository)
                 .environment(sceneApi)
                 .tint(accentColor)
         }
