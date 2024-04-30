@@ -38,12 +38,10 @@ struct MusicCellView: View {
                         .foregroundStyle(.secondary)
                 }
             }
-        } else {
+        } else if let trackId = event.trackID {
             Button {
-                if let trackId = event.trackID {
-                    if let trackUrl = makeTidalTrackURL(trackID: trackId) {
-                        openURL(trackUrl)
-                    }
+                if let trackUrl = makeTidalTrackURL(trackID: trackId) {
+                    openURL(trackUrl)
                 }
             } label: {
                 LabeledContent {
@@ -78,6 +76,37 @@ struct MusicCellView: View {
                 }
             }
             .foregroundStyle(.primary)
+        } else {
+            LabeledContent {
+                if let id = event.albumArtUuid {
+                    WebImage(url: makeAlbumURL(id: id)) { image in
+                        image
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 60, height: 60)
+                            .clipShape(RoundedRectangle(cornerRadius: 8))
+                    } placeholder: {
+                        RoundedRectangle(cornerRadius: 8)
+                            .fill(.bar)
+                            .frame(width: 60, height: 60)
+                            .overlay(ProgressView())
+                    }
+                }
+            } label: {
+                if let title = event.trackTitle ?? event.prompt {
+                    Text(title)
+                        .font(.headline)
+                        .foregroundStyle(accentColor)
+                }
+                if let artistName = event.artistName {
+                    Text(artistName)
+                }
+                if let albumName = event.albumName {
+                    Text(albumName)
+                }
+                Text(createdAt, format: .dateTime)
+                    .font(.caption)
+            }
         }
     }
     
