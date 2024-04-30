@@ -38,7 +38,7 @@ struct ContentCellView: View {
                 }
             }
             .overlay(alignment: .bottomTrailing) {
-                if let _ = capture.video {
+                if capture.video != nil {
                     Image(systemName: "play.fill")
                         .symbolVariant(.fill)
                         .imageScale(.medium)
