@@ -152,7 +152,7 @@ public struct Pageable: Codable {
     let paged: Bool
 }
 
-public struct Thumbnail: Codable {
+public struct FileAsset: Codable {
     let fileUUID: UUID
     let accessToken: String
 }
@@ -170,12 +170,15 @@ enum CaptureType: String, Codable {
 public struct CaptureEnvelope: Codable {
     let uuid: UUID
     let type: CaptureType
-    let thumbnail: Thumbnail
+    let thumbnail: FileAsset
     let video: Video?
     
-    let originalThumbnails: [Thumbnail]?
-    let originals: [Thumbnail]?
-    let derivatives: [Thumbnail]?
+    let originalThumbnails: [FileAsset]?
+    let originals: [FileAsset]?
+    let derivatives: [FileAsset]?
+    let location: String?
+    let latitude: Double?
+    let longitude: Double?
 }
 
 public struct ContentEnvelope: Codable, Identifiable {
