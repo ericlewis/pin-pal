@@ -100,10 +100,13 @@ struct SettingsView: View {
                         
                     }
                     .disabled(true)
-                    if canDevicePlaceCalls(), let number = state.subscription?.phoneNumber, let url = URL(string: "tel://\(number)") {
+                    if canDevicePlaceCalls() {
                         Button("Call your Pin") {
-                            openURL(url.appending(path: number))
+                            if let number = state.subscription?.phoneNumber, let url = URL(string: "tel://\(number)") {
+                                openURL(url.appending(path: number))
+                            }
                         }
+                        .disabled(state.subscription == nil)
                     }
                     Button("Mark as Lost", role: .destructive) {
                         
