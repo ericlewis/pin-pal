@@ -11,9 +11,14 @@ struct ContentCellView: View {
         switch content.data {
         case let .capture(capture):
             WebImage(url: makeThumbnailURL(capture: capture)) { image in
-                image
-                    .resizable()
+                Rectangle()
+                    .overlay {
+                        image
+                            .resizable()
+                            .scaledToFill()
+                    }
                     .aspectRatio(1, contentMode: .fill)
+                    .clipped()
             } placeholder: {
                 Rectangle()
                     .fill(.bar)
@@ -22,15 +27,21 @@ struct ContentCellView: View {
                     }
                     .aspectRatio(1, contentMode: .fill)
             }
-            .overlay(alignment: .bottomLeading) {
-                if content.favorite {
-                    Image(systemName: "heart")
-                        .symbolVariant(.fill)
-                        .imageScale(.small)
-                        .padding(5)
-                        .foregroundStyle(.white)
-                        .shadow(radius: 3)
+            .overlay(alignment: .bottom) {
+                HStack {
+                    if content.favorite {
+                        Image(systemName: "heart")
+                    }
+                    Spacer()
+                    if capture.video != nil {
+                        Image(systemName: "play")
+                    }
                 }
+                .padding(5)
+                .symbolVariant(.fill)
+                .imageScale(.small)
+                .foregroundStyle(.white)
+                .shadow(color: .black, radius: 5)
             }
         case let .note(note):
             LabeledContent {} label: {
