@@ -20,8 +20,8 @@ struct Ai_PinApp: App {
     @State
     private var sceneMyDataRepository: MyDataRepository
     
-    @AppStorage(Constant.UI_CUSTOM_ACCENT_COLOR_V1)
-    private var accentColor: Color = Constant.defaultAppAccentColor
+    @AppStorage(Constants.UI_CUSTOM_ACCENT_COLOR_V1)
+    private var accentColor: Color = Constants.defaultAppAccentColor
 
     init() {
         let navigationStore = NavigationStore()

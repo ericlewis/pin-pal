@@ -50,10 +50,10 @@ struct SettingsView: View {
     @Environment(HumaneCenterService.self)
     private var api
     
-    @AppStorage(Constant.UI_CUSTOM_ACCENT_COLOR_V1)
-    private var accentColor: Color = Constant.defaultAppAccentColor
+    @AppStorage(Constants.UI_CUSTOM_ACCENT_COLOR_V1)
+    private var accentColor: Color = Constants.defaultAppAccentColor
 
-    @AppStorage(Constant.UI_CUSTOM_APP_ICON_V1)
+    @AppStorage(Constants.UI_CUSTOM_APP_ICON_V1)
     private var selectedIcon: Icon = Icon.initial
     
     var body: some View {
@@ -74,6 +74,7 @@ struct SettingsView: View {
                 .textSelection(.enabled)
                 Section("Features") {
                     Toggle("Vision (Beta)", isOn: $state.isVisionBetaEnabled)
+                        .disabled(state.isLoading)
                     Button("Add Wi-Fi Network") {
                         self.navigationStore.isWifiCodeGeneratorPresented = true
                     }
@@ -84,7 +85,6 @@ struct SettingsView: View {
                         
                     }
                 }
-                .disabled(state.isLoading)
                 Section {
                     Button("Mark As Lost", role: .destructive) {
                         
@@ -131,6 +131,7 @@ struct SettingsView: View {
             .navigationTitle("Settings")
         }
         .task {
+            guard self.state.subscription == nil else { return }
             self.state.isLoading = true
             await load()
             self.state.isLoading = false
@@ -142,7 +143,7 @@ struct SettingsView: View {
         }
         .onChange(of: selectedIcon) {
             #if os(iOS)
-            if selectedIcon.description.iconName == Constant.defaultAppIconName {
+            if selectedIcon.description.iconName == Constants.defaultAppIconName {
                 UIApplication.shared.setAlternateIconName(nil)
             } else {
                 UIApplication.shared.setAlternateIconName(selectedIcon.description.iconName)

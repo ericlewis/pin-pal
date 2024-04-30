@@ -25,7 +25,7 @@ struct VideoView: View {
     let id: UUID
     let vidUrl: URL
     
-    @AppStorage(Constant.ACCESS_TOKEN)
+    @AppStorage(Constants.ACCESS_TOKEN)
     private var accessToken: String?
     
     @State

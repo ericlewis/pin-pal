@@ -8,7 +8,7 @@ extension HumaneCenterService {
     actor Service {
         private var accessToken: String? {
             didSet {
-                UserDefaults.standard.setValue(accessToken, forKey: Constant.ACCESS_TOKEN)
+                UserDefaults.standard.setValue(accessToken, forKey: Constants.ACCESS_TOKEN)
             }
         }
         private var lastSessionUpdate: Date?
@@ -209,7 +209,7 @@ extension HumaneCenterService {
     private let sessionTimeout: TimeInterval = 60 * 5 // 5 min
     
     private var accessToken: String? {
-        UserDefaults.standard.string(forKey: Constant.ACCESS_TOKEN)
+        UserDefaults.standard.string(forKey: Constants.ACCESS_TOKEN)
     }
     
     private var lastSessionUpdate: Date?

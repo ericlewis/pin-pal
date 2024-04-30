@@ -4,8 +4,8 @@ import SDWebImageSwiftUI
 struct ContentCellView: View {
     let content: ContentEnvelope
     
-    @AppStorage(Constant.UI_CUSTOM_ACCENT_COLOR_V1)
-    private var accentColor: Color = Constant.defaultAppAccentColor
+    @AppStorage(Constants.UI_CUSTOM_ACCENT_COLOR_V1)
+    private var accentColor: Color = Constants.defaultAppAccentColor
     
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
