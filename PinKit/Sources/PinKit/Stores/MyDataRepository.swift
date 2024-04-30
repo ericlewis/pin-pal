@@ -92,6 +92,19 @@ enum MyDataFilter {
         }
     }
     
+    var systemImage: String {
+        switch self {
+        case .aiMic:
+            "mic"
+        case .calls:
+            "phone"
+        case .music:
+            "music.note"
+        case .translations:
+            "bubble.left.and.text.bubble.right"
+        }
+    }
+    
     var domain: EventDomain {
         switch self {
         case .aiMic: .aiMic

@@ -1,12 +1,62 @@
 import Foundation
 
+struct SmartGeneratedPlaylist: Codable {
+    static let decoder = JSONDecoder()
+    
+    struct Track: Codable {
+        let title: String
+        let artists: [String]
+        
+        init(from decoder: any Decoder) throws {
+            let container = try decoder.container(keyedBy: CodingKeys.self)
+            self.title = try container.decode(String.self, forKey: .title)
+            let artistsData = try container.decode(String.self, forKey: .artists)
+            self.artists = artistsData.dropFirst().dropLast().split(separator: ", ").map({ String($0) })
+        }
+        
+        enum CodingKeys: CodingKey {
+            case title
+            case artists
+        }
+    }
+    
+    let tracks: [Track]
+    
+    init(from decoder: any Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        guard let tracksData = try container.decode(String.self, forKey: .tracks).data(using: .utf8) else {
+            self.tracks = []
+            return
+        }
+        self.tracks = try Self.decoder.decode([Track].self, from: tracksData)
+    }
+}
+
 struct MusicEvent: Codable {
     let artistName: String?
     let albumName: String?
     let trackTitle: String?
     let prompt: String?
     let albumArtUuid: UUID?
+    let length: String? // number of tracks
+    let generatedPlaylist: SmartGeneratedPlaylist?
     let sourceService: String
+    
+    init(from decoder: any Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.artistName = try container.decodeIfPresent(String.self, forKey: .artistName)
+        self.albumName = try container.decodeIfPresent(String.self, forKey: .albumName)
+        self.trackTitle = try container.decodeIfPresent(String.self, forKey: .trackTitle)
+        self.prompt = try container.decodeIfPresent(String.self, forKey: .prompt)
+        self.albumArtUuid = try container.decodeIfPresent(UUID.self, forKey: .albumArtUuid)
+        self.length = try container.decodeIfPresent(String.self, forKey: .length)
+        self.sourceService = try container.decode(String.self, forKey: .sourceService)
+        guard let playlistData = try container.decodeIfPresent(String.self, forKey: .generatedPlaylist)?.data(using: .utf8) else {
+            self.generatedPlaylist = nil
+            return
+        }
+        self.generatedPlaylist = try JSONDecoder().decode(SmartGeneratedPlaylist.self, from: playlistData)
+    }
 }
 
 struct AiMicEvent: Codable {
