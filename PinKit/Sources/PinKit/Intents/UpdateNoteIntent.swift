@@ -28,7 +28,7 @@ public struct UpdateNoteIntent: AppIntent {
     
     @Dependency
     public var notesRepository: NotesRepository
-
+    
     public func perform() async throws -> some IntentResult {
         guard let memoryId = UUID(uuidString: self.identifier) else {
             return .result()

@@ -27,7 +27,7 @@ public struct EventOverview: Decodable {
     let messages: Counts
     let translation: Counts
     let music: Counts
-
+    
     public init(from decoder: any Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         let overviewContainer = try container.nestedContainer(keyedBy: AdditionalCodingKeys.self, forKey: .overview)

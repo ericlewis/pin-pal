@@ -13,7 +13,7 @@ import CollectionConcurrencyKit
     var hasContent: Bool {
         !content.isEmpty
     }
-        
+    
     public init(api: HumaneCenterService = .live()) {
         self.api = api
     }

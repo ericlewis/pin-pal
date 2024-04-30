@@ -21,7 +21,7 @@ extension HumaneCenterService {
         private let encoder = JSONEncoder()
         private let session: URLSession
         private let userDefaults: UserDefaults
-
+        
         public init(
             userDefaults: UserDefaults = .standard
         ) {
@@ -133,7 +133,7 @@ extension HumaneCenterService {
                 .init(name: "sort", value: sort)
             ]))
         }
-
+        
         public func favorite(memory: ContentEnvelope) async throws {
             try await post(url: memoryUrl.appending(path: memory.uuid.uuidString).appending(path: "favorite"))
         }
@@ -168,7 +168,7 @@ extension HumaneCenterService {
         public func retrieveDetailedDeviceInfo() async throws -> DetailedDeviceInfo {
             let d = try await URLSession.shared.data(from: URL(string: "https://humane.center/account/devices")!).0
             let string = String(data: d, encoding: .utf8)!
-
+            
             return DetailedDeviceInfo(
                 id: extractValue(from: string, forKey: "deviceID") ?? "UNKNOWN",
                 iccid: extractValue(from: string, forKey: "iccid") ?? "UNKNOWN",
@@ -242,7 +242,7 @@ extension HumaneCenterService {
     private static let subscriptionV3Url = rootUrl.appending(path: "subscription/v3/subscription")
     private static let addonsUrl = rootUrl.appending(path: "subscription/addons")
     private static let featureFlagsUrl = rootUrl.appending(path: "feature-flags/v0/feature-flag/flags")
-
+    
     static let sessionUrl = URL(string: "https://humane.center/api/auth/session")!
     
     private let decoder: JSONDecoder
@@ -272,7 +272,7 @@ extension HumaneCenterService {
     public var deleteEvent: (EventContentEnvelope) async throws -> Void
     public var note: (UUID) async throws -> ContentEnvelope
     public var toggleFeatureFlag: (FeatureFlag) async throws -> FeatureFlagEnvelope
-
+    
     required public init(
         accessToken: String? = nil,
         userDefaults: UserDefaults = .standard,

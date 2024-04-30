@@ -217,7 +217,7 @@ public struct ContentEnvelope: Codable, Identifiable {
     
     public init(from decoder: any Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-  
+        
         let id = try container.decode(UUID.self, forKey: .uuid)
         self.id = id
         self.uuid = id

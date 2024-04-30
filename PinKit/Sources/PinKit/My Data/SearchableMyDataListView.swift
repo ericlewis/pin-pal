@@ -38,7 +38,7 @@ struct SearchableMyDataListView: View {
             }
         })
     }
-
+    
     var body: some View {
         List {
             ForEach(isSearching ? searchContent : repository.content[repository.selectedFilter] ?? []) { event in

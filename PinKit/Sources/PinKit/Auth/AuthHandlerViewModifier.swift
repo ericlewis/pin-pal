@@ -32,7 +32,7 @@ public struct AuthHandlerViewModifier: ViewModifier {
     
     @Environment(HumaneCenterService.self)
     private var api
-        
+    
     @State
     private var authenticationWebView = AuthenticationWebViewModel()
     

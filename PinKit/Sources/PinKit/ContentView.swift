@@ -5,7 +5,7 @@ public struct ContentView: View {
     private var navigationStore
     
     public init() {}
-
+    
     public var body: some View {
         @Bindable
         var navigationStore = navigationStore

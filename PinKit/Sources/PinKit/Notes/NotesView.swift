@@ -1,10 +1,10 @@
 import SwiftUI
 
 struct NotesView: View {
-
+    
     @Environment(NavigationStore.self) 
     private var navigationStore
-
+    
     @Environment(NotesRepository.self)
     private var repository
     

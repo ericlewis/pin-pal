@@ -84,7 +84,7 @@ public struct NoteComposerView: View {
                         }
                     }
                     .disabled(note.title.isEmpty || note.text.isEmpty)
-
+                    
                 }
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") {

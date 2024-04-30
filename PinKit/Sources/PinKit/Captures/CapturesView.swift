@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct CapturesView: View {
-
+    
     @Environment(CapturesRepository.self)
     private var repository
     
@@ -10,7 +10,7 @@ struct CapturesView: View {
     
     @State
     private var query = ""
-
+    
     var body: some View {
         @Bindable var navigationStore = navigationStore
         NavigationStack(path: $navigationStore.capturesNavigationPath) {

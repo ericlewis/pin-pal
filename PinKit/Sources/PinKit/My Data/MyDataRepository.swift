@@ -24,7 +24,7 @@ import OSLog
         }
         return !content.isEmpty
     }
-        
+    
     public init(api: HumaneCenterService = .live()) {
         self.api = api
     }

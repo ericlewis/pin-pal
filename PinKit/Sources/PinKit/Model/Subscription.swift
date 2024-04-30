@@ -9,7 +9,15 @@ public struct Subscription: Codable {
     let pinSetAt: Date?
     let planPrice: Int
     
-    public init(status: String, phoneNumber: String, accountNumber: String, planType: String, defaultPaymentMethod: PaymentMethod, pinSetAt: Date?, planPrice: Int) {
+    public init(
+        status: String,
+        phoneNumber: String,
+        accountNumber: String,
+        planType: String,
+        defaultPaymentMethod: PaymentMethod,
+        pinSetAt: Date?,
+        planPrice: Int
+    ) {
         self.status = status
         self.phoneNumber = phoneNumber
         self.accountNumber = accountNumber

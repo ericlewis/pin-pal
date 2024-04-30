@@ -10,10 +10,10 @@ extension Color: RawRepresentable {
         }
         self = Color(color)
     }
-
+    
     public var rawValue: String {
         let data = try? NSKeyedArchiver.archivedData(
-          withRootObject: UIColor(self), requiringSecureCoding: false)
+            withRootObject: UIColor(self), requiringSecureCoding: false)
         return data?.base64EncodedString() ?? ""
     }
 }

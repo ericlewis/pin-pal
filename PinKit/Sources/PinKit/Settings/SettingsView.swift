@@ -52,7 +52,7 @@ struct SettingsView: View {
     
     @AppStorage(Constants.UI_CUSTOM_ACCENT_COLOR_V1)
     private var accentColor: Color = Constants.defaultAppAccentColor
-
+    
     @AppStorage(Constants.UI_CUSTOM_APP_ICON_V1)
     private var selectedIcon: Icon = Icon.initial
     
@@ -86,7 +86,7 @@ struct SettingsView: View {
                                 .background(RoundedRectangle(cornerRadius: 5).fill(.red))
                         }
                     }
-                        .disabled(state.isLoading)
+                    .disabled(state.isLoading)
                     Button("Add Wi-Fi Network") {
                         self.navigationStore.isWifiCodeGeneratorPresented = true
                     }
@@ -96,12 +96,13 @@ struct SettingsView: View {
                     Button("Update Account Passcode") {
                         
                     }
+                    .disabled(true)
                 }
                 Section {
                     Button("Mark As Lost", role: .destructive) {
                         
                     }
-                    .disabled(state.isLoading)
+                    .disabled(true)
                 } header: {
                     Text("Security")
                 } footer: {
@@ -152,13 +153,13 @@ struct SettingsView: View {
             }
         }
         .onChange(of: selectedIcon) {
-            #if os(iOS)
+#if os(iOS)
             if selectedIcon.description.iconName == Constants.defaultAppIconName {
                 UIApplication.shared.setAlternateIconName(nil)
             } else {
                 UIApplication.shared.setAlternateIconName(selectedIcon.description.iconName)
             }
-            #endif
+#endif
         }
     }
     
