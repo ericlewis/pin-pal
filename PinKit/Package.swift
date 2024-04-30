@@ -14,13 +14,14 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/SDWebImage/SDWebImageSwiftUI", from: "3.0.4"),
+        .package(url: "https://github.com/ericlewis/CollectionConcurrencyKit", branch: "main"),
     ],
     targets: [
         // Targets are the basic building blocks of a package, defining a module or a test suite.
         // Targets can depend on other targets in this package and products from dependencies.
         .target(
             name: "PinKit",
-            dependencies: ["SDWebImageSwiftUI"]),
+            dependencies: ["SDWebImageSwiftUI", "CollectionConcurrencyKit"]),
         .testTarget(
             name: "PinKitTests",
             dependencies: ["PinKit"]),

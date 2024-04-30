@@ -1,5 +1,6 @@
 import SwiftUI
 import OSLog
+import CollectionConcurrencyKit
 
 @Observable public class NotesRepository {
     let logger = Logger()
@@ -109,5 +110,37 @@ extension NotesRepository {
         } catch {
             logger.debug("\(error)")
         }
+    }
+    
+    public func search(query: String) async {
+        isLoading = true
+        do {
+            try await Task.sleep(for: .milliseconds(300))
+            guard let searchIds = try await api.search(query, .notes).memories?.map(\.uuid) else {
+                self.content = []
+                throw CancellationError()
+            }
+            var fetchedResults: [ContentEnvelope] = await try searchIds.asyncCompactMap { id in
+                if let localContent = self.content.first(where: { $0.uuid == id }) {
+                    return localContent
+                } else {
+                    try Task.checkCancellation()
+                    do {
+                        return try await api.note(id)
+                    } catch {
+                        logger.debug("\(error)")
+                        return nil
+                    }
+                }
+            }
+            withAnimation {
+                self.content = fetchedResults
+            }
+        } catch is CancellationError {
+            // noop
+        } catch {
+            logger.debug("\(error)")
+        }
+        isLoading = false
     }
 }

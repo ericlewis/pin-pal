@@ -6,11 +6,20 @@ public struct FeatureFlagEnvelope: Codable {
         case disabled
     }
     
-    let state: State
-    var bool: Bool {
-        switch state {
-        case .enabled: true
-        case .disabled: false
+    var state: State
+    var isEnabled: Bool {
+        get {
+            switch state {
+            case .enabled: true
+            case .disabled: false
+            }
+        }
+        set {
+            if newValue {
+                state = .enabled
+            } else {
+                state = .disabled
+            }
         }
     }
 }
