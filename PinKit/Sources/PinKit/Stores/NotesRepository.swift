@@ -24,7 +24,6 @@ extension NotesRepository {
         do {
             let data = try await api.notes(page, size)
             self.data = data
-            self.hasMoreData = (data.totalPages - 1) != page
             withAnimation {
                 if reload {
                     self.content = data.content
@@ -32,6 +31,7 @@ extension NotesRepository {
                     self.content.append(contentsOf: data.content)
                 }
             }
+            self.hasMoreData = (data.totalPages - 1) != page
         } catch {
             logger.debug("\(error)")
         }

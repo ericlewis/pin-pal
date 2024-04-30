@@ -5,7 +5,8 @@ import AppIntents
     public var selectedTab: Tab = .notes
     
     public var notesNavigationPath = NavigationPath()
-    
+    public var capturesNavigationPath = NavigationPath()
+
     public var authenticationPresented = false
     public var activeNote: Note?
     public var isWifiCodeGeneratorPresented = false

@@ -25,7 +25,9 @@ struct VideoView: View {
     
     let id: UUID
     let vidUrl: URL
-    let accessToken: String
+    
+    @AppStorage(Constant.ACCESS_TOKEN)
+    private var accessToken: String?
     
     @State
     private var player = AVPlayer()
@@ -41,7 +43,7 @@ struct VideoView: View {
                         player.replaceCurrentItem(with: .init(url: targetURL))
                     } else {
                         var req = URLRequest(url: vidUrl)
-                        req.setValue("Bearer \(accessToken)", forHTTPHeaderField: "Authorization")
+                        req.setValue("Bearer \(accessToken!)", forHTTPHeaderField: "Authorization")
                         let (data, _) = try await URLSession.shared.data(for: req)
                         try FileManager.default.createFile(atPath: targetURL.path(), contents: data)
                         player.replaceCurrentItem(with: .init(url: targetURL))
@@ -63,30 +65,23 @@ struct VideoView: View {
 }
 
 struct CapturesView: View {
+
+    @Environment(CapturesRepository.self)
+    private var capturesRepository
     
-    struct ViewState {
-        var isLoading = false
-        var captures: [ContentEnvelope] = []
-    }
-    
-    @State
-    private var state = ViewState()
-    
-    @Environment(HumaneCenterService.self)
-    private var api
-    
-    @AppStorage(Constant.ACCESS_TOKEN)
-    private var accessToken: String?
-    
+    @Environment(NavigationStore.self)
+    private var navigationStore
+
     var body: some View {
-        NavigationStack {
+        @Bindable var navigationStore = navigationStore
+        NavigationStack(path: $navigationStore.capturesNavigationPath) {
             ScrollView {
                 LazyVGrid(columns: [.init(.adaptive(minimum: 100, maximum: 300), spacing: 2)], spacing: 2) {
-                    ForEach(state.captures, id: \.uuid) { capture in
+                    ForEach(capturesRepository.content) { capture in
                         NavigationLink {
                             VStack {
-                                if let vidUrl = capture.videoDownloadUrl(), let accessToken {
-                                    VideoView(id: capture.uuid, vidUrl: vidUrl, accessToken: accessToken)
+                                if let vidUrl = capture.videoDownloadUrl() {
+                                    VideoView(id: capture.uuid, vidUrl: vidUrl)
                                 } else {
                                     WebImage(url: makeThumbnailURL(content: capture, capture: capture.get()!))
                                         .resizable()
@@ -106,121 +101,58 @@ struct CapturesView: View {
                             makeMenuContents(for: capture)
                         }
                     }
+                    if capturesRepository.hasMoreData {
+                        Rectangle()
+                            .fill(.bar)
+                            .overlay(ProgressView())
+                            .task {
+                                await capturesRepository.loadMore()
+                            }
+                    }
                 }
             }
+            .refreshable(action: capturesRepository.reload)
             .searchable(text: .constant(""))
-            .refreshable {
-                await load()
-            }
             .listSectionSpacing(15)
             .navigationTitle("Captures")
         }
         .overlay {
-            if !state.isLoading, state.captures.isEmpty {
-                ContentUnavailableView("No captures yet", systemImage: "camera.aperture")
-            } else if state.isLoading, state.captures.isEmpty {
+            if !capturesRepository.hasContent, capturesRepository.isLoading {
                 ProgressView()
+            } else if !capturesRepository.hasContent, capturesRepository.isFinished {
+                ContentUnavailableView("No captures yet", systemImage: "camera.aperture")
             }
         }
-        .task {
-            state.isLoading = true
-            while !Task.isCancelled {
-                await load()
-                state.isLoading = false
-                try? await Task.sleep(for: .seconds(15))
-            }
-        }
+        .task(capturesRepository.initial)
     }
-    
-    func load() async {
-        do {
-            let captures = try await api.captures(100)
-            withAnimation {
-                state.captures = captures.content
-            }
-        } catch {
-            print(error)
-        }
-    }
-    
+
     @ViewBuilder
     func makeMenuContents(for capture: ContentEnvelope) -> some View {
         Section {
             Button("Copy", systemImage: "doc.on.doc") {
                 Task {
-                    try await UIPasteboard.general.image = image(for: capture)
+                    await capturesRepository.copyToClipboard(capture: capture)
                 }
             }
             Button("Save to Camera Roll", systemImage: "square.and.arrow.down") {
                 Task {
-                    try await save(capture: capture)
+                    await capturesRepository.save(capture: capture)
                 }
             }
-            if capture.favorite {
-                Button("Unfavorite", systemImage: "heart") {
-                    Task {
-                        do {
-                            try await api.unfavorite(capture)
-                        } catch {
-                            print(error)
-                        }
-                    }
-                }
-                .symbolVariant(.slash)
-            } else {
-                Button("Favorite", systemImage: "heart") {
-                    Task {
-                        do {
-                            try await api.favorite(capture)
-                        } catch {
-                            print(error)
-                        }
-                    }
+            Button(capture.favorite ? "Unfavorite" : "Favorite", systemImage: "heart") {
+                Task {
+                    await capturesRepository.toggleFavorite(content: capture)
                 }
             }
+            .symbolVariant(capture.favorite ? .slash : .none)
         }
         Section {
             Button("Delete", systemImage: "trash", role: .destructive) {
-                
+                Task {
+                    await capturesRepository.remove(content: capture)
+                }
             }
         }
-    }
-    
-    func save(capture: ContentEnvelope) async throws {
-        if capture.get()?.video == nil {
-            try await UIImageWriteToSavedPhotosAlbum(image(for: capture), nil, nil, nil)
-        } else {
-            try await saveVideo(capture: capture)
-        }
-    }
-    
-    func saveVideo(capture: ContentEnvelope) async throws {
-        guard let url = capture.videoDownloadUrl() else { return }
-        let tempDirectoryURL = URL(fileURLWithPath: NSTemporaryDirectory(), isDirectory: true)
-        let targetURL = tempDirectoryURL.appendingPathComponent(capture.uuid.uuidString).appendingPathExtension("mp4")
-        if try FileManager.default.fileExists(atPath: targetURL.path()) {
-            UISaveVideoAtPathToSavedPhotosAlbum(targetURL.path(), nil, nil, nil)
-        } else {
-            var req = URLRequest(url: url)
-            req.setValue("Bearer \(accessToken)", forHTTPHeaderField: "Authorization")
-            let (data, _) = try await URLSession.shared.data(for: req)
-            try FileManager.default.createFile(atPath: targetURL.path(), contents: data)
-            UISaveVideoAtPathToSavedPhotosAlbum(targetURL.path(), nil, nil, nil)
-        }
-    }
-    
-    func image(for capture: ContentEnvelope) async throws -> UIImage {
-        guard let cap: CaptureEnvelope = capture.get() else { return UIImage() }
-        let (data, _) = try await URLSession.shared.data(from: URL(string: "https://webapi.prod.humane.cloud/capture/memory/\(capture.uuid)/file/\(cap.thumbnail.fileUUID)")!.appending(queryItems: [
-            .init(name: "token", value: cap.thumbnail.accessToken),
-            .init(name: "w", value: "640"),
-            .init(name: "q", value: "100")
-        ]))
-        guard let image = UIImage(data: data) else {
-            fatalError()
-        }
-        return image
-        UIImage()
     }
     
     func makeThumbnailURL(content: ContentEnvelope, capture: CaptureEnvelope) -> URL? {

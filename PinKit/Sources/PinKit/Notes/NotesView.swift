@@ -12,7 +12,7 @@ struct NotesView: View {
         @Bindable var navigationStore = navigationStore
         NavigationStack(path: $navigationStore.notesNavigationPath) {
             List {
-                ForEach(notesRepository.content, id: \.uuid) { memory in
+                ForEach(notesRepository.content) { memory in
                     Button {
                         self.navigationStore.activeNote = memory.get()
                     } label: {

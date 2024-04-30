@@ -119,7 +119,7 @@ public struct CaptureEnvelope: Codable {
     let video: Video?
 }
 
-public struct ContentEnvelope: Codable {
+public struct ContentEnvelope: Codable, Identifiable {
     enum DataClass: Codable {
         case capture(CaptureEnvelope)
         case note(Note)
@@ -151,6 +151,7 @@ public struct ContentEnvelope: Codable {
         }
     }
     
+    public let id: UUID
     let uuid: UUID
     let originClientId: String
     var favorite: Bool
@@ -162,7 +163,9 @@ public struct ContentEnvelope: Codable {
     public init(from decoder: any Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
   
-        self.uuid = try container.decode(UUID.self, forKey: .uuid)
+        let id = try container.decode(UUID.self, forKey: .uuid)
+        self.id = id
+        self.uuid = id
         self.data = try container.decode(DataClass.self, forKey: .data)
         self.userLastModified = try container.decode(Date.self, forKey: .userLastModified)
         self.userCreatedAt = try container.decode(Date.self, forKey: .userCreatedAt)

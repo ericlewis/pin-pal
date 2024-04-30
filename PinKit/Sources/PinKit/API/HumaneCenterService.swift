@@ -172,7 +172,7 @@ extension HumaneCenterService {
         return Self(
             session: { try await service.session() },
             notes: { try await service.notes(page: $0, size: $1) },
-            captures: { try await service.captures(size: $0) },
+            captures: { try await service.captures(page: $0, size: $1) },
             events: { try await service.events(domain: $0, size: $1) },
             featureFlag: { try await service.featureFlag(name: $0) },
             subscription: { try await service.subscription() },
@@ -216,7 +216,7 @@ extension HumaneCenterService {
     
     public var session: () async throws -> Session
     public var notes: (Int, Int) async throws -> PageableMemoryContentEnvelope
-    public var captures: (Int) async throws -> PageableMemoryContentEnvelope
+    public var captures: (Int, Int) async throws -> PageableMemoryContentEnvelope
     public var events: (EventDomain, Int) async throws -> PageableEventContentEnvelope
     public var featureFlag: (String) async throws -> FeatureFlagEnvelope
     public var subscription: () async throws -> Subscription
@@ -232,7 +232,7 @@ extension HumaneCenterService {
         userDefaults: UserDefaults = .standard,
         session: @escaping () async throws -> Session,
         notes: @escaping (Int, Int) async throws -> PageableMemoryContentEnvelope,
-        captures: @escaping (Int) async throws -> PageableMemoryContentEnvelope,
+        captures: @escaping (Int, Int) async throws -> PageableMemoryContentEnvelope,
         events: @escaping (EventDomain, Int) async throws -> PageableEventContentEnvelope,
         featureFlag: @escaping (String) async throws -> FeatureFlagEnvelope,
         subscription: @escaping () async throws -> Subscription,
