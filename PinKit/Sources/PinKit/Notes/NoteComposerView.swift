@@ -47,14 +47,11 @@ public struct NoteComposerView: View {
                     .onSubmit {
                         self.focus = .text
                     }
-                TextField("Note Text", text: $note.text, axis: .vertical)
+                TextEditor(text: $note.text)
                     .focused($focus, equals: .text)
                     .submitLabel(.return)
-                    .onSubmit {
-                        if !state.isLoading, !note.title.isEmpty, !note.text.isEmpty {
-                            save()
-                        }
-                    }
+                    .padding(.bottom, -5)
+                    .padding(.leading, -5)
             }
             .onAppear {
                 if !isEditing {
