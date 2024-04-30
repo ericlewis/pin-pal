@@ -21,6 +21,11 @@ import OSLog
         return view
     }
     
+    func reset() {
+        self.webView?.navigationDelegate = nil
+        self.webView = nil
+    }
+    
     func load(url: URL) {
         self.webView?.load(URLRequest(url: url))
     }

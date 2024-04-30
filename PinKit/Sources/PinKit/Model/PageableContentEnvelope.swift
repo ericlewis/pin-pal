@@ -153,7 +153,7 @@ public struct ContentEnvelope: Codable {
     
     let uuid: UUID
     let originClientId: String
-    let favorite: Bool
+    var favorite: Bool
     let userLastModified: Date
     let userCreatedAt: Date
     
@@ -203,7 +203,7 @@ extension ContentEnvelope {
 
 public struct PageableContentEnvelope<C: Codable>: Codable {
     let number: Int
-    let content: [C]
+    var content: [C]
     let pageable: Pageable
     let sort: Sort
     let numberOfElements: Int

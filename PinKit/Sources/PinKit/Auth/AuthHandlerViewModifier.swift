@@ -1,5 +1,30 @@
 import SwiftUI
 
+struct HeadlessCookieRefreshKey: EnvironmentKey {
+    static var defaultValue: HeadlessCookieRefreshAction = .init(action: {})
+}
+
+public struct HeadlessCookieRefreshAction {
+    let action: () -> Void
+    
+    public func callAsFunction() {
+        
+    }
+}
+
+extension EnvironmentValues {
+    var _expensiveTokenRefresh: HeadlessCookieRefreshAction {
+        get { self[HeadlessCookieRefreshKey.self] }
+        set { self[HeadlessCookieRefreshKey.self] = newValue }
+    }
+}
+
+extension EnvironmentValues {
+    public var expensiveTokenRefresh: HeadlessCookieRefreshAction {
+        get { _expensiveTokenRefresh }
+    }
+}
+
 public struct AuthHandlerViewModifier: ViewModifier {
     
     @Environment(NavigationStore.self)
@@ -7,7 +32,7 @@ public struct AuthHandlerViewModifier: ViewModifier {
     
     @Environment(HumaneCenterService.self)
     private var api
-    
+        
     @State
     private var authenticationWebView = AuthenticationWebViewModel()
     
@@ -17,6 +42,7 @@ public struct AuthHandlerViewModifier: ViewModifier {
         @Bindable var navigationStore = navigationStore
         @Bindable var webView = authenticationWebView
         content
+            .environment(\._expensiveTokenRefresh, .init(action: headlessRefresh))
             .sheet(isPresented: $navigationStore.authenticationPresented) {
                 AuthenticationWebView()
                     .ignoresSafeArea()
@@ -32,5 +58,10 @@ public struct AuthHandlerViewModifier: ViewModifier {
             .onAppear {
                 self.navigationStore.authenticationPresented = !api.isLoggedIn()
             }
+    }
+    
+    func headlessRefresh() {
+        // var view = authenticationWebView.makeView()
+        print("tata")
     }
 }

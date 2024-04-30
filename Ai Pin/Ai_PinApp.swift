@@ -11,6 +11,10 @@ struct Ai_PinApp: App {
     @State
     private var sceneApi: HumaneCenterService
     
+    
+    @State
+    private var sceneNotesRepository: NotesRepository
+    
     @AppStorage(Constant.UI_CUSTOM_ACCENT_COLOR_V1)
     private var accentColor: Color = Constant.defaultAppAccentColor
 
@@ -20,14 +24,18 @@ struct Ai_PinApp: App {
         
         let api = HumaneCenterService.live()
         sceneApi = api
+        
+        let notesRepository = NotesRepository(api: api)
+        sceneNotesRepository = notesRepository
 
         AppDependencyManager.shared.add(dependency: navigationStore)
-        AppDependencyManager.shared.add(dependency: api)
+        AppDependencyManager.shared.add(dependency: notesRepository)
     }
     
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .environment(sceneNotesRepository)
                 .environment(sceneNavigationStore)
                 .environment(sceneApi)
                 .tint(accentColor)

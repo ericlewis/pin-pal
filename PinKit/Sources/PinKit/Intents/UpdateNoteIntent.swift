@@ -27,10 +27,13 @@ public struct UpdateNoteIntent: AppIntent {
     public var navigationStore: NavigationStore
     
     @Dependency
-    public var api: HumaneCenterService?
+    public var notesRepository: NotesRepository
 
     public func perform() async throws -> some IntentResult {
-        let _ = try await (api ?? HumaneCenterService.live()).update(self.identifier, .init(text: self.text, title: self.title))
+        guard let memoryId = UUID(uuidString: self.identifier) else {
+            return .result()
+        }
+        try await notesRepository.update(note: Note(memoryId: memoryId, text: self.text, title: self.title))
         navigationStore.activeNote = nil
         return .result()
     }

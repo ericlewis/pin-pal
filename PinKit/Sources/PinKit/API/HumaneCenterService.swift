@@ -126,8 +126,11 @@ extension HumaneCenterService {
             try await post(url: memoryUrl.appending(path: memory.uuid.uuidString).appending(path: "unfavorite"))
         }
         
-        public func notes() async throws -> PageableMemoryContentEnvelope {
-            try await get(url: captureUrl.appending(path: "notes"))
+        public func notes(page: Int = 0, size: Int = 10) async throws -> PageableMemoryContentEnvelope {
+            try await get(url: captureUrl.appending(path: "notes").appending(queryItems: [
+                .init(name: "page", value: String(page)),
+                .init(name: "size", value: String(size))
+            ]))
         }
         
         public func create(note: Note) async throws -> ContentEnvelope {
@@ -168,7 +171,7 @@ extension HumaneCenterService {
         let service = Service()
         return Self(
             session: { try await service.session() },
-            notes: { try await service.notes() },
+            notes: { try await service.notes(page: $0, size: $1) },
             captures: { try await service.captures(size: $0) },
             events: { try await service.events(domain: $0, size: $1) },
             featureFlag: { try await service.featureFlag(name: $0) },
@@ -212,7 +215,7 @@ extension HumaneCenterService {
     private var lastSessionUpdate: Date?
     
     public var session: () async throws -> Session
-    public var notes: () async throws -> PageableMemoryContentEnvelope
+    public var notes: (Int, Int) async throws -> PageableMemoryContentEnvelope
     public var captures: (Int) async throws -> PageableMemoryContentEnvelope
     public var events: (EventDomain, Int) async throws -> PageableEventContentEnvelope
     public var featureFlag: (String) async throws -> FeatureFlagEnvelope
@@ -228,7 +231,7 @@ extension HumaneCenterService {
         accessToken: String? = nil,
         userDefaults: UserDefaults = .standard,
         session: @escaping () async throws -> Session,
-        notes: @escaping () async throws -> PageableMemoryContentEnvelope,
+        notes: @escaping (Int, Int) async throws -> PageableMemoryContentEnvelope,
         captures: @escaping (Int) async throws -> PageableMemoryContentEnvelope,
         events: @escaping (EventDomain, Int) async throws -> PageableEventContentEnvelope,
         featureFlag: @escaping (String) async throws -> FeatureFlagEnvelope,
