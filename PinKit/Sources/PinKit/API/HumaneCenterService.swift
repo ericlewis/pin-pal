@@ -166,8 +166,19 @@ extension HumaneCenterService {
             try await delete(url: memoryUrl.appending(path: memory.uuid.uuidString))
         }
         
-        func delete(event: EventContentEnvelope) async throws -> Bool {
+        public func delete(event: EventContentEnvelope) async throws -> Bool {
             try await delete(url: eventsUrl.appending(path: "event").appending(path: event.id.uuidString))
+        }
+        
+        public func search(query: String, domain: SearchDomain) async throws -> SearchResults {
+            try await get(url: aiBusUrl.appending(path: "search").appending(queryItems: [
+                .init(name: "query", value: query),
+                .init(name: "domain", value: domain.rawValue)
+            ]))
+        }
+        
+        public func note(uuid: UUID) async throws -> ContentEnvelope {
+            try await get(url: memoryUrl.appending(path: uuid.uuidString))
         }
     }
     
@@ -183,10 +194,12 @@ extension HumaneCenterService {
             detailedDeviceInformation: { try await service.retrieveDetailedDeviceInfo() },
             create: { try await service.create(note: $0) },
             update: { try await service.update(id: $0, with: $1) },
+            search: { try await service.search(query: $0, domain: $1) },
             favorite: { try await service.favorite(memory: $0) },
             unfavorite: { try await service.unfavorite(memory: $0) },
             delete: { try await service.delete(memory: $0) },
-            deleteEvent: { try await service.delete(event: $0) }
+            deleteEvent: { try await service.delete(event: $0) },
+            note: { try await service.note(uuid: $0) }
         )
     }
 }
@@ -228,10 +241,12 @@ extension HumaneCenterService {
     public var detailedDeviceInformation: () async throws -> DetailedDeviceInfo
     public var create: (Note) async throws -> ContentEnvelope
     public var update: (String, Note) async throws -> ContentEnvelope
+    public var search: (String, SearchDomain) async throws -> SearchResults
     public var favorite: (ContentEnvelope) async throws -> Void
     public var unfavorite: (ContentEnvelope) async throws -> Void
     public var delete: (ContentEnvelope) async throws -> Void
     public var deleteEvent: (EventContentEnvelope) async throws -> Void
+    public var note: (UUID) async throws -> ContentEnvelope
 
     required public init(
         accessToken: String? = nil,
@@ -245,10 +260,12 @@ extension HumaneCenterService {
         detailedDeviceInformation: @escaping () async throws -> DetailedDeviceInfo,
         create: @escaping (Note) async throws -> ContentEnvelope,
         update: @escaping (String, Note) async throws -> ContentEnvelope,
+        search: @escaping (String, SearchDomain) async throws -> SearchResults,
         favorite: @escaping (ContentEnvelope) async throws -> Void,
         unfavorite: @escaping (ContentEnvelope) async throws -> Void,
         delete: @escaping (ContentEnvelope) async throws -> Void,
-        deleteEvent: @escaping (EventContentEnvelope) async throws -> Void
+        deleteEvent: @escaping (EventContentEnvelope) async throws -> Void,
+        note: @escaping (UUID) async throws -> ContentEnvelope
     ) {
         self.userDefaults = userDefaults
         let decoder = JSONDecoder()
@@ -267,10 +284,12 @@ extension HumaneCenterService {
         self.detailedDeviceInformation = detailedDeviceInformation
         self.create = create
         self.update = update
+        self.search = search
         self.favorite = favorite
         self.unfavorite = unfavorite
         self.delete = delete
         self.deleteEvent = deleteEvent
+        self.note = note
     }
     
     public func isLoggedIn() -> Bool {
@@ -302,38 +321,11 @@ func extractValue(from text: String, forKey key: String) -> String? {
 //            .init(name: "uuid", value: uuids.map(\.uuidString).joined(separator: ","))
 //        ]))
 //    }
-//    
-//    func memory(id: String) async throws -> Bool {
-//        try await get(url: Self.memoryUrl.appending(path: id, directoryHint: .notDirectory))
-//    }
-//    
-//    func delete(memoryId: UUID) async throws -> String {
-//        try await delete(url: Self.memoryUrl.appending(path: memoryId.uuidString))
-//    }
-//    
-//    func search(query: String, page: Int = 0, size: Int = 10, sort: String = "createdAt,DESC") async throws -> Bool {
-//        try await get(url: Self.captureUrl.appending(path: "search").appending(queryItems: [
-//            .init(name: "query", value: query),
-//            .init(name: "page", value: String(page)),
-//            .init(name: "size", value: String(size)),
-//            .init(name: "sort", value: sort)
-//        ]))
-//    }
-//    
-//    func search(query: String, domain: Domain) async throws -> String {
-//        try await get(url: Self.aiBusUrl.appending(path: "search").appending(queryItems: [
-//            .init(name: "query", value: query),
-//            .init(name: "domain", value: domain.rawValue)
-//        ]))
-//    }
-//    
+//
 //    func deviceIdentifiers() async throws -> [String] {
 //        try await get(url: Self.deviceAssignmentUrl.appending(path: "devices"))
 //    }
-//    
-
 //
-//    
 //    func memoryOriginals(for id: String) async throws -> ResponseContainer {
 //        try await get(url: Self.memoryUrl.appending(path: id).appending(path: "originals"))
 //    }
@@ -350,7 +342,6 @@ func extractValue(from text: String, forKey key: String) -> String? {
 //        try await delete(url: Self.memoryUrl.appending(path: id).appending(path: "tag"))
 //    }
 //    
-//    // TODO: wtf does this even mean
 //    func save(search: String) async throws -> Bool {
 //        try await get(url: Self.captureUrl.appending(path: "search").appending(path: "save"))
 //    }
@@ -358,8 +349,7 @@ func extractValue(from text: String, forKey key: String) -> String? {
 //    func memories() async throws -> MemoriesResponse {
 //        try await get(url: Self.captureUrl.appending(path: "memories"))
 //    }
-//    
-//    
+//
 //    func deleteAllNotes() async throws -> Bool {
 //        try await delete(url: Self.noteUrl)
 //    }
@@ -371,8 +361,7 @@ func extractValue(from text: String, forKey key: String) -> String? {
 //    func memoryDerivatives(for id: String) async throws -> ResponseContainer {
 //        try await get(url: Self.memoryUrl.appending(path: id).appending(path: "derivatives"))
 //    }
-//    
-//    
+//
 //    // TODO: use correct method
 //    func pauseSubscription() async throws -> Bool {
 //        try await get(url: Self.subscriptionV3Url)

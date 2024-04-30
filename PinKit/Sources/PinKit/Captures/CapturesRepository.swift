@@ -116,6 +116,36 @@ extension CapturesRepository {
         }
     }
     
+    public func search(query: String) async {
+        isLoading = true
+        do {
+            try await Task.sleep(for: .milliseconds(300))
+            let searchIds = try await api.search(query, .captures).memories.map(\.uuid)
+            var fetchedResults: [ContentEnvelope] = await try searchIds.asyncCompactMap { id in
+                if let localContent = self.content.first(where: { $0.uuid == id }) {
+                    return localContent
+                } else {
+                    try Task.checkCancellation()
+                    do {
+                        return try await api.note(id)
+                    } catch {
+                        logger.debug("\(error)")
+                        return nil
+                    }
+                }
+            }
+            withAnimation {
+                self.content = fetchedResults
+            }
+        } catch is CancellationError {
+            // noop
+        } catch {
+            logger.debug("\(error)")
+            self.content = []
+        }
+        isLoading = false
+    }
+    
     func saveVideo(capture: ContentEnvelope) async throws {
         guard let url = capture.videoDownloadUrl(), let accessToken = UserDefaults.standard.string(forKey: Constants.ACCESS_TOKEN) else { return }
         let tempDirectoryURL = URL(fileURLWithPath: NSTemporaryDirectory(), isDirectory: true)

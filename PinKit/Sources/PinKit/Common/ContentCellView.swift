@@ -8,60 +8,58 @@ struct ContentCellView: View {
     private var accentColor: Color
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            switch content.data {
-            case let .capture(capture):
-                WebImage(url: makeThumbnailURL(capture: capture)) { image in
-                    image
-                        .resizable()
-                        .aspectRatio(1, contentMode: .fill)
-                } placeholder: {
-                    Rectangle()
-                        .fill(.bar)
-                        .overlay {
-                            ProgressView()
-                        }
-                        .aspectRatio(1, contentMode: .fill)
-                }
-                .overlay(alignment: .bottomLeading) {
-                    if content.favorite {
-                        Image(systemName: "heart")
-                            .symbolVariant(.fill)
-                            .imageScale(.small)
-                            .padding(5)
-                            .foregroundStyle(.white)
-                            .shadow(radius: 3)
+        switch content.data {
+        case let .capture(capture):
+            WebImage(url: makeThumbnailURL(capture: capture)) { image in
+                image
+                    .resizable()
+                    .aspectRatio(1, contentMode: .fill)
+            } placeholder: {
+                Rectangle()
+                    .fill(.bar)
+                    .overlay {
+                        ProgressView()
                     }
+                    .aspectRatio(1, contentMode: .fill)
+            }
+            .overlay(alignment: .bottomLeading) {
+                if content.favorite {
+                    Image(systemName: "heart")
+                        .symbolVariant(.fill)
+                        .imageScale(.small)
+                        .padding(5)
+                        .foregroundStyle(.white)
+                        .shadow(radius: 3)
                 }
-            case let .note(note):
-                VStack(alignment: .leading, spacing: 5) {
-                    Text(note.title)
-                        .foregroundStyle(accentColor)
-                        .font(.headline)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .overlay(alignment: .topTrailing) {
-                            if content.favorite {
-                                Image(systemName: "heart")
-                                    .symbolVariant(.fill)
-                                    .foregroundStyle(.red)
-                            }
+            }
+        case let .note(note):
+            LabeledContent {} label: {
+                Text(note.title)
+                    .foregroundStyle(accentColor)
+                    .font(.headline)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .overlay(alignment: .topTrailing) {
+                        if content.favorite {
+                            Image(systemName: "heart")
+                                .symbolVariant(.fill)
+                                .foregroundStyle(.red)
                         }
-                    Text(LocalizedStringKey(note.text))
-                }
+                    }
+                Text(LocalizedStringKey(note.text))
                 Text(content.userCreatedAt, format: .dateTime)
                     .font(.caption)
                     .foregroundStyle(.secondary)
-            case .unknown:
-                VStack(alignment: .leading) {
-                    Text("Unknown")
-                        .foregroundStyle(.red)
-                        .font(.headline)
-                    Text(content.userCreatedAt, format: .dateTime)
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                }
-                .padding()
             }
+        case .unknown:
+            LabeledContent {} label: {
+                Text("Unknown")
+                    .foregroundStyle(.red)
+                    .font(.headline)
+                Text(content.userCreatedAt, format: .dateTime)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+            .padding()
         }
     }
     

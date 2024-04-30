@@ -2,6 +2,15 @@
   "originHash" : "33ef04ad5bda9753e535106d7fbd50ccf7f9cee679796dcfe4437abc5d47b0ec",
   "pins" : [
     {
+      "identity" : "collectionconcurrencykit",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/ericlewis/CollectionConcurrencyKit",
+      "state" : {
+        "branch" : "main",
+        "revision" : "329ad3da99ae7e56cd6ba550aed1c3c7a79a82a8"
+      }
+    },
+    {
       "identity" : "sdwebimage",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/SDWebImage/SDWebImage.git",
