@@ -11,9 +11,14 @@ struct ContentCellView: View {
         switch content.data {
         case let .capture(capture):
             WebImage(url: makeThumbnailURL(capture: capture)) { image in
-                image
-                    .resizable()
+                Rectangle()
                     .aspectRatio(1, contentMode: .fill)
+                    .overlay {
+                        image
+                            .resizable()
+                            .scaledToFill()
+                    }
+                    .clipped()
             } placeholder: {
                 Rectangle()
                     .fill(.bar)
@@ -27,6 +32,16 @@ struct ContentCellView: View {
                     Image(systemName: "heart")
                         .symbolVariant(.fill)
                         .imageScale(.small)
+                        .padding(5)
+                        .foregroundStyle(.white)
+                        .shadow(radius: 3)
+                }
+            }
+            .overlay(alignment: .bottomTrailing) {
+                if let _ = capture.video {
+                    Image(systemName: "play.fill")
+                        .symbolVariant(.fill)
+                        .imageScale(.medium)
                         .padding(5)
                         .foregroundStyle(.white)
                         .shadow(radius: 3)
