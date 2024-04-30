@@ -4,6 +4,11 @@ public enum APIError: Error {
     case notAuthorized
 }
 
+public enum FeatureFlag: String, Codable {
+    case visionAccess
+    case betaAccess
+}
+
 extension HumaneCenterService {
     actor Service {
         private var accessToken: String? {
@@ -34,6 +39,17 @@ extension HumaneCenterService {
         private func get<D: Decodable>(url: URL) async throws -> D {
             try await refreshIfNeeded()
             return try await decoder.decode(D.self, from: data(for: makeRequest(url: url)))
+        }
+        
+        private func put<D: Decodable>(url: URL, body: (any Encodable)? = nil) async throws -> D {
+            try await refreshIfNeeded()
+            var request = try makeRequest(url: url)
+            request.httpMethod = "PUT"
+            if let body {
+                request.httpBody = try encoder.encode(body)
+                request.setValue("application/json", forHTTPHeaderField: "content-type")
+            }
+            return try await decoder.decode(D.self, from: data(for: request))
         }
         
         private func post<D: Decodable>(url: URL, body: (any Encodable)? = nil) async throws -> D {
@@ -180,6 +196,13 @@ extension HumaneCenterService {
         public func note(uuid: UUID) async throws -> ContentEnvelope {
             try await get(url: memoryUrl.appending(path: uuid.uuidString))
         }
+        
+        public func toggleFeatureFlag(_ flag: FeatureFlag) async throws -> FeatureFlagEnvelope {
+            var flagResponse = try await featureFlag(name: flag.rawValue)
+            flagResponse.isEnabled = !flagResponse.isEnabled
+            let _: String = try await put(url: featureFlagsUrl.appending(path: flag.rawValue), body: flagResponse)
+            return try await featureFlag(name: flag.rawValue)
+        }
     }
     
     public static func live() -> Self {
@@ -189,7 +212,7 @@ extension HumaneCenterService {
             notes: { try await service.notes(page: $0, size: $1) },
             captures: { try await service.captures(page: $0, size: $1) },
             events: { try await service.events(domain: $0, page: $1, size: $2) },
-            featureFlag: { try await service.featureFlag(name: $0) },
+            featureFlag: { try await service.featureFlag(name: $0.rawValue) },
             subscription: { try await service.subscription() },
             detailedDeviceInformation: { try await service.retrieveDetailedDeviceInfo() },
             create: { try await service.create(note: $0) },
@@ -199,7 +222,8 @@ extension HumaneCenterService {
             unfavorite: { try await service.unfavorite(memory: $0) },
             delete: { try await service.delete(memory: $0) },
             deleteEvent: { try await service.delete(event: $0) },
-            note: { try await service.note(uuid: $0) }
+            note: { try await service.note(uuid: $0) },
+            toggleFeatureFlag: { try await service.toggleFeatureFlag($0) }
         )
     }
 }
@@ -236,7 +260,7 @@ extension HumaneCenterService {
     public var notes: (Int, Int) async throws -> PageableMemoryContentEnvelope
     public var captures: (Int, Int) async throws -> PageableMemoryContentEnvelope
     public var events: (EventDomain, Int, Int) async throws -> PageableEventContentEnvelope
-    public var featureFlag: (String) async throws -> FeatureFlagEnvelope
+    public var featureFlag: (FeatureFlag) async throws -> FeatureFlagEnvelope
     public var subscription: () async throws -> Subscription
     public var detailedDeviceInformation: () async throws -> DetailedDeviceInfo
     public var create: (Note) async throws -> ContentEnvelope
@@ -247,6 +271,7 @@ extension HumaneCenterService {
     public var delete: (ContentEnvelope) async throws -> Void
     public var deleteEvent: (EventContentEnvelope) async throws -> Void
     public var note: (UUID) async throws -> ContentEnvelope
+    public var toggleFeatureFlag: (FeatureFlag) async throws -> FeatureFlagEnvelope
 
     required public init(
         accessToken: String? = nil,
@@ -255,7 +280,7 @@ extension HumaneCenterService {
         notes: @escaping (Int, Int) async throws -> PageableMemoryContentEnvelope,
         captures: @escaping (Int, Int) async throws -> PageableMemoryContentEnvelope,
         events: @escaping (EventDomain, Int, Int) async throws -> PageableEventContentEnvelope,
-        featureFlag: @escaping (String) async throws -> FeatureFlagEnvelope,
+        featureFlag: @escaping (FeatureFlag) async throws -> FeatureFlagEnvelope,
         subscription: @escaping () async throws -> Subscription,
         detailedDeviceInformation: @escaping () async throws -> DetailedDeviceInfo,
         create: @escaping (Note) async throws -> ContentEnvelope,
@@ -265,7 +290,8 @@ extension HumaneCenterService {
         unfavorite: @escaping (ContentEnvelope) async throws -> Void,
         delete: @escaping (ContentEnvelope) async throws -> Void,
         deleteEvent: @escaping (EventContentEnvelope) async throws -> Void,
-        note: @escaping (UUID) async throws -> ContentEnvelope
+        note: @escaping (UUID) async throws -> ContentEnvelope,
+        toggleFeatureFlag: @escaping (FeatureFlag) async throws -> FeatureFlagEnvelope
     ) {
         self.userDefaults = userDefaults
         let decoder = JSONDecoder()
@@ -290,6 +316,7 @@ extension HumaneCenterService {
         self.delete = delete
         self.deleteEvent = deleteEvent
         self.note = note
+        self.toggleFeatureFlag = toggleFeatureFlag
     }
     
     public func isLoggedIn() -> Bool {

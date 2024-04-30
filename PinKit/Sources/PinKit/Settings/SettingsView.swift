@@ -138,7 +138,13 @@ struct SettingsView: View {
         }
         .onChange(of: state.isVisionBetaEnabled) {
             if !state.isLoading {
-                // TODO: handle vision toggle
+                Task {
+                    do {
+                        try await api.toggleFeatureFlag(.visionAccess)
+                    } catch {
+                        print(error)
+                    }
+                }
             }
         }
         .onChange(of: selectedIcon) {
@@ -155,8 +161,8 @@ struct SettingsView: View {
     func load() async {
         do {
             do {
-                let flag = try await api.featureFlag("visionAccess")
-                self.state.isVisionBetaEnabled = flag.bool
+                let flag = try await api.featureFlag(.visionAccess)
+                self.state.isVisionBetaEnabled = flag.isEnabled
             } catch {
                 print(error)
             }
