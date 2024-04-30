@@ -46,16 +46,18 @@ struct NotesView: View {
             isPresented: $fileImporterPresented,
             allowedContentTypes: [.plainText]
         ) { result in
-            do {
-                switch result {
-                case let .success(success):
-                    let str = try String(contentsOf: success)
-                    self.navigationStore.activeNote = .init(text: str, title: success.lastPathComponent)
-                case let .failure(failure):
-                    break
+            Task.detached {
+                do {
+                    switch result {
+                    case let .success(success):
+                        let str = try String(contentsOf: success)
+                        self.navigationStore.activeNote = .init(text: str, title: success.lastPathComponent)
+                    case let .failure(failure):
+                        break
+                    }
+                } catch {
+                    print(error)
                 }
-            } catch {
-                print(error)
             }
         }
         .task(repository.initial)
