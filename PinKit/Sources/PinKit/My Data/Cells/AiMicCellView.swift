@@ -15,7 +15,8 @@ struct AiMicCellView: View {
             Text(event.response)
             Text(createdAt, format: .dateTime)
                 .font(.caption)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(.tertiary)
         }
+        .foregroundStyle(.primary)
     }
 }

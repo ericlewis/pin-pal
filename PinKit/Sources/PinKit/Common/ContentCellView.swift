@@ -59,7 +59,7 @@ struct ContentCellView: View {
                 Text(LocalizedStringKey(note.text))
                 Text(content.userCreatedAt, format: .dateTime)
                     .font(.caption)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(.tertiary)
             }
         case .unknown:
             LabeledContent {} label: {
