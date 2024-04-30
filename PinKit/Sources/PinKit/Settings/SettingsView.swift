@@ -18,6 +18,9 @@ struct SettingsView: View {
     @Environment(\.openURL)
     private var openURL
     
+    @State
+    private var deleteAllNotesConfirmationPresented = false
+    
     var body: some View {
         @Bindable var navigationStore = navigationStore
         @Bindable var repository = repository
@@ -97,9 +100,27 @@ struct SettingsView: View {
                 }
                 .pickerStyle(.inline)
 #endif
+                Section("Danger Zone") {
+                    Button("Delete all notes", role: .destructive) {
+                        self.deleteAllNotesConfirmationPresented = true
+                    }
+                }
             }
             .refreshable(action: repository.reload)
             .navigationTitle("Settings")
+            .alert("Are you sure?", isPresented: $deleteAllNotesConfirmationPresented) {
+                Button("Delete", role: .destructive) {
+                    Task {
+                        await repository.deleteAllNotes()
+                    }
+                    deleteAllNotesConfirmationPresented = false
+                }
+                Button("Cancel", role: .cancel) {
+                    deleteAllNotesConfirmationPresented = false
+                }
+            } message: {
+                Text("This operation is irreversible, all notes will be deleted!")
+            }
         }
         .task(repository.initial)
         .onChange(of: selectedIcon) {

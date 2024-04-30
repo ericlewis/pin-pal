@@ -114,6 +114,10 @@ import SwiftUI
     func reload() async {
         await load()
     }
+    
+    func deleteAllNotes() async {
+        try? await service.deleteAllNotes()
+    }
 
     deinit {
         self.observationTask?.cancel()

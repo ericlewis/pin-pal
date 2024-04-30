@@ -223,6 +223,10 @@ extension HumaneCenterService {
         func memories() async throws -> MemoriesResponse {
             try await get(url: captureUrl.appending(path: "memories"))
         }
+        
+        func deleteAllNotes() async throws -> Bool {
+            try await delete(url: noteUrl)
+        }
     }
     
     public static func live() -> Self {
@@ -247,7 +251,8 @@ extension HumaneCenterService {
             lostDeviceStatus: { try await service.lostDeviceStatus(deviceId: $0) },
             toggleLostDeviceStatus: { try await service.toggleLostDeviceStatus(deviceId: $0) },
             deviceIdentifiers: { try await service.deviceIdentifiers() },
-            dashboard: { try await service.memories() }
+            dashboard: { try await service.memories() },
+            deleteAllNotes: { try await service.deleteAllNotes() }
         )
     }
 }
@@ -300,6 +305,7 @@ extension HumaneCenterService {
     public var toggleLostDeviceStatus: (String) async throws -> LostDeviceEnvelope
     public var deviceIdentifiers: () async throws -> [String]
     public var dashboard: () async throws -> MemoriesResponse
+    public var deleteAllNotes: () async throws -> Void
 
     required public init(
         accessToken: String? = nil,
@@ -323,7 +329,8 @@ extension HumaneCenterService {
         lostDeviceStatus: @escaping (String) async throws -> LostDeviceEnvelope,
         toggleLostDeviceStatus: @escaping (String) async throws -> LostDeviceEnvelope,
         deviceIdentifiers: @escaping () async throws -> [String],
-        dashboard: @escaping () async throws -> MemoriesResponse
+        dashboard: @escaping () async throws -> MemoriesResponse,
+        deleteAllNotes: @escaping () async throws -> Void
     ) {
         self.userDefaults = userDefaults
         let decoder = JSONDecoder()
@@ -353,6 +360,7 @@ extension HumaneCenterService {
         self.toggleLostDeviceStatus = toggleLostDeviceStatus
         self.deviceIdentifiers = deviceIdentifiers
         self.dashboard = dashboard
+        self.deleteAllNotes = deleteAllNotes
     }
     
     public func isLoggedIn() -> Bool {
@@ -403,11 +411,6 @@ func extractValue(from text: String, forKey key: String) -> String? {
 //
 //    func save(search: String) async throws -> Bool {
 //        try await get(url: Self.captureUrl.appending(path: "search").appending(path: "save"))
-//    }
-//
-//
-//    func deleteAllNotes() async throws -> Bool {
-//        try await delete(url: Self.noteUrl)
 //    }
 //
 //    func eventsOverview() async throws -> EventOverview {
