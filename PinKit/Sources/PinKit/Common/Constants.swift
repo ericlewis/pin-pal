@@ -8,6 +8,14 @@ public struct Constants {
 
 
 extension Constants {
-    public static let defaultAppAccentColor = Color.blue
+    public static let defaultAppAccentColor = Color.accentColor
     public static let defaultAppIconName = ""
+}
+
+@propertyWrapper
+public struct AccentColor: DynamicProperty {
+    @AppStorage(Constants.UI_CUSTOM_ACCENT_COLOR_V1)
+    public var wrappedValue: Color = .accentColor
+    
+    public init() {}
 }
