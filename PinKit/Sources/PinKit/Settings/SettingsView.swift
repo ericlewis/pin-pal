@@ -61,19 +61,31 @@ struct SettingsView: View {
         NavigationStack {
             Form {
                 Section("Device") {
-                    if let subscription = state.subscription {
-                        LabeledContent("Account Number", value: subscription.accountNumber)
-                        LabeledContent("Phone Number", value: subscription.phoneNumber)
-                        LabeledContent("Status", value: subscription.status)
-                        LabeledContent("Plan", value: subscription.planType)
-                        LabeledContent("Monthly Price", value: "$\(subscription.planPrice / 100)")
-                    } else {
-                        LoaderRow()
+                    LabeledContent("Account Number", value: state.subscription?.accountNumber ?? "AAAAAAAAAAAAAAA")
+                    LabeledContent("Phone Number", value: state.subscription?.phoneNumber ?? "1111111111")
+                    LabeledContent("Status", value: state.subscription?.status ?? "ACTIVE")
+                    LabeledContent("Plan", value: state.subscription?.planType ?? "DEFAULT_PLAN")
+                    LabeledContent("Monthly Price") {
+                        if let subscription = state.subscription {
+                            Text("$\(subscription.planPrice / 100)")
+                        } else {
+                            Text(state.subscription?.planType ?? "$24")
+                        }
                     }
                 }
-                .textSelection(.enabled)
+                .labeledContentStyle(AsyncValueLabelContentStyle(isLoading: state.subscription == nil))
                 Section("Features") {
-                    Toggle("Vision (Beta)", isOn: $state.isVisionBetaEnabled)
+                    Toggle(isOn: $state.isVisionBetaEnabled) {
+                        HStack {
+                            Text("Vision")
+                            Text("BETA")
+                                .padding(1)
+                                .padding(.horizontal, 2)
+                                .font(.footnote.bold())
+                                .foregroundStyle(.white)
+                                .background(RoundedRectangle(cornerRadius: 5).fill(.red))
+                        }
+                    }
                         .disabled(state.isLoading)
                     Button("Add Wi-Fi Network") {
                         self.navigationStore.isWifiCodeGeneratorPresented = true
@@ -96,16 +108,12 @@ struct SettingsView: View {
                     Text("Marking your Ai Pin as lost or stolen keeps your .Center data safe and remotely locks your Pin. If your Pin is successfully unlocked while in this state, access to any of your .Center data will still be blocked. Once you recover your Pin, remember to disable this setting.")
                 }
                 Section("Miscellaneous") {
-                    if let extendedInfo = state.extendedInfo {
-                        LabeledContent("Identifier", value: extendedInfo.id)
-                        LabeledContent("Serial Number", value: extendedInfo.serialNumber)
-                        LabeledContent("eSIM", value: extendedInfo.iccid)
-                        LabeledContent("Color", value: extendedInfo.color)
-                    } else {
-                        LoaderRow()
-                    }
+                    LabeledContent("Identifier", value: state.extendedInfo?.id ?? "1F0B03041010012N")
+                    LabeledContent("Serial Number", value: state.extendedInfo?.serialNumber ?? "J64M2YAH170235")
+                    LabeledContent("eSIM", value: state.extendedInfo?.iccid ?? "847264928475637284")
+                    LabeledContent("Color", value: (state.extendedInfo?.color ?? "ECLIPSE").localizedCapitalized)
                 }
-                .textSelection(.enabled)
+                .labeledContentStyle(AsyncValueLabelContentStyle(isLoading: state.extendedInfo == nil))
                 Section("Appearance") {
                     ColorPicker("Theme", selection: $accentColor, supportsOpacity: false)
                 }
@@ -139,11 +147,7 @@ struct SettingsView: View {
         .onChange(of: state.isVisionBetaEnabled) {
             if !state.isLoading {
                 Task {
-                    do {
-                        try await api.toggleFeatureFlag(.visionAccess)
-                    } catch {
-                        print(error)
-                    }
+                    try await api.toggleFeatureFlag(.visionAccess)
                 }
             }
         }
@@ -184,4 +188,19 @@ struct SettingsView: View {
 #Preview {
     SettingsView()
         .environment(HumaneCenterService.live())
+}
+
+struct AsyncValueLabelContentStyle: LabeledContentStyle {
+    
+    let isLoading: Bool
+    
+    func makeBody(configuration: Configuration) -> some View {
+        LabeledContent {
+            configuration.content
+                .redacted(reason: isLoading ? .placeholder : .invalidated)
+                .textSelection(.enabled)
+        } label: {
+            configuration.label
+        }
+    }
 }
