@@ -1,19 +1,14 @@
 import SwiftUI
 
-public struct NotesView: View {
+struct NotesView: View {
 
     @Environment(NavigationStore.self) 
     private var navigationStore
- 
-    @Environment(\.expensiveTokenRefresh)
-    private var refreshToken
-    
+
     @Environment(NotesRepository.self)
     private var notesRepository
-    
-    public init() {}
-    
-    public var body: some View {
+        
+    var body: some View {
         @Bindable var navigationStore = navigationStore
         NavigationStack(path: $navigationStore.notesNavigationPath) {
             List {
@@ -39,7 +34,18 @@ public struct NotesView: View {
                         await notesRepository.remove(offsets: indexSet)
                     }
                 }
+                if notesRepository.hasMoreData {
+                    HStack {
+                        Spacer()
+                        ProgressView()
+                        Spacer()
+                    }
+                    .task {
+                        await notesRepository.loadMore()
+                    }
+                }
             }
+            .refreshable(action: notesRepository.reload)
             .searchable(text: .constant(""))
             .toolbar {
                 ToolbarItem(placement: .navigation) {
@@ -52,7 +58,6 @@ public struct NotesView: View {
                 }
             }
             .navigationTitle("Notes")
-            .refreshable(action: notesRepository.reload)
         }
         .overlay {
             if !notesRepository.hasContent, notesRepository.isLoading {
@@ -70,5 +75,6 @@ public struct NotesView: View {
 
 #Preview {
     NotesView()
-        .environment(HumaneCenterService.live())
+        .environment(NotesRepository())
+        .environment(NavigationStore())
 }

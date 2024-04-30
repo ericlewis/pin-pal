@@ -10,23 +10,27 @@ import OSLog
     var isFinished: Bool = false
     var hasMoreData: Bool = false
     var hasContent: Bool {
-        !isLoading && isFinished && !content.isEmpty
+        !content.isEmpty
     }
         
-    public init(api: HumaneCenterService) {
+    public init(api: HumaneCenterService = .live()) {
         self.api = api
     }
 }
 
 extension NotesRepository {
-    private func load(page: Int = 0, size: Int = 10) async {
+    private func load(page: Int = 0, size: Int = 10, reload: Bool = false) async {
         isLoading = true
         do {
             let data = try await api.notes(page, size)
             self.data = data
-            self.hasMoreData = data.totalPages > 1
+            self.hasMoreData = (data.totalPages - 1) != page
             withAnimation {
-                self.content = data.content
+                if reload {
+                    self.content = data.content
+                } else {
+                    self.content.append(contentsOf: data.content)
+                }
             }
         } catch {
             logger.debug("\(error)")
@@ -41,11 +45,11 @@ extension NotesRepository {
     }
     
     public func reload() async {
-        await load()
+        await load(reload: true)
     }
     
     public func loadMore() async {
-        guard let data, hasMoreData else {
+        guard let data, hasMoreData, !isLoading else {
             return
         }
         let nextPage = min(data.pageable.pageNumber + 1, data.totalPages)
