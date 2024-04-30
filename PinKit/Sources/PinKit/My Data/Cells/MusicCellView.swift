@@ -1,6 +1,51 @@
 import SwiftUI
 import SDWebImageSwiftUI
 
+struct MusicCellLabeledContent: View {
+    let event: MusicEvent
+    let createdAt: Date
+    
+    @AccentColor
+    private var accentColor: Color
+    
+    var body: some View {
+        LabeledContent {
+            if let id = event.albumArtUuid {
+                WebImage(url: makeAlbumURL(id: id)) { image in
+                    image
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 60, height: 60)
+                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                } placeholder: {
+                    RoundedRectangle(cornerRadius: 8)
+                        .fill(.bar)
+                        .frame(width: 60, height: 60)
+                        .overlay(ProgressView())
+                }
+            }
+        } label: {
+            if let title = event.trackTitle ?? event.prompt {
+                Text(title)
+                    .font(.headline)
+                    .foregroundStyle(accentColor)
+            }
+            if let artistName = event.artistName {
+                Text(artistName)
+            }
+            if let albumName = event.albumName {
+                Text(albumName)
+            }
+            Text(createdAt, format: .dateTime)
+                .font(.caption)
+        }
+    }
+    
+    func makeAlbumURL(id: UUID) -> URL? {
+        URL(string: "https://humane.center/_next/image?url=https://resources.tidal.com/images/\(id.uuidString.split(separator: "-").joined(separator: "/"))/160x160.jpg&w=256&q=75".lowercased())
+    }
+}
+
 struct MusicCellView: View {
     let event: MusicEvent
     let createdAt: Date
@@ -44,74 +89,12 @@ struct MusicCellView: View {
                     openURL(trackUrl)
                 }
             } label: {
-                LabeledContent {
-                    if let id = event.albumArtUuid {
-                        WebImage(url: makeAlbumURL(id: id)) { image in
-                            image
-                                .resizable()
-                                .scaledToFit()
-                                .frame(width: 60, height: 60)
-                                .clipShape(RoundedRectangle(cornerRadius: 8))
-                        } placeholder: {
-                            RoundedRectangle(cornerRadius: 8)
-                                .fill(.bar)
-                                .frame(width: 60, height: 60)
-                                .overlay(ProgressView())
-                        }
-                    }
-                } label: {
-                    if let title = event.trackTitle ?? event.prompt {
-                        Text(title)
-                            .font(.headline)
-                            .foregroundStyle(accentColor)
-                    }
-                    if let artistName = event.artistName {
-                        Text(artistName)
-                    }
-                    if let albumName = event.albumName {
-                        Text(albumName)
-                    }
-                    Text(createdAt, format: .dateTime)
-                        .font(.caption)
-                }
+                MusicCellLabeledContent(event: event, createdAt: createdAt)
             }
             .foregroundStyle(.primary)
         } else {
-            LabeledContent {
-                if let id = event.albumArtUuid {
-                    WebImage(url: makeAlbumURL(id: id)) { image in
-                        image
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: 60, height: 60)
-                            .clipShape(RoundedRectangle(cornerRadius: 8))
-                    } placeholder: {
-                        RoundedRectangle(cornerRadius: 8)
-                            .fill(.bar)
-                            .frame(width: 60, height: 60)
-                            .overlay(ProgressView())
-                    }
-                }
-            } label: {
-                if let title = event.trackTitle ?? event.prompt {
-                    Text(title)
-                        .font(.headline)
-                        .foregroundStyle(accentColor)
-                }
-                if let artistName = event.artistName {
-                    Text(artistName)
-                }
-                if let albumName = event.albumName {
-                    Text(albumName)
-                }
-                Text(createdAt, format: .dateTime)
-                    .font(.caption)
-            }
+            MusicCellLabeledContent(event: event, createdAt: createdAt)
         }
-    }
-    
-    func makeAlbumURL(id: UUID) -> URL? {
-        URL(string: "https://humane.center/_next/image?url=https://resources.tidal.com/images/\(id.uuidString.split(separator: "-").joined(separator: "/"))/160x160.jpg&w=256&q=75".lowercased())
     }
     
     func makeTidalTrackURL(trackID: String) -> URL? {
