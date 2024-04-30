@@ -18,7 +18,6 @@ extension HumaneCenterService {
         private let userDefaults: UserDefaults
 
         public init(
-            accessToken: String? = nil,
             userDefaults: UserDefaults = .standard
         ) {
             self.session = .shared
@@ -206,7 +205,10 @@ extension HumaneCenterService {
     private let userDefaults: UserDefaults
     private let sessionTimeout: TimeInterval = 60 * 5 // 5 min
     
-    private var accessToken: String?
+    private var accessToken: String? {
+        UserDefaults.standard.string(forKey: Constant.ACCESS_TOKEN)
+    }
+    
     private var lastSessionUpdate: Date?
     
     public var session: () async throws -> Session
