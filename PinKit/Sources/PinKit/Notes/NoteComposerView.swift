@@ -37,6 +37,12 @@ public struct NoteComposerView: View {
         note.uuid != nil
     }
     
+    @Environment(\.horizontalSizeClass)
+    private var horizontalSizeClass
+    
+    @Environment(\.verticalSizeClass)
+    private var verticalSizeClass
+    
     public var body: some View {
         NavigationStack {
             Form {
@@ -47,11 +53,17 @@ public struct NoteComposerView: View {
                     .onSubmit {
                         self.focus = .text
                     }
-                TextEditor(text: $note.text)
-                    .focused($focus, equals: .text)
-                    .submitLabel(.return)
-                    .padding(.bottom, -5)
-                    .padding(.leading, -5)
+                if horizontalSizeClass == .regular, verticalSizeClass == .regular {
+                    TextEditor(text: $note.text)
+                        .focused($focus, equals: .text)
+                        .submitLabel(.return)
+                        .padding(.bottom, -5)
+                        .padding(.leading, -5)
+                } else {
+                    TextField("Note Text", text: $note.text, axis: .vertical)
+                        .focused($focus, equals: .text)
+                        .submitLabel(.return)
+                }
             }
             .onAppear {
                 if !isEditing {
