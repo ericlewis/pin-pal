@@ -62,7 +62,7 @@ struct SearchableCapturesGridView: View {
         .task(id: query + (isSearching ? "true" : "false")) {
             if isSearching, !query.isEmpty {
                 await repository.search(query: query)
-            } else if !isSearching, query.isEmpty {
+            } else if query.isEmpty {
                 await repository.reload()
             }
         }

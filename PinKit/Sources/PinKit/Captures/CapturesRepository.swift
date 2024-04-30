@@ -120,7 +120,10 @@ extension CapturesRepository {
         isLoading = true
         do {
             try await Task.sleep(for: .milliseconds(300))
-            let searchIds = try await api.search(query, .captures).memories.map(\.uuid)
+            guard let searchIds = try await api.search(query, .captures).memories?.map(\.uuid) else {
+                self.content = []
+                throw CancellationError()
+            }
             var fetchedResults: [ContentEnvelope] = await try searchIds.asyncCompactMap { id in
                 if let localContent = self.content.first(where: { $0.uuid == id }) {
                     return localContent
@@ -141,7 +144,6 @@ extension CapturesRepository {
             // noop
         } catch {
             logger.debug("\(error)")
-            self.content = []
         }
         isLoading = false
     }

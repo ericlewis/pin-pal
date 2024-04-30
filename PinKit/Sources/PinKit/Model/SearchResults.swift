@@ -5,5 +5,5 @@ public struct SearchResults: Codable {
         public let uuid: UUID
     }
     
-    public let memories: [Result]
+    public let memories: [Result]?
 }
