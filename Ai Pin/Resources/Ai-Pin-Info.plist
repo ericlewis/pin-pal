@@ -6,5 +6,9 @@
 	<array>
 		<string>DeviceAppIcon.png</string>
 	</array>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>fetch</string>
+	</array>
 </dict>
 </plist>
