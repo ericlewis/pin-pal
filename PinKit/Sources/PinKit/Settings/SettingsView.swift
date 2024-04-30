@@ -192,7 +192,7 @@ struct SettingsView: View {
             }
             do {
                 let status = try await api.lostDeviceStatus(extendedInfo.id)
-                print(status)
+                self.state.isDeviceLost = status.isLost
             } catch {
                 print(error)
             }
