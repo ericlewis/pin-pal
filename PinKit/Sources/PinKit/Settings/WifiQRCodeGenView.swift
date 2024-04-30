@@ -51,18 +51,37 @@ struct WifiQRCodeGenView: View {
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     NavigationLink("Next") {
-                        Image(uiImage: generateQRCode(from: "WIFI:S:\(state.name);T:\(state.securityType.rawValue);P:\(state.password);H:\(state.isHidden ? "true" : "false");;"))
-                            .resizable()
-                            .interpolation(.none)
-                            .scaledToFit()
-                            .navigationTitle("Scan QR Code")
-                            .toolbar {
-                                ToolbarItem(placement: .confirmationAction) {
-                                    Button("Done") {
-                                        dismiss()
-                                    }
+                        List {
+                            Image(uiImage: generateQRCode(from: "WIFI:S:\(state.name);T:\(state.securityType.rawValue);P:\(state.password);H:\(state.isHidden ? "true" : "false");;"))
+                                .resizable()
+                                .interpolation(.none)
+                                .aspectRatio(1, contentMode: .fit)
+                                .listRowInsets(.init())
+                            Section {
+                                Group {
+                                    Label("Tap and hold the touchpad on your Ai Pin and say “turn on WiFi”", systemImage: "1.circle")
+                                    Label("Raise your palm to activate the Laser Ink display and select “quick setup” and then “scan code”", systemImage: "2.circle")
+                                    Label("Position the QR code in front of your Ai Pin to begin scanning. If successful, you should hear a chime.", systemImage: "3.circle")
+                                }
+                                .font(.headline)
+                            } header: {
+                                Text("How to scan")
+                            } footer: {
+                                VStack(alignment: .leading, spacing: 5) {
+                                    Text("Having trouble connecting?")
+                                        .bold()
+                                    Text("If you’re having trouble connecting to WiFi, you may need to re-enter your credentials. Confirm your network credentials and password are correct and regenerate a QR code. If you’re still having trouble, you can  reach out to support.")
                                 }
                             }
+                        }
+                        .navigationTitle("Scan QR Code")
+                        .toolbar {
+                            ToolbarItem(placement: .confirmationAction) {
+                                Button("Done") {
+                                    dismiss()
+                                }
+                            }
+                        }
                     }
                     .disabled(state.name.isEmpty || state.password.isEmpty)
                 }
