@@ -1,6 +1,23 @@
 import SwiftUI
 import SDWebImageSwiftUI
 
+struct SmartPlaylistView: View {
+    let playlist: SmartGeneratedPlaylist
+    let event: MusicEvent
+    
+    var body: some View {
+        List {
+            ForEach(playlist.tracks, id: \.title) { track in
+                LabeledContent {} label: {
+                    Text(track.title)
+                    Text(ListFormatter.localizedString(byJoining: track.artists))
+                }
+            }
+        }
+        .navigationTitle(event.prompt ?? "Playlist")
+    }
+}
+
 struct MusicCellLabeledContent: View {
     let event: MusicEvent
     let createdAt: Date
@@ -59,15 +76,7 @@ struct MusicCellView: View {
     var body: some View {
         if let playlist = event.generatedPlaylist {
             NavigationLink {
-                List {
-                    ForEach(playlist.tracks, id: \.title) { track in
-                        LabeledContent {} label: {
-                            Text(track.title)
-                            Text(ListFormatter.localizedString(byJoining: track.artists))
-                        }
-                    }
-                }
-                .navigationTitle(event.prompt ?? "Playlist")
+                SmartPlaylistView(playlist: playlist, event: event)
             } label: {
                 LabeledContent {} label: {
                     if let title = event.prompt {
