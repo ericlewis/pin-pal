@@ -81,6 +81,13 @@ extension HumaneCenterService {
             return try await decoder.decode(D.self, from: data(for: req))
         }
         
+        private func delete(url: URL) async throws {
+            try await refreshIfNeeded()
+            var req = try makeRequest(url: url)
+            req.httpMethod = "DELETE"
+            let _ = try await data(for: req)
+        }
+        
         private func unauthenticatedRequest<D: Decodable>(url: URL) async throws -> D {
             try await decoder.decode(D.self, from: data(for: makeRequest(url: url, skipsAuth: true)))
         }
@@ -186,8 +193,12 @@ extension HumaneCenterService {
             )
         }
         
-        public func delete(memory: ContentEnvelope) async throws -> String {
-            try await delete(url: memoryUrl.appending(path: memory.uuid.uuidString))
+        public func delete(memoryId: UUID) async throws {
+            try await delete(url: memoryUrl.appending(path: memoryId.uuidString))
+        }
+        
+        public func delete(memory: ContentEnvelope) async throws {
+            try await delete(memoryId: memory.uuid)
         }
         
         public func delete(event: EventContentEnvelope) async throws -> Bool {
@@ -254,6 +265,7 @@ extension HumaneCenterService {
             favorite: { try await service.favorite(memory: $0) },
             unfavorite: { try await service.unfavorite(memory: $0) },
             delete: { try await service.delete(memory: $0) },
+            deleteByNoteId: { try await service.delete(memoryId: $0) },
             deleteEvent: { try await service.delete(event: $0) },
             memory: { try await service.memory(uuid: $0) },
             toggleFeatureFlag: { try await service.toggleFeatureFlag($0) },
@@ -308,6 +320,7 @@ extension HumaneCenterService {
     public var favorite: (ContentEnvelope) async throws -> Void
     public var unfavorite: (ContentEnvelope) async throws -> Void
     public var delete: (ContentEnvelope) async throws -> Void
+    public var deleteByNoteId: (UUID) async throws -> Void
     public var deleteEvent: (EventContentEnvelope) async throws -> Void
     public var memory: (UUID) async throws -> ContentEnvelope
     public var toggleFeatureFlag: (FeatureFlag) async throws -> FeatureFlagEnvelope
@@ -334,6 +347,7 @@ extension HumaneCenterService {
         favorite: @escaping (ContentEnvelope) async throws -> Void,
         unfavorite: @escaping (ContentEnvelope) async throws -> Void,
         delete: @escaping (ContentEnvelope) async throws -> Void,
+        deleteByNoteId: @escaping (UUID) async throws -> Void,
         deleteEvent: @escaping (EventContentEnvelope) async throws -> Void,
         memory: @escaping (UUID) async throws -> ContentEnvelope,
         toggleFeatureFlag: @escaping (FeatureFlag) async throws -> FeatureFlagEnvelope,
@@ -365,6 +379,7 @@ extension HumaneCenterService {
         self.favorite = favorite
         self.unfavorite = unfavorite
         self.delete = delete
+        self.deleteByNoteId = deleteByNoteId
         self.deleteEvent = deleteEvent
         self.memory = memory
         self.toggleFeatureFlag = toggleFeatureFlag
