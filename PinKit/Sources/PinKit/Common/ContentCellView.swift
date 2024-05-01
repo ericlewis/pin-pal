@@ -57,6 +57,7 @@ struct ContentCellView: View {
                         }
                     }
                 Text(LocalizedStringKey(note.text))
+                    .lineLimit(note.text.count > 2_000 ? 10 : nil)
                 Text(content.userCreatedAt, format: .dateTime)
                     .font(.caption)
                     .foregroundStyle(.tertiary)
