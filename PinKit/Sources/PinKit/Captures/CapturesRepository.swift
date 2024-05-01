@@ -120,7 +120,7 @@ extension CapturesRepository {
         isLoading = true
         do {
             try await Task.sleep(for: .milliseconds(300))
-            guard let searchIds = try await api.search(query, .captures).memories?.map(\.uuid) else {
+            guard let searchIds = try await api.search(query.trimmingCharacters(in: .whitespacesAndNewlines), .captures).memories?.map(\.uuid) else {
                 self.content = []
                 throw CancellationError()
             }

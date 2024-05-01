@@ -116,7 +116,7 @@ extension NotesRepository {
         isLoading = true
         do {
             try await Task.sleep(for: .milliseconds(300))
-            guard let searchIds = try await api.search(query, .notes).memories?.map(\.uuid) else {
+            guard let searchIds = try await api.search(query.trimmingCharacters(in: .whitespacesAndNewlines), .notes).memories?.map(\.uuid) else {
                 self.content = []
                 throw CancellationError()
             }

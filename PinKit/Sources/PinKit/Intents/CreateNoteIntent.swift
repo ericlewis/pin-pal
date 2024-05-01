@@ -10,8 +10,8 @@ public struct CreateNoteIntent: AppIntent {
     public var text: String
     
     public init(title: String, text: String) {
-        self.title = title
-        self.text = text
+        self.title = title.trimmingCharacters(in: .whitespacesAndNewlines)
+        self.text = text.trimmingCharacters(in: .whitespacesAndNewlines)
     }
     
     public init() {}

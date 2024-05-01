@@ -14,8 +14,8 @@ public struct UpdateNoteIntent: AppIntent {
     
     public init(identifier: String, title: String, text: String) {
         self.identifier = identifier
-        self.title = title
-        self.text = text
+        self.title = title.trimmingCharacters(in: .whitespacesAndNewlines)
+        self.text = text.trimmingCharacters(in: .whitespacesAndNewlines)
     }
     
     public init() {}
