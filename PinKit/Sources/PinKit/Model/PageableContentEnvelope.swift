@@ -41,6 +41,7 @@ struct MusicEvent: Codable {
     let length: String? // number of tracks
     let generatedPlaylist: SmartGeneratedPlaylist?
     let sourceService: String
+    let trackID: String?
     
     init(from decoder: any Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
@@ -51,6 +52,7 @@ struct MusicEvent: Codable {
         self.albumArtUuid = try container.decodeIfPresent(UUID.self, forKey: .albumArtUuid)
         self.length = try container.decodeIfPresent(String.self, forKey: .length)
         self.sourceService = try container.decode(String.self, forKey: .sourceService)
+        self.trackID = try container.decodeIfPresent(String.self, forKey: .trackID)
         guard let playlistData = try container.decodeIfPresent(String.self, forKey: .generatedPlaylist)?.data(using: .utf8) else {
             self.generatedPlaylist = nil
             return
