@@ -25,6 +25,13 @@ struct MusicCellContent: View {
                             .overlay(ProgressView())
                     }
                 }
+            } else {
+                RoundedRectangle(cornerRadius: 8)
+                    .fill(.bar)
+                    .frame(width: 60, height: 60)
+                    .overlay() {
+                        Image(systemName: "music.note")
+                    }
             }
         } label: {
             if let title = event.trackTitle ?? event.prompt {
