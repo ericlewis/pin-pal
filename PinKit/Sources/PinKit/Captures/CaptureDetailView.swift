@@ -41,7 +41,7 @@ struct CaptureDetailView: View {
                     .listRowInsets(.init())
                 }
             } header: {
-                Group {
+                VStack {
                     if let vidUrl = capture.videoDownloadUrl() {
                         VideoView(id: capture.uuid, vidUrl: vidUrl)
                             .scaledToFill()
@@ -56,6 +56,25 @@ struct CaptureDetailView: View {
                             RoundedRectangle(cornerRadius: 8)
                                 .fill(.bar)
                                 .overlay(ProgressView())
+                        }
+                    }
+                    HStack {
+                        ForEach(originalPhotos, id: \.fileUUID) { photo in
+                            WebImage(url: makeThumbnailURL(
+                                uuid: capture.uuid,
+                                fileUUID: photo.fileUUID,
+                                accessToken: photo.accessToken
+                            )) { image in
+                                image
+                                    .resizable()
+                                    .scaledToFit()
+                                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                            } placeholder: {
+                                RoundedRectangle(cornerRadius: 8)
+                                    .fill(.bar)
+                                    .aspectRatio(960 / 720, contentMode: .fit)
+                                    .overlay(ProgressView())
+                            }
                         }
                     }
                 }
