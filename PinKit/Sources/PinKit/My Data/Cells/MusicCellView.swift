@@ -1,24 +1,7 @@
 import SwiftUI
 import SDWebImageSwiftUI
 
-struct SmartPlaylistView: View {
-    let playlist: SmartGeneratedPlaylist
-    let event: MusicEvent
-    
-    var body: some View {
-        List {
-            ForEach(playlist.tracks, id: \.title) { track in
-                LabeledContent {} label: {
-                    Text(track.title)
-                    Text(ListFormatter.localizedString(byJoining: track.artists))
-                }
-            }
-        }
-        .navigationTitle(event.prompt ?? "Playlist")
-    }
-}
-
-struct MusicCellLabeledContent: View {
+struct MusicCellContent: View {
     let event: MusicEvent
     let createdAt: Date
     
@@ -27,18 +10,20 @@ struct MusicCellLabeledContent: View {
     
     var body: some View {
         LabeledContent {
-            if let id = event.albumArtUuid {
-                WebImage(url: makeAlbumURL(id: id)) { image in
-                    image
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 60, height: 60)
-                        .clipShape(RoundedRectangle(cornerRadius: 8))
-                } placeholder: {
-                    RoundedRectangle(cornerRadius: 8)
-                        .fill(.bar)
-                        .frame(width: 60, height: 60)
-                        .overlay(ProgressView())
+            if event.sourceService == "TIDAL" {
+                if let id = event.albumArtUuid {
+                    WebImage(url: makeAlbumURL(id: id)) { image in
+                        image
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 60, height: 60)
+                            .clipShape(RoundedRectangle(cornerRadius: 8))
+                    } placeholder: {
+                        RoundedRectangle(cornerRadius: 8)
+                            .fill(.bar)
+                            .frame(width: 60, height: 60)
+                            .overlay(ProgressView())
+                    }
                 }
             }
         } label: {
@@ -56,6 +41,7 @@ struct MusicCellLabeledContent: View {
             Text(createdAt, format: .dateTime)
                 .font(.caption)
         }
+        .tint(.primary)
     }
     
     func makeAlbumURL(id: UUID) -> URL? {
@@ -92,17 +78,16 @@ struct MusicCellView: View {
                         .foregroundStyle(.secondary)
                 }
             }
-        } else if let trackId = event.trackID {
+        } else if let trackId = event.trackID, event.sourceService == "TIDAL" {
             Button {
                 if let trackUrl = makeTidalTrackURL(trackID: trackId) {
                     openURL(trackUrl)
                 }
             } label: {
-                MusicCellLabeledContent(event: event, createdAt: createdAt)
+                MusicCellContent(event: event, createdAt: createdAt)
             }
-            .foregroundStyle(.primary)
         } else {
-            MusicCellLabeledContent(event: event, createdAt: createdAt)
+            MusicCellContent(event: event, createdAt: createdAt)
         }
     }
     
