@@ -41,55 +41,26 @@ struct CaptureDetailView: View {
                     .listRowInsets(.init())
                 }
             } header: {
-                TabView {
+                Group {
                     if let vidUrl = capture.videoDownloadUrl() {
                         VideoView(id: capture.uuid, vidUrl: vidUrl)
+                            .scaledToFill()
+                            .clipShape(RoundedRectangle(cornerRadius: 8))
                     } else {
                         WebImage(url: makeThumbnailURL(content: capture, capture: capture.get()!)) { image in
                             image
                                 .resizable()
-                                .scaledToFit()
+                                .scaledToFill()
+                                .clipShape(RoundedRectangle(cornerRadius: 8))
                         } placeholder: {
-                            Rectangle()
+                            RoundedRectangle(cornerRadius: 8)
                                 .fill(.bar)
                                 .overlay(ProgressView())
                         }
-                        ForEach(originalPhotos, id: \.fileUUID) { photo in
-                            WebImage(url: makeThumbnailURL(
-                                uuid: capture.uuid,
-                                fileUUID: photo.fileUUID,
-                                accessToken: photo.accessToken
-                            )) { image in
-                                image
-                                    .resizable()
-                                    .scaledToFit()
-                            } placeholder: {
-                                Rectangle()
-                                    .fill(.background)
-                                    .overlay(ProgressView())
-                            }
-                        }
-                        ForEach(derivativePhotos, id: \.fileUUID) { photo in
-                            WebImage(url: makeThumbnailURL(
-                                uuid: capture.uuid,
-                                fileUUID: photo.fileUUID,
-                                accessToken: photo.accessToken
-                            )) { image in
-                                image
-                                    .resizable()
-                                    .scaledToFit()
-                            } placeholder: {
-                                Rectangle()
-                                    .fill(.background)
-                                    .overlay(ProgressView())
-                            }
-                        }
                     }
                 }
-                .aspectRatio(1, contentMode: .fit)
-                .tabViewStyle(.page(indexDisplayMode: .always))
                 .listRowInsets(.init())
-                .padding(.horizontal, -20)
+                .padding(.vertical)
             }
         }
         .toolbar {
