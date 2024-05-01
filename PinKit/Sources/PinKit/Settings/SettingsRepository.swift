@@ -1,9 +1,11 @@
 import SwiftUI
+import OSLog
 
 @Observable public final class SettingsRepository {
     
     let encoder = JSONEncoder()
     let decoder = JSONDecoder()
+    let logger = Logger()
     
     var subscription: Subscription? {
         didSet {
@@ -18,7 +20,6 @@ import SwiftUI
     }
     
     var isLoading = false
-    var isFinished = false
     
     var isVisionBetaEnabled = false {
         willSet {
@@ -47,8 +48,6 @@ import SwiftUI
     }
     
     func initial() async {
-        guard !isFinished else { return }
-        
         // Hydrate
         if let subscriptionData = UserDefaults.standard.data(forKey: Constants.SUBSCRIPTION_INFO_CACHE), let subscription = try? decoder.decode(Subscription.self, from: subscriptionData) {
             self.subscription = subscription
@@ -74,7 +73,6 @@ import SwiftUI
                 await loadSubscription()
             }
         }
-        isFinished = true
         isLoading = false
     }
     
@@ -85,7 +83,7 @@ import SwiftUI
                 self.subscription = sub
             }
         } catch {
-            print(error)
+            logger.debug("\(error)")
         }
     }
     
@@ -94,7 +92,7 @@ import SwiftUI
             let flag = try await service.featureFlag(.visionAccess)
             self.isVisionBetaEnabled = flag.isEnabled
         } catch {
-            print(error)
+            logger.debug("\(error)")
         }
     }
     
@@ -107,7 +105,7 @@ import SwiftUI
             let status = try await service.lostDeviceStatus(extendedInfo.id)
             self.isDeviceLost = status.isLost
         } catch {
-            print(error)
+            logger.debug("\(error)")
         }
     }
     

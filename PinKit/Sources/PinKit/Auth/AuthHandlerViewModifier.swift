@@ -30,7 +30,17 @@ public struct AuthHandlerViewModifier: ViewModifier {
                     .interactiveDismissDisabled()
             }
             .onAppear {
+                
+            }
+            .task {
                 self.navigationStore.authenticationPresented = !api.isLoggedIn()
+                do {
+                    let _ = try await api.deviceIdentifiers()
+                } catch is CancellationError {
+                    
+                } catch {
+                    self.navigationStore.authenticationPresented = true
+                }
             }
     }
 }

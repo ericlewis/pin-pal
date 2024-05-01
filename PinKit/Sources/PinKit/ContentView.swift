@@ -1,8 +1,12 @@
 import SwiftUI
 
 public struct ContentView: View {
+    
     @Environment(NavigationStore.self)
     private var navigationStore
+    
+    @Environment(HumaneCenterService.self)
+    private var service
     
     public init() {}
     
