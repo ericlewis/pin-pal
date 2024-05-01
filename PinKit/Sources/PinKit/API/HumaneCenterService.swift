@@ -134,6 +134,14 @@ extension HumaneCenterService {
             ]))
         }
         
+        public func allEvents(page: Int = 0, size: Int = 10, sort: String = "eventCreationTime,ASC") async throws -> EventStream {
+            try await get(url: eventsUrl.appending(path: "mydata").appending(queryItems: [
+                .init(name: "page", value: String(page)),
+                .init(name: "size", value: String(size)),
+                .init(name: "sort", value: sort)
+            ]))
+        }
+        
         public func favorite(memory: ContentEnvelope) async throws {
             try await post(url: memoryUrl.appending(path: memory.uuid.uuidString).appending(path: "favorite"))
         }
@@ -236,6 +244,7 @@ extension HumaneCenterService {
             notes: { try await service.notes(page: $0, size: $1) },
             captures: { try await service.captures(page: $0, size: $1) },
             events: { try await service.events(domain: $0, page: $1, size: $2) },
+            allEvents: { try await service.allEvents(page: $0, size: $1) },
             featureFlag: { try await service.featureFlag(name: $0.rawValue) },
             subscription: { try await service.subscription() },
             detailedDeviceInformation: { try await service.retrieveDetailedDeviceInfo() },
@@ -289,6 +298,7 @@ extension HumaneCenterService {
     public var notes: (Int, Int) async throws -> PageableMemoryContentEnvelope
     public var captures: (Int, Int) async throws -> PageableMemoryContentEnvelope
     public var events: (EventDomain, Int, Int) async throws -> PageableEventContentEnvelope
+    public var allEvents: (Int, Int) async throws -> EventStream
     public var featureFlag: (FeatureFlag) async throws -> FeatureFlagEnvelope
     public var subscription: () async throws -> Subscription
     public var detailedDeviceInformation: () async throws -> DetailedDeviceInfo
@@ -314,6 +324,7 @@ extension HumaneCenterService {
         notes: @escaping (Int, Int) async throws -> PageableMemoryContentEnvelope,
         captures: @escaping (Int, Int) async throws -> PageableMemoryContentEnvelope,
         events: @escaping (EventDomain, Int, Int) async throws -> PageableEventContentEnvelope,
+        allEvents: @escaping (Int, Int) async throws -> EventStream,
         featureFlag: @escaping (FeatureFlag) async throws -> FeatureFlagEnvelope,
         subscription: @escaping () async throws -> Subscription,
         detailedDeviceInformation: @escaping () async throws -> DetailedDeviceInfo,
@@ -344,6 +355,7 @@ extension HumaneCenterService {
         self.notes = notes
         self.captures = captures
         self.events = events
+        self.allEvents = allEvents
         self.featureFlag = featureFlag
         self.subscription = subscription
         self.detailedDeviceInformation = detailedDeviceInformation
