@@ -11,10 +11,7 @@ struct Ai_PinApp: App {
     
     @State
     private var sceneApi: HumaneCenterService
-    
-    @State
-    private var sceneNotesRepository: NotesRepository
-    
+
     @State
     private var sceneCapturesRepository: CapturesRepository
     
@@ -29,6 +26,8 @@ struct Ai_PinApp: App {
     
     @AccentColor
     private var accentColor: Color
+    
+    let sceneDatabase: any Database
 
     init() {
         let navigationStore = NavigationStore()
@@ -36,10 +35,7 @@ struct Ai_PinApp: App {
         
         let api = HumaneCenterService.live()
         sceneApi = api
-        
-        let notesRepository = NotesRepository(api: api)
-        sceneNotesRepository = notesRepository
-        
+  
         let capturesRepository = CapturesRepository(api: api)
         sceneCapturesRepository = capturesRepository
         
@@ -51,19 +47,20 @@ struct Ai_PinApp: App {
         
         let modelContainer = try! ModelContainer(for: _Note.self, configurations: .init("v1"))
         sceneModelContainer = modelContainer
+        
+        let database = SharedDatabase(modelContainer: modelContainer).database
+        sceneDatabase = database
 
         AppDependencyManager.shared.add(dependency: navigationStore)
-        AppDependencyManager.shared.add(dependency: notesRepository)
         AppDependencyManager.shared.add(dependency: capturesRepository)
         AppDependencyManager.shared.add(dependency: myDataRepository)
         AppDependencyManager.shared.add(dependency: settingsRepository)
-        AppDependencyManager.shared.add(dependency: modelContainer)
+        AppDependencyManager.shared.add(dependency: database)
     }
     
     var body: some Scene {
         WindowGroup {
             ContentView()
-                .environment(sceneNotesRepository)
                 .environment(sceneCapturesRepository)
                 .environment(sceneNavigationStore)
                 .environment(sceneMyDataRepository)
@@ -71,7 +68,7 @@ struct Ai_PinApp: App {
                 .environment(sceneApi)
                 .tint(accentColor)
         }
-        .environment(\.database, SharedDatabase(modelContainer: sceneModelContainer).database)
+        .environment(\.database, sceneDatabase)
         .modelContainer(sceneModelContainer)
     }
 }

@@ -3,6 +3,12 @@ import Foundation
 import OSLog
 import SwiftUI
 
+extension _Note {
+    static func newNote() -> _Note {
+        _Note(from: .create(), isFavorited: false, createdAt: .now)
+    }
+}
+
 @Model
 public final class _Note {
     

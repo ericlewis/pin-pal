@@ -1,5 +1,6 @@
 import SwiftUI
 import OSLog
+import CollectionConcurrencyKit
 
 @Observable public class CapturesRepository {
     let logger = Logger()

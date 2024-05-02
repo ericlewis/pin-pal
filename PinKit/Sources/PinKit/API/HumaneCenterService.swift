@@ -119,7 +119,6 @@ extension HumaneCenterService {
                 self.accessToken = accessToken
                 self.lastSessionUpdate = .now
             } catch {
-                print("breast", error)
                 throw APIError.notAuthorized
             }
         }

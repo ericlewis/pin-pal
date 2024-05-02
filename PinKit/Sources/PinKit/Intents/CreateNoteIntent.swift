@@ -23,10 +23,20 @@ public struct CreateNoteIntent: AppIntent {
     public var navigationStore: NavigationStore
     
     @Dependency
-    public var notesRepository: NotesRepository
+    public var database: any Database
     
+    @Dependency
+    public var service: HumaneCenterService
+
     public func perform() async throws -> some IntentResult {
-        let _ = try await notesRepository.create(note: .init(text: text, title: title))
+        var editableNote = _Note.newNote()
+        let result = try await service.create(.init(text: text, title: title))
+        guard let note: Note = result.get() else {
+            return .result()
+        }
+        editableNote.update(using: note, isFavorited: false, createdAt: .now)
+        await database.insert(editableNote)
+        try await database.save()
         navigationStore.activeNote = nil
         return .result()
     }

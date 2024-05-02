@@ -13,32 +13,61 @@ struct Notes: View {
     private var service
 
     @State
-    private var noteToEdit: _Note?
+    private var searchQuery = ""
     
     @State
-    private var searchQuery = ""
-
-    @State
     private var searchResults: [UUID]?
-
+    
+    @State
+    private var fileImporterPresented = false
+    
+    @State
+    private var isLoading = false
+    
     var body: some View {
+        @Bindable var navigationStore = navigationStore
         NavigationStack {
-            NotesList(noteToEdit: $noteToEdit, uuids: searchResults, order: .reverse)
+            NotesList(uuids: searchResults, order: .reverse, isLoading: isLoading)
                 .refreshable {
                     await load()
                 }
                 .toolbar {
-                    ToolbarItem(placement: .topBarLeading) {
-                        EditButton()
-                    }
                     ToolbarItem(placement: .primaryAction) {
-                        Button("Create note", systemImage: "plus") {
-                            noteToEdit = _Note(from: .create(), isFavorited: false, createdAt: .now)
+                        Menu("Create note", systemImage: "plus") {
+                            Button("Create", systemImage: "note.text.badge.plus") {
+                                self.navigationStore.activeNote = _Note.newNote()
+                            }
+                            Button("Import", systemImage: "square.and.arrow.down") {
+                                self.fileImporterPresented = true
+                            }
+                        } primaryAction: {
+                            self.navigationStore.activeNote = _Note.newNote()
                         }
                     }
                 }
                 .searchable(text: $searchQuery)
                 .navigationTitle("Notes")
+        }
+        .sheet(item: $navigationStore.activeNote) {
+            Composer(editableNote: $0)
+        }
+        .fileImporter(
+            isPresented: $fileImporterPresented,
+            allowedContentTypes: [.plainText]
+        ) { result in
+            Task.detached {
+                do {
+                    switch result {
+                    case let .success(success):
+                        let str = try String(contentsOf: success)
+                        self.navigationStore.activeNote = .init(title: success.lastPathComponent, text: str)
+                    case let .failure(failure):
+                        break
+                    }
+                } catch {
+                    print(error)
+                }
+            }
         }
         .task(id: searchQuery) {
             do {
@@ -49,25 +78,23 @@ struct Notes: View {
                     }
                     return
                 }
-                guard let res = try await service.search(searchQuery, .notes).memories else {
-                    return
-                }
+                let res = try await service.search(searchQuery, .notes).memories ?? []
                 withAnimation {
                     searchResults = res.map(\.uuid)
                 }
             } catch is CancellationError {
                 // noop
             } catch {
-                print("boobh", error)
+                print(error)
             }
         }
         .task {
             await load()
         }
-        .sheet(item: $noteToEdit) { Composer(editableNote: $0) }
     }
-
+    
     private func load(chunkSize: Int = 10) async {
+        isLoading = true
         do {
             let response = try await service.notes(0, chunkSize)
             await process(content: response.content)
@@ -86,6 +113,7 @@ struct Notes: View {
         } catch {
             print(error)
         }
+        isLoading = false
     }
     
     private func process(content: [ContentEnvelope]) async {
@@ -124,29 +152,34 @@ struct NotesList: View {
     @Environment(HumaneCenterService.self)
     private var service
     
+    @Environment(NavigationStore.self)
+    private var navigationStore
+    
+    @Environment(\.isSearching)
+    private var isSearching
+    
     @AccentColor
     private var tint
     
     @Query
     private var notes: [_Note]
     
-    @Binding
-    var noteToEdit: _Note?
-        
-    init(noteToEdit: Binding<_Note?>, uuids: [UUID?]?, order: SortOrder) {
+    let isLoading: Bool
+    
+    init(uuids: [UUID?]?, order: SortOrder, isLoading: Bool) {
         var descriptor = FetchDescriptor(sortBy: [SortDescriptor(\_Note.createdAt, order: order)])
         if let uuids {
             descriptor.predicate = #Predicate<_Note> {  uuids.contains($0.memoryUuid) }
         }
-        self._noteToEdit = noteToEdit
         self._notes = .init(descriptor)
+        self.isLoading = isLoading
     }
     
     var body: some View {
         List {
             ForEach(notes) { note in
                 Button {
-                    noteToEdit = note
+                    navigationStore.activeNote = note
                 } label: {
                     LabeledContent {} label: {
                         Text(note.title)
@@ -174,6 +207,15 @@ struct NotesList: View {
                 }
             }
             .onDelete(perform: deleteNotes)
+        }
+        .overlay {
+            if isLoading, notes.isEmpty {
+                ProgressView()
+            } else if isSearching, !isLoading, notes.isEmpty {
+                ContentUnavailableView.search
+            } else if notes.isEmpty {
+                ContentUnavailableView("No notes yet", systemImage: "note.text")
+            }
         }
     }
     

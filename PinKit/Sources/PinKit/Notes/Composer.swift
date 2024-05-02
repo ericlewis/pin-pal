@@ -5,17 +5,23 @@ struct Composer: View {
     @Environment(\.dismiss)
     private var dismiss
     
-    @Environment(\.modelContext)
-    private var modelContext
+    @Environment(\.database)
+    private var database
     
     @Environment(HumaneCenterService.self)
     private var service
+    
+    @Environment(NavigationStore.self)
+    private var navigationStore
 
     @State
     private var title = ""
     
     @State
     private var text = ""
+    
+    @State
+    private var isLoading = false
     
     @State
     private var showErrorAlert: Bool = false
@@ -50,13 +56,20 @@ struct Composer: View {
             }
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Save", action: save)
+                    if isLoading {
+                        ProgressView()
+                    } else {
+                        Button("Save", action: save)
+                    }
                 }
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel", role: .cancel, action: dismiss.callAsFunction)
                 }
             }
             .navigationTitle(editorTitle)
+            .navigationBarTitleDisplayMode(.inline)
+            .disabled(isLoading)
+            .interactiveDismissDisabled(isLoading)
         }
         .alert("Error", isPresented: $showErrorAlert) {
             Button("OK", role: .cancel) { showErrorAlert = false }
@@ -74,22 +87,27 @@ struct Composer: View {
 
     private func save() {
         Task {
+            isLoading = true
             do {
-                if let uuid = editableNote.uuid, let memoryUuid = editableNote.memoryUuid {
-                    editableNote.title = title
-                    editableNote.text = text
-                    try await service.update(memoryUuid.uuidString, .init(text: text, title: title))
+                if let memoryUuid = editableNote.memoryUuid {
+                    let intent = UpdateNoteIntent(identifier: memoryUuid.uuidString, title: title, text: text)
+                    intent.navigationStore = navigationStore
+                    intent.database = database
+                    intent.service = service
+                    let _ = try await intent.perform()
                 } else {
-                    let result = try await service.create(.init(text: text, title: title))
-                    editableNote.update(using: result.get()!, isFavorited: false, createdAt: .now)
-                    modelContext.insert(editableNote)
-                    try modelContext.save()
+                    let intent = CreateNoteIntent(title: title, text: text)
+                    intent.navigationStore = navigationStore
+                    intent.database = database
+                    intent.service = service
+                    let _ = try await intent.perform()
                 }
                 dismiss()
             } catch {
                 self.errorMessage = error.localizedDescription
                 showErrorAlert = true
             }
+            isLoading = false
         }
     }
 }
