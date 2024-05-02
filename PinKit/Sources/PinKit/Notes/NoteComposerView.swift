@@ -32,7 +32,7 @@ struct NoteComposerView: View {
     @FocusState
     private var focus: Focusables?
 
-    var editableNote: _Note
+    var editableNote: Note
 
     enum Focusables {
         case title

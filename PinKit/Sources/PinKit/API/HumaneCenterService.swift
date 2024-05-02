@@ -118,8 +118,13 @@ extension HumaneCenterService {
                 let accessToken = try await session().accessToken
                 self.accessToken = accessToken
                 self.lastSessionUpdate = .now
+            } catch is CancellationError {
+                // noop
             } catch {
-                throw APIError.notAuthorized
+                let err = (error as NSError)
+                if err.domain != NSURLErrorDomain, err.code != NSURLErrorCancelled {
+                    throw APIError.notAuthorized
+                }
             }
         }
         

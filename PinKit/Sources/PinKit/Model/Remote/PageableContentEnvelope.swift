@@ -157,6 +157,10 @@ public struct Pageable: Codable {
 public struct FileAsset: Codable {
     let fileUUID: UUID
     let accessToken: String
+    let key: String?
+    let mediaType: MediaType
+    let text: String?
+    let url: URL?
 }
 
 struct Video: Codable {

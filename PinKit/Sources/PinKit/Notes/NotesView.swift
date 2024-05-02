@@ -1,5 +1,6 @@
 import SwiftUI
 import SwiftData
+import CollectionConcurrencyKit
 
 struct NotesView: View {
     
@@ -35,13 +36,13 @@ struct NotesView: View {
                     ToolbarItem(placement: .primaryAction) {
                         Menu("Create note", systemImage: "plus") {
                             Button("Create", systemImage: "note.text.badge.plus") {
-                                self.navigationStore.activeNote = _Note.newNote()
+                                self.navigationStore.activeNote = Note.newNote()
                             }
                             Button("Import", systemImage: "square.and.arrow.down") {
                                 self.navigationStore.isFileImporterPresented = true
                             }
                         } primaryAction: {
-                            self.navigationStore.activeNote = _Note.newNote()
+                            self.navigationStore.activeNote = Note.newNote()
                         }
                     }
                 }
@@ -127,14 +128,14 @@ struct NotesView: View {
                 group.addTask {
                     guard var note: RemoteNote = item.get() else { return }
                     note.memoryId = item.uuid
-                    await database.insert(_Note(from: note, isFavorited: item.favorite, createdAt: item.userCreatedAt))
+                    await database.insert(Note(from: note, isFavorited: item.favorite, createdAt: item.userCreatedAt))
                 }
             }
         }
     }
     
     private func pruneStaleRecords(fetchedUUIDs: Set<UUID>) async throws {
-        let notes = try await database.fetch(FetchDescriptor<_Note>())
+        let notes = try await database.fetch(FetchDescriptor<Note>())
         let allUUIDs = Set(notes.compactMap(\.uuid))
         let staleUUIDs = allUUIDs.subtracting(fetchedUUIDs)
         await withTaskGroup(of: Void.self) { group in

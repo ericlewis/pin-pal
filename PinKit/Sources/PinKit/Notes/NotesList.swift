@@ -14,19 +14,16 @@ struct NotesList: View {
     
     @Environment(\.isSearching)
     private var isSearching
-    
-    @AccentColor
-    private var tint
-    
+
     @Query
-    private var notes: [_Note]
+    private var notes: [Note]
     
     let isLoading: Bool
     
     init(uuids: [UUID?]?, order: SortOrder, isLoading: Bool) {
-        var descriptor = FetchDescriptor(sortBy: [SortDescriptor(\_Note.createdAt, order: order)])
+        var descriptor = FetchDescriptor(sortBy: [SortDescriptor(\Note.createdAt, order: order)])
         if let uuids {
-            descriptor.predicate = #Predicate<_Note> {  uuids.contains($0.memoryUuid) }
+            descriptor.predicate = #Predicate<Note> {  uuids.contains($0.memoryUuid) }
         }
         self._notes = .init(descriptor)
         self.isLoading = isLoading
@@ -38,25 +35,7 @@ struct NotesList: View {
                 Button {
                     navigationStore.activeNote = note
                 } label: {
-                    LabeledContent {} label: {
-                        Text(note.title)
-                            .foregroundStyle(tint)
-                            .font(.headline)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                            .overlay(alignment: .topTrailing) {
-                                if note.isFavorited {
-                                    Image(systemName: "heart")
-                                        .symbolVariant(.fill)
-                                        .foregroundStyle(.red)
-                                }
-                            }
-                        Text(LocalizedStringKey(note.text))
-                            .lineLimit(note.text.count > 500 ? 5 : nil)
-                            .foregroundStyle(.primary)
-                        Text(note.createdAt, format: .dateTime)
-                            .foregroundStyle(.tertiary)
-                    }
-                    .tint(.primary)
+                    NoteCellView(note: note)
                 }
                 .swipeActions(edge: .leading, allowsFullSwipe: true) {
                     FavoriteButton(for: note)

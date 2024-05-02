@@ -5,9 +5,9 @@ struct FavoriteButton: View {
     @Environment(HumaneCenterService.self)
     private var service
     
-    let note: _Note
+    let note: Note
     
-    init(for note: _Note) {
+    init(for note: Note) {
         self.note = note
     }
     

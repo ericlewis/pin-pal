@@ -29,7 +29,7 @@ public struct CreateNoteIntent: AppIntent {
     public var service: HumaneCenterService
 
     public func perform() async throws -> some IntentResult {
-        var editableNote = _Note.newNote()
+        var editableNote = Note.newNote()
         let result = try await service.create(.init(text: text, title: title))
         guard let note: RemoteNote = result.get() else {
             return .result()

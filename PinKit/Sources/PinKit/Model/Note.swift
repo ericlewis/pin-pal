@@ -2,7 +2,7 @@ import SwiftData
 import Foundation
 
 @Model
-public final class _Note {
+public final class Note {
     
     @Attribute(.unique)
     public var uuid: UUID? = nil
@@ -41,8 +41,8 @@ public final class _Note {
     }
 }
 
-extension _Note {
-    static func newNote() -> _Note {
-        _Note(from: .create(), isFavorited: false, createdAt: .now)
+extension Note {
+    static func newNote() -> Note {
+        Note(from: .create(), isFavorited: false, createdAt: .now)
     }
 }

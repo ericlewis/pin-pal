@@ -4,36 +4,21 @@ import MapKit
 
 struct CaptureDetailView: View {
     
-    let capture: ContentEnvelope
+    var capture: Capture
     
     @Environment(HumaneCenterService.self)
     private var service
-    
-    @State
-    private var detailedCaptureInformation: ContentEnvelope?
-    
-    @State
-    private var originalPhotos: [FileAsset] = []
-    
-    @State
-    private var derivativePhotos: [FileAsset] = []
-    
-    @State
-    private var locationName: String?
-    
-    @State
-    private var location: CLLocationCoordinate2D?
-    
+
     var body: some View {
         List {
             Section {
                 LabeledContent("Created") {
-                    Text(capture.userCreatedAt, format: .dateTime)
+                    Text(capture.createdAt, format: .dateTime)
                 }
-                if let locationName {
+                if let locationName = capture.locationName {
                     LabeledContent("Location", value: locationName)
                 }
-                if let location {
+                if let location = capture.locationCoordinates {
                     Map {
                         Marker("", coordinate: location)
                     }
@@ -41,42 +26,15 @@ struct CaptureDetailView: View {
                     .listRowInsets(.init())
                 }
             } header: {
-                VStack {
-                    if let vidUrl = capture.videoDownloadUrl() {
-                        VideoView(id: capture.uuid, vidUrl: vidUrl)
-                            .scaledToFill()
-                            .clipShape(RoundedRectangle(cornerRadius: 8))
-                    } else {
-                        WebImage(url: makeThumbnailURL(content: capture, capture: capture.get()!)) { image in
-                            image
-                                .resizable()
-                                .scaledToFill()
-                                .clipShape(RoundedRectangle(cornerRadius: 8))
-                        } placeholder: {
-                            RoundedRectangle(cornerRadius: 8)
-                                .fill(.bar)
-                                .overlay(ProgressView())
-                        }
-                    }
-                    HStack {
-                        ForEach(originalPhotos, id: \.fileUUID) { photo in
-                            WebImage(url: makeThumbnailURL(
-                                uuid: capture.uuid,
-                                fileUUID: photo.fileUUID,
-                                accessToken: photo.accessToken
-                            )) { image in
-                                image
-                                    .resizable()
-                                    .scaledToFit()
-                                    .clipShape(RoundedRectangle(cornerRadius: 8))
-                            } placeholder: {
-                                RoundedRectangle(cornerRadius: 8)
-                                    .fill(.bar)
-                                    .aspectRatio(960 / 720, contentMode: .fit)
-                                    .overlay(ProgressView())
-                            }
-                        }
-                    }
+                WebImage(url: capture.makeThumbnailURL()) { image in
+                    image
+                        .resizable()
+                        .scaledToFill()
+                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                } placeholder: {
+                    RoundedRectangle(cornerRadius: 8)
+                        .fill(.bar)
+                        .overlay(ProgressView())
                 }
                 .listRowInsets(.init())
                 .padding(.vertical)
@@ -84,38 +42,23 @@ struct CaptureDetailView: View {
         }
         .toolbar {
             Menu("Options", systemImage: "ellipsis.circle") {
-                CaptureMenuContents(capture: capture)
+                 CaptureMenuContents(capture: capture)
             }
         }
         .navigationTitle("Capture")
         .task {
             do {
-                guard let capture: CaptureEnvelope = try await service.memory(self.capture.uuid).get() else {
+                guard let captureDetails: CaptureEnvelope = try await service.memory(self.capture.uuid).get() else {
                     return
                 }
                 withAnimation {
-                    self.originalPhotos = capture.originals ?? []
-                    self.derivativePhotos = capture.derivatives ?? []
-                    self.locationName = capture.location
-                    if let lat = capture.latitude, let lng = capture.longitude {
-                        self.location = .init(latitude: lat, longitude: lng)
-                    }
+                    capture.locationName = captureDetails.location
+                    capture.latitude = captureDetails.latitude
+                    capture.longitude = captureDetails.longitude
                 }
             } catch {
                 print(error)
             }
         }
-    }
-    
-    func makeThumbnailURL(content: ContentEnvelope, capture: CaptureEnvelope) -> URL? {
-        makeThumbnailURL(uuid: content.uuid, fileUUID: capture.thumbnail.fileUUID, accessToken: capture.thumbnail.accessToken)
-    }
-    
-    func makeThumbnailURL(uuid: UUID, fileUUID: UUID, accessToken: String) -> URL? {
-        URL(string: "https://webapi.prod.humane.cloud/capture/memory/\(uuid.uuidString)/file/\(fileUUID)")?.appending(queryItems: [
-            .init(name: "token", value: accessToken),
-            .init(name: "w", value: "640"),
-            .init(name: "q", value: "100")
-        ])
     }
 }
