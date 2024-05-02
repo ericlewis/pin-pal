@@ -114,9 +114,14 @@ extension HumaneCenterService {
         }
         
         public func refreshIfNeeded() async throws {
-            let accessToken = try await session().accessToken
-            self.accessToken = accessToken
-            self.lastSessionUpdate = .now
+            do {
+                let accessToken = try await session().accessToken
+                self.accessToken = accessToken
+                self.lastSessionUpdate = .now
+            } catch {
+                print("breast", error)
+                throw APIError.notAuthorized
+            }
         }
         
         func session() async throws -> Session {
@@ -149,12 +154,20 @@ extension HumaneCenterService {
             ]))
         }
         
+        public func favorite(uuid: UUID) async throws {
+            try await post(url: memoryUrl.appending(path: uuid.uuidString).appending(path: "favorite"))
+        }
+        
+        public func unfavorite(uuid: UUID) async throws {
+            try await post(url: memoryUrl.appending(path: uuid.uuidString).appending(path: "unfavorite"))
+        }
+        
         public func favorite(memory: ContentEnvelope) async throws {
-            try await post(url: memoryUrl.appending(path: memory.uuid.uuidString).appending(path: "favorite"))
+            try await favorite(uuid: memory.uuid)
         }
         
         public func unfavorite(memory: ContentEnvelope) async throws {
-            try await post(url: memoryUrl.appending(path: memory.uuid.uuidString).appending(path: "unfavorite"))
+            try await unfavorite(uuid: memory.uuid)
         }
         
         public func notes(page: Int = 0, size: Int = 10) async throws -> PageableMemoryContentEnvelope {
@@ -264,6 +277,8 @@ extension HumaneCenterService {
             search: { try await service.search(query: $0, domain: $1) },
             favorite: { try await service.favorite(memory: $0) },
             unfavorite: { try await service.unfavorite(memory: $0) },
+            favoriteById: { try await service.favorite(uuid: $0) },
+            unfavoriteById: { try await service.unfavorite(uuid: $0) },
             delete: { try await service.delete(memory: $0) },
             deleteByNoteId: { try await service.delete(memoryId: $0) },
             deleteEvent: { try await service.delete(event: $0) },
@@ -319,6 +334,8 @@ extension HumaneCenterService {
     public var search: (String, SearchDomain) async throws -> SearchResults
     public var favorite: (ContentEnvelope) async throws -> Void
     public var unfavorite: (ContentEnvelope) async throws -> Void
+    public var favoriteById: (UUID) async throws -> Void
+    public var unfavoriteById: (UUID) async throws -> Void
     public var delete: (ContentEnvelope) async throws -> Void
     public var deleteByNoteId: (UUID) async throws -> Void
     public var deleteEvent: (EventContentEnvelope) async throws -> Void
@@ -346,6 +363,8 @@ extension HumaneCenterService {
         search: @escaping (String, SearchDomain) async throws -> SearchResults,
         favorite: @escaping (ContentEnvelope) async throws -> Void,
         unfavorite: @escaping (ContentEnvelope) async throws -> Void,
+        favoriteById: @escaping (UUID) async throws -> Void,
+        unfavoriteById: @escaping (UUID) async throws -> Void,
         delete: @escaping (ContentEnvelope) async throws -> Void,
         deleteByNoteId: @escaping (UUID) async throws -> Void,
         deleteEvent: @escaping (EventContentEnvelope) async throws -> Void,
@@ -388,6 +407,8 @@ extension HumaneCenterService {
         self.deviceIdentifiers = deviceIdentifiers
         self.dashboard = dashboard
         self.deleteAllNotes = deleteAllNotes
+        self.favoriteById = favoriteById
+        self.unfavoriteById = unfavoriteById
     }
     
     public func isLoggedIn() -> Bool {

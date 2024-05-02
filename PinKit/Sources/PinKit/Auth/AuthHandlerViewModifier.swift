@@ -29,9 +29,6 @@ public struct AuthHandlerViewModifier: ViewModifier {
                     }
                     .interactiveDismissDisabled()
             }
-            .onAppear {
-                
-            }
             .task {
                 self.navigationStore.authenticationPresented = !api.isLoggedIn()
                 do {

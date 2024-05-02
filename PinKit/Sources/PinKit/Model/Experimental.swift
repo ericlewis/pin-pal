@@ -3,6 +3,195 @@ import Foundation
 import OSLog
 import SwiftUI
 
+@Model
+public final class _Note {
+    
+    @Attribute(.unique)
+    public var uuid: UUID? = nil
+    
+    public var memoryUuid: UUID? = nil
+    public var title: String
+    public var text: String
+    public var isFavorited: Bool
+    public var createdAt: Date
+
+    public init(uuid: UUID? = nil, memoryUuid: UUID? = nil, title: String, text: String, isFavorited: Bool = false, createdAt: Date = .now) {
+        self.uuid = uuid
+        self.memoryUuid = memoryUuid
+        self.text = text.trimmingCharacters(in: .whitespacesAndNewlines)
+        self.title = title.trimmingCharacters(in: .whitespacesAndNewlines)
+        self.isFavorited = isFavorited
+        self.createdAt = createdAt
+    }
+    
+    public init(from note: Note, isFavorited: Bool, createdAt: Date) {
+        self.uuid = note.id
+        self.memoryUuid = note.memoryId
+        self.title = note.title.trimmingCharacters(in: .whitespacesAndNewlines)
+        self.text = note.text.trimmingCharacters(in: .whitespacesAndNewlines)
+        self.isFavorited = isFavorited
+        self.createdAt = createdAt
+    }
+    
+    public func update(using note: Note, isFavorited: Bool, createdAt: Date) {
+        self.uuid = note.id
+        self.memoryUuid = note.memoryId
+        self.title = note.title.trimmingCharacters(in: .whitespacesAndNewlines)
+        self.text = note.text.trimmingCharacters(in: .whitespacesAndNewlines)
+        self.isFavorited = isFavorited
+        self.createdAt = createdAt
+    }
+}
+
+struct DefaultDatabase: Database {
+    struct NotImplmentedError: Error {
+        static let instance = NotImplmentedError()
+    }
+    
+    static let instance = DefaultDatabase()
+    
+    func fetch<T>(_: FetchDescriptor<T>) async throws -> [T] where T: PersistentModel {
+        assertionFailure("No Database Set.")
+        throw NotImplmentedError.instance
+    }
+    
+    func delete(_: some PersistentModel) async {
+        assertionFailure("No Database Set.")
+    }
+    
+    func delete<T>(where predicate: Predicate<T>?) async throws where T : PersistentModel {
+        assertionFailure("No Database Set.")
+    }
+    
+    func insert(_: some PersistentModel) async {
+        assertionFailure("No Database Set.")
+    }
+    
+    func save() async throws {
+        assertionFailure("No Database Set.")
+        throw NotImplmentedError.instance
+    }
+}
+
+private struct DatabaseKey: EnvironmentKey {
+  static var defaultValue: any Database {
+    DefaultDatabase.instance
+  }
+}
+
+public extension EnvironmentValues {
+  var database: any Database {
+    get { self[DatabaseKey.self] }
+    set { self[DatabaseKey.self] = newValue }
+  }
+}
+
+public protocol Database {
+    func delete<T>(_ model: T) async where T: PersistentModel
+    func insert<T>(_ model: T) async where T: PersistentModel
+    func save() async throws
+    func fetch<T>(_ descriptor: FetchDescriptor<T>) async throws -> [T] where T: PersistentModel
+    func delete<T: PersistentModel>(where predicate: Predicate<T>?) async throws
+}
+
+@ModelActor
+public actor ModelActorDatabase: Database {
+    public func delete(_ model: some PersistentModel) async {
+        self.modelContext.delete(model)
+    }
+    
+    public func insert(_ model: some PersistentModel) async {
+        self.modelContext.insert(model)
+    }
+    
+    public func delete<T: PersistentModel>(where predicate: Predicate<T>?) async throws {
+        try self.modelContext.delete(model: T.self, where: predicate)
+    }
+    
+    public func save() async throws {
+        try self.modelContext.save()
+    }
+    
+    public func fetch<T>(_ descriptor: FetchDescriptor<T>) async throws -> [T] where T: PersistentModel {
+        return try self.modelContext.fetch(descriptor)
+    }
+}
+
+public class BackgroundDatabase: Database {
+    private actor DatabaseContainer {
+        private let factory: @Sendable () -> any Database
+        private var wrappedTask: Task<any Database, Never>?
+        
+        fileprivate init(factory: @escaping @Sendable () -> any Database) {
+            self.factory = factory
+        }
+        
+        fileprivate var database: any Database {
+            get async {
+                if let wrappedTask {
+                    return await wrappedTask.value
+                }
+                let task = Task {
+                    factory()
+                }
+                self.wrappedTask = task
+                return await task.value
+            }
+        }
+    }
+    
+    private let container: DatabaseContainer
+    
+    private var database: any Database {
+        get async {
+            await container.database
+        }
+    }
+    
+    internal init(_ factory: @Sendable @escaping () -> any Database) {
+        self.container = .init(factory: factory)
+    }
+    
+    convenience init(modelContainer: ModelContainer) {
+        self.init {
+            return ModelActorDatabase(modelContainer: modelContainer)
+        }
+    }
+
+    public func delete<T>(where predicate: Predicate<T>?) async throws where T : PersistentModel {
+        try await self.database.delete(where: predicate)
+    }
+    
+    public func delete<T>(_ model: T) async where T : PersistentModel {
+        try await self.database.delete(model)
+    }
+    
+    public func fetch<T>(_ descriptor: FetchDescriptor<T>) async throws -> [T] where T: PersistentModel {
+        return try await self.database.fetch(descriptor)
+    }
+    
+    public func insert(_ model: some PersistentModel) async {
+        return await self.database.insert(model)
+    }
+    
+    public func save() async throws {
+        return try await self.database.save()
+    }
+}
+
+public struct SharedDatabase {
+    public let modelContainer: ModelContainer
+    public let database: any Database
+    
+    public init(
+        modelContainer: ModelContainer,
+        database: (any Database)? = nil
+    ) {
+        self.modelContainer = modelContainer
+        self.database = database ?? BackgroundDatabase(modelContainer: modelContainer)
+    }
+}
+
 public enum HumaneCloudOrigin {
     case aiBus(String)
 }
@@ -105,235 +294,4 @@ public struct Event: Codable {
 
 public struct EventStream: Codable {
     public let content: [Event]
-}
-
-@Model
-public final class _Note {
-    public var uuid: UUID? = nil
-    public var memoryUuid: UUID? = nil
-    public var title: String
-    public var text: String
-    public var isFavorited: Bool
-    public var createdAt: Date
-
-    public init(uuid: UUID? = nil, memoryUuid: UUID? = nil, title: String, text: String, isFavorited: Bool = false, createdAt: Date = .now) {
-        self.uuid = uuid
-        self.memoryUuid = memoryUuid
-        self.text = text.trimmingCharacters(in: .whitespacesAndNewlines)
-        self.title = title.trimmingCharacters(in: .whitespacesAndNewlines)
-        self.isFavorited = isFavorited
-        self.createdAt = createdAt
-    }
-    
-    public init(from note: Note, isFavorited: Bool, createdAt: Date) {
-        self.uuid = note.id
-        self.memoryUuid = note.memoryId
-        self.title = note.title.trimmingCharacters(in: .whitespacesAndNewlines)
-        self.text = note.text.trimmingCharacters(in: .whitespacesAndNewlines)
-        self.isFavorited = isFavorited
-        self.createdAt = createdAt
-    }
-    
-    public func update(using note: Note, isFavorited: Bool, createdAt: Date) {
-        self.uuid = note.id
-        self.memoryUuid = note.memoryId
-        self.title = note.title.trimmingCharacters(in: .whitespacesAndNewlines)
-        self.text = note.text.trimmingCharacters(in: .whitespacesAndNewlines)
-        self.isFavorited = isFavorited
-        self.createdAt = createdAt
-    }
-}
-
-@Model
-public final class _Capture {
-    public var uuid: UUID? = nil
-    
-    public init(uuid: UUID? = nil) {
-        self.uuid = uuid
-    }
-}
-
-@Model
-public final class _Memory {
-    public let uuid: UUID
-    public let origin: String
-    public var isFavorited: Bool
-    public let lastModifiedAt: Date
-    public let createdAt: Date
-    
-    public var note: _Note?
-    public var capture: _Capture?
-    
-    public init(uuid: UUID, origin: String, isFavorited: Bool, lastModifiedAt: Date, createdAt: Date, note: _Note? = nil, capture: _Capture? = nil) {
-        self.uuid = uuid
-        self.origin = origin
-        self.isFavorited = isFavorited
-        self.lastModifiedAt = lastModifiedAt
-        self.createdAt = createdAt
-        self.note = note
-        self.capture = capture
-    }
-}
-
-@Model
-public final class _Event {
-    public let uuid: UUID
-    
-    public init(uuid: UUID) {
-        self.uuid = uuid
-    }
-}
-
-struct DefaultDatabase: Database {
-    struct NotImplmentedError: Error {
-        static let instance = NotImplmentedError()
-    }
-    
-    static let instance = DefaultDatabase()
-    
-    func fetch<T>(_: FetchDescriptor<T>) async throws -> [T] where T: PersistentModel {
-        assertionFailure("No Database Set.")
-        throw NotImplmentedError.instance
-    }
-    
-    func delete(_: some PersistentModel) async {
-        assertionFailure("No Database Set.")
-    }
-    
-    func delete<T>(where predicate: Predicate<T>?) async throws where T : PersistentModel {
-        assertionFailure("No Database Set.")
-    }
-    
-    func insert(_: some PersistentModel) async {
-        assertionFailure("No Database Set.")
-    }
-    
-    func save() async throws {
-        assertionFailure("No Database Set.")
-        throw NotImplmentedError.instance
-    }
-}
-
-private struct DatabaseKey: EnvironmentKey {
-  static var defaultValue: any Database {
-    DefaultDatabase.instance
-  }
-}
-
-public extension EnvironmentValues {
-  var database: any Database {
-    get { self[DatabaseKey.self] }
-    set { self[DatabaseKey.self] = newValue }
-  }
-}
-
-public protocol Database {
-    func delete<T>(_ model: T) async where T: PersistentModel
-    func insert<T>(_ model: T) async where T: PersistentModel
-    func save() async throws
-    func fetch<T>(_ descriptor: FetchDescriptor<T>) async throws -> [T] where T: PersistentModel
-    
-    func delete<T: PersistentModel>(
-        where predicate: Predicate<T>?
-    ) async throws
-}
-
-@ModelActor
-public actor ModelActorDatabase: Database {
-    public func delete(_ model: some PersistentModel) async {
-        self.modelContext.delete(model)
-    }
-    
-    public func insert(_ model: some PersistentModel) async {
-        self.modelContext.insert(model)
-    }
-    
-    public func delete<T: PersistentModel>(
-        where predicate: Predicate<T>?
-    ) async throws {
-        try self.modelContext.delete(model: T.self, where: predicate)
-    }
-    
-    public func save() async throws {
-        try self.modelContext.save()
-    }
-    
-    public func fetch<T>(_ descriptor: FetchDescriptor<T>) async throws -> [T] where T: PersistentModel {
-        return try self.modelContext.fetch(descriptor)
-    }
-}
-
-public class BackgroundDatabase: Database {
-    private actor DatabaseContainer {
-        private let factory: @Sendable () -> any Database
-        private var wrappedTask: Task<any Database, Never>?
-        
-        fileprivate init(factory: @escaping @Sendable () -> any Database) {
-            self.factory = factory
-        }
-        
-        fileprivate var database: any Database {
-            get async {
-                if let wrappedTask {
-                    return await wrappedTask.value
-                }
-                let task = Task {
-                    factory()
-                }
-                self.wrappedTask = task
-                return await task.value
-            }
-        }
-    }
-    
-    private let container: DatabaseContainer
-    
-    private var database: any Database {
-        get async {
-            await container.database
-        }
-    }
-    
-    internal init(_ factory: @Sendable @escaping () -> any Database) {
-        self.container = .init(factory: factory)
-    }
-    
-    convenience init(modelContainer: ModelContainer) {
-        self.init {
-            return ModelActorDatabase(modelContainer: modelContainer)
-        }
-    }
-
-    public func delete<T>(where predicate: Predicate<T>?) async throws where T : PersistentModel {
-        try await self.database.delete(where: predicate)
-    }
-    
-    public func delete<T>(_ model: T) async where T : PersistentModel {
-        try await self.database.delete(model)
-    }
-    
-    public func fetch<T>(_ descriptor: FetchDescriptor<T>) async throws -> [T] where T: PersistentModel {
-        return try await self.database.fetch(descriptor)
-    }
-    
-    public func insert(_ model: some PersistentModel) async {
-        return await self.database.insert(model)
-    }
-    
-    public func save() async throws {
-        return try await self.database.save()
-    }
-}
-
-public struct SharedDatabase {
-    public let modelContainer: ModelContainer
-    public let database: any Database
-    
-    public init(
-        modelContainer: ModelContainer,
-        database: (any Database)? = nil
-    ) {
-        self.modelContainer = modelContainer
-        self.database = database ?? BackgroundDatabase(modelContainer: modelContainer)
-    }
 }

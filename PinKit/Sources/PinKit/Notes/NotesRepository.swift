@@ -54,7 +54,6 @@ extension NotesRepository {
             return
         }
         let nextPage = min(data.pageable.pageNumber + 1, data.totalPages)
-        logger.debug("next page: \(nextPage)")
         await load(page: nextPage)
     }
     
