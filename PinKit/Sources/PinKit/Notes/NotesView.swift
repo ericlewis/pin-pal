@@ -38,7 +38,7 @@ struct NotesView: View {
                                 self.navigationStore.activeNote = _Note.newNote()
                             }
                             Button("Import", systemImage: "square.and.arrow.down") {
-                                self.fileImporterPresented = true
+                                self.navigationStore.isFileImporterPresented = true
                             }
                         } primaryAction: {
                             self.navigationStore.activeNote = _Note.newNote()
@@ -52,44 +52,49 @@ struct NotesView: View {
             NoteComposerView(editableNote: $0)
         }
         .fileImporter(
-            isPresented: $fileImporterPresented,
-            allowedContentTypes: [.plainText]
-        ) { result in
-            Task.detached {
-                do {
-                    switch result {
-                    case let .success(success):
-                        let str = try String(contentsOf: success)
-                        self.navigationStore.activeNote = .init(title: success.lastPathComponent, text: str)
-                    case let .failure(failure):
-                        break
-                    }
-                } catch {
-                    print(error)
-                }
-            }
+            isPresented: $navigationStore.isFileImporterPresented,
+            allowedContentTypes: [.plainText],
+            onCompletion: handleFileImport(result:)
+        )
+        .task(id: searchQuery, search)
+        .task {
+            await load()
         }
-        .task(id: searchQuery) {
+    }
+    
+    private func handleFileImport(result: Result<URL, Error>) {
+        Task.detached {
             do {
-                try await Task.sleep(for: .milliseconds(300))
-                guard !searchQuery.isEmpty else {
-                    withAnimation {
-                        self.searchResults = nil
-                    }
-                    return
+                switch result {
+                case let .success(success):
+                    let str = try String(contentsOf: success)
+                    self.navigationStore.activeNote = .init(title: success.lastPathComponent, text: str)
+                case let .failure(failure):
+                    break
                 }
-                let res = try await service.search(searchQuery, .notes).memories ?? []
-                withAnimation {
-                    searchResults = res.map(\.uuid)
-                }
-            } catch is CancellationError {
-                // noop
             } catch {
                 print(error)
             }
         }
-        .task {
-            await load()
+    }
+    
+    private func search() async {
+        do {
+            try await Task.sleep(for: .milliseconds(300))
+            guard !searchQuery.isEmpty else {
+                withAnimation {
+                    self.searchResults = nil
+                }
+                return
+            }
+            let res = try await service.search(searchQuery, .notes).memories ?? []
+            withAnimation {
+                searchResults = res.map(\.uuid)
+            }
+        } catch is CancellationError {
+            // noop
+        } catch {
+            print(error)
         }
     }
     
@@ -139,99 +144,6 @@ struct NotesView: View {
                         await database.delete(note)
                     }
                 }
-            }
-        }
-    }
-}
-
-struct NotesList: View {
-    
-    @Environment(\.database)
-    private var database
-    
-    @Environment(HumaneCenterService.self)
-    private var service
-    
-    @Environment(NavigationStore.self)
-    private var navigationStore
-    
-    @Environment(\.isSearching)
-    private var isSearching
-    
-    @AccentColor
-    private var tint
-    
-    @Query
-    private var notes: [_Note]
-    
-    let isLoading: Bool
-    
-    init(uuids: [UUID?]?, order: SortOrder, isLoading: Bool) {
-        var descriptor = FetchDescriptor(sortBy: [SortDescriptor(\_Note.createdAt, order: order)])
-        if let uuids {
-            descriptor.predicate = #Predicate<_Note> {  uuids.contains($0.memoryUuid) }
-        }
-        self._notes = .init(descriptor)
-        self.isLoading = isLoading
-    }
-    
-    var body: some View {
-        List {
-            ForEach(notes) { note in
-                Button {
-                    navigationStore.activeNote = note
-                } label: {
-                    LabeledContent {} label: {
-                        Text(note.title)
-                            .foregroundStyle(tint)
-                            .font(.headline)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                            .overlay(alignment: .topTrailing) {
-                                if note.isFavorited {
-                                    Image(systemName: "heart")
-                                        .symbolVariant(.fill)
-                                        .foregroundStyle(.red)
-                                }
-                            }
-                        Text(LocalizedStringKey(note.text))
-                            .lineLimit(note.text.count > 500 ? 5 : nil)
-                            .foregroundStyle(.primary)
-                        Text(note.createdAt, format: .dateTime)
-                            .foregroundStyle(.tertiary)
-                    }
-                    .tint(.primary)
-                }
-                .swipeActions(edge: .leading, allowsFullSwipe: true) {
-                    FavoriteButton(for: note)
-                        .tint(.pink)
-                }
-            }
-            .onDelete(perform: deleteNotes)
-        }
-        .overlay {
-            if isLoading, notes.isEmpty {
-                ProgressView()
-            } else if isSearching, !isLoading, notes.isEmpty {
-                ContentUnavailableView.search
-            } else if notes.isEmpty {
-                ContentUnavailableView("No notes yet", systemImage: "note.text")
-            }
-        }
-    }
-    
-    private func deleteNotes(at indexSet: IndexSet) {
-        Task {
-            do {
-                for index in indexSet {
-                    let note = notes[index]
-                    try await database.delete(note)
-                    if let memoryUuid = note.memoryUuid {
-                        try await service.deleteByNoteId(memoryUuid)
-                    }
-                }
-                try await database.save()
-            } catch {
-                print("Error deleting note: \(error)")
             }
         }
     }

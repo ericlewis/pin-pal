@@ -7,10 +7,11 @@ import AppIntents
     public var notesNavigationPath = NavigationPath()
     public var capturesNavigationPath = NavigationPath()
     
-    public var authenticationPresented = false
     public var activeNote: _Note?
     public var isWifiCodeGeneratorPresented = false
-    
+    public var authenticationPresented = false
+    public var isFileImporterPresented = false
+
     public var textColorPresented = false
     public var iconChangerPresented = false
     
