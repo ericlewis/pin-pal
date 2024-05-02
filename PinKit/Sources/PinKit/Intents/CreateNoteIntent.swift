@@ -31,7 +31,7 @@ public struct CreateNoteIntent: AppIntent {
     public func perform() async throws -> some IntentResult {
         var editableNote = _Note.newNote()
         let result = try await service.create(.init(text: text, title: title))
-        guard let note: Note = result.get() else {
+        guard let note: RemoteNote = result.get() else {
             return .result()
         }
         editableNote.update(using: note, isFavorited: false, createdAt: .now)

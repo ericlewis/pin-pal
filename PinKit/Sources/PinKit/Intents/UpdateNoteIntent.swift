@@ -37,7 +37,7 @@ public struct UpdateNoteIntent: AppIntent {
         guard let memoryId = UUID(uuidString: self.identifier) else {
             return .result()
         }
-        let content = try await service.update(memoryId.uuidString, Note(text: self.text, title: self.title))
+        let content = try await service.update(memoryId.uuidString, RemoteNote(text: self.text, title: self.title))
         var editableNote = _Note.newNote()
         editableNote.update(using: content.get()!, isFavorited: content.favorite, createdAt: content.userCreatedAt)
         await database.insert(editableNote)

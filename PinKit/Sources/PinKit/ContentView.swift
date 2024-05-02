@@ -11,7 +11,7 @@ public struct ContentView: View {
         @Bindable
         var navigationStore = navigationStore
         TabView(selection: $navigationStore.selectedTab) {
-            Notes()
+            NotesView()
                 .tabItem {
                     Label("Notes", systemImage: "note.text")
                 }

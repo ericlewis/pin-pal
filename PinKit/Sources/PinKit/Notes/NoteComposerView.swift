@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct Composer: View {
+struct NoteComposerView: View {
     
     @Environment(\.dismiss)
     private var dismiss

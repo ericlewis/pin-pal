@@ -176,11 +176,11 @@ extension HumaneCenterService {
             ]))
         }
         
-        public func create(note: Note) async throws -> ContentEnvelope {
+        public func create(note: RemoteNote) async throws -> ContentEnvelope {
             try await post(url: noteUrl.appending(path: "create"), body: note)
         }
         
-        public func update(id: String, with note: Note) async throws -> ContentEnvelope {
+        public func update(id: String, with note: RemoteNote) async throws -> ContentEnvelope {
             try await post(url: noteUrl.appending(path: id), body: note)
         }
         
@@ -328,8 +328,8 @@ extension HumaneCenterService {
     public var featureFlag: (FeatureFlag) async throws -> FeatureFlagEnvelope
     public var subscription: () async throws -> Subscription
     public var detailedDeviceInformation: () async throws -> DetailedDeviceInfo
-    public var create: (Note) async throws -> ContentEnvelope
-    public var update: (String, Note) async throws -> ContentEnvelope
+    public var create: (RemoteNote) async throws -> ContentEnvelope
+    public var update: (String, RemoteNote) async throws -> ContentEnvelope
     public var search: (String, SearchDomain) async throws -> SearchResults
     public var favorite: (ContentEnvelope) async throws -> Void
     public var unfavorite: (ContentEnvelope) async throws -> Void
@@ -357,8 +357,8 @@ extension HumaneCenterService {
         featureFlag: @escaping (FeatureFlag) async throws -> FeatureFlagEnvelope,
         subscription: @escaping () async throws -> Subscription,
         detailedDeviceInformation: @escaping () async throws -> DetailedDeviceInfo,
-        create: @escaping (Note) async throws -> ContentEnvelope,
-        update: @escaping (String, Note) async throws -> ContentEnvelope,
+        create: @escaping (RemoteNote) async throws -> ContentEnvelope,
+        update: @escaping (String, RemoteNote) async throws -> ContentEnvelope,
         search: @escaping (String, SearchDomain) async throws -> SearchResults,
         favorite: @escaping (ContentEnvelope) async throws -> Void,
         unfavorite: @escaping (ContentEnvelope) async throws -> Void,

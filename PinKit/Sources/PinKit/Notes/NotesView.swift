@@ -1,7 +1,7 @@
 import SwiftUI
 import SwiftData
 
-struct Notes: View {
+struct NotesView: View {
     
     @Environment(NavigationStore.self)
     private var navigationStore
@@ -49,7 +49,7 @@ struct Notes: View {
                 .navigationTitle("Notes")
         }
         .sheet(item: $navigationStore.activeNote) {
-            Composer(editableNote: $0)
+            NoteComposerView(editableNote: $0)
         }
         .fileImporter(
             isPresented: $fileImporterPresented,
@@ -120,7 +120,7 @@ struct Notes: View {
         await withThrowingTaskGroup(of: Void.self) { group in
             for item in content {
                 group.addTask {
-                    guard var note: Note = item.get() else { return }
+                    guard var note: RemoteNote = item.get() else { return }
                     note.memoryId = item.uuid
                     await database.insert(_Note(from: note, isFavorited: item.favorite, createdAt: item.userCreatedAt))
                 }
