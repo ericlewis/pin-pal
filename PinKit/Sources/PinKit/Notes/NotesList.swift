@@ -46,6 +46,7 @@ struct NotesList: View {
                 .swipeActions(edge: .leading, allowsFullSwipe: true) {
                     FavoriteButton(note: note)
                 }
+                .listRowInsets(.init(top: 15, leading: 25, bottom: 15, trailing: 10))
             }
             .onDelete(perform: deleteNotes)
         }

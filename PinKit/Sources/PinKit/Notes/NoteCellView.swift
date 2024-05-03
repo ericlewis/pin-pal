@@ -10,14 +10,17 @@ struct NoteCellView: View {
     var body: some View {
         LabeledContent {} label: {
             Text(note.title)
+                .lineLimit(2)
                 .foregroundStyle(tint)
                 .font(.headline)
                 .frame(maxWidth: .infinity, alignment: .leading)
-                .overlay(alignment: .topTrailing) {
+                .overlay(alignment: .leading) {
                     if note.memory?.favorite == true {
                         Image(systemName: "heart")
                             .symbolVariant(.fill)
+                            .imageScale(.small)
                             .foregroundStyle(.red)
+                            .offset(x: -20)
                     }
                 }
             Text(LocalizedStringKey(note.text))

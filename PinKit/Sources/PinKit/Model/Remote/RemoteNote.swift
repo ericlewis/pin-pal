@@ -1,14 +1,10 @@
 import Foundation
 
 public struct RemoteNote: Codable, Equatable {
-    var uuid: UUID?
-    var text: String
-    var title: String
-        
-    public static func create() -> RemoteNote {
-        RemoteNote(text: "", title: "")
-    }
-    
+    public var uuid: UUID?
+    public var text: String
+    public var title: String
+
     public init(uuid: UUID? = nil, text: String, title: String) {
         self.uuid = uuid
         self.text = text

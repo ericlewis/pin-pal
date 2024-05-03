@@ -1,7 +1,7 @@
 import SwiftData
 import Foundation
 
-public protocol Database {
+public protocol Database: Sendable {
     func delete<T>(_ model: T) async where T: PersistentModel
     func insert<T>(_ model: T) async where T: PersistentModel
     func insert<T>(_ model: [T]) async where T: PersistentModel

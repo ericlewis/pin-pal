@@ -6,11 +6,11 @@ import SwiftData
 @main
 struct Ai_PinApp: App {
     
-    @State 
+    @State
     private var sceneNavigationStore: NavigationStore
     
     @State
-    private var sceneApi: HumaneCenterService
+    private var sceneService: HumaneCenterService
 
     @State
     private var sceneMyDataRepository: MyDataRepository
@@ -26,17 +26,17 @@ struct Ai_PinApp: App {
     
     let sceneDatabase: any Database
 
-    init() {
+    public init() {
         let navigationStore = NavigationStore()
         sceneNavigationStore = navigationStore
         
-        let api = HumaneCenterService.live()
-        sceneApi = api
+        let service = HumaneCenterService.live()
+        sceneService = service
   
-        let myDataRepository = MyDataRepository(api: api)
+        let myDataRepository = MyDataRepository(api: service)
         sceneMyDataRepository = myDataRepository
         
-        let settingsRepository = SettingsRepository(service: api)
+        let settingsRepository = SettingsRepository(service: service)
         sceneSettingsRepository = settingsRepository
         
         let modelContainerConfig = ModelConfiguration("v1.38", isStoredInMemoryOnly: false)
@@ -50,8 +50,7 @@ struct Ai_PinApp: App {
         sceneDatabase = database
 
         AppDependencyManager.shared.add(dependency: navigationStore)
-        AppDependencyManager.shared.add(dependency: myDataRepository)
-        AppDependencyManager.shared.add(dependency: settingsRepository)
+        AppDependencyManager.shared.add(dependency: service)
         AppDependencyManager.shared.add(dependency: database)
     }
     
@@ -61,7 +60,7 @@ struct Ai_PinApp: App {
                 .environment(sceneNavigationStore)
                 .environment(sceneMyDataRepository)
                 .environment(sceneSettingsRepository)
-                .environment(sceneApi)
+                .environment(sceneService)
                 .tint(accentColor)
         }
         .environment(\.database, sceneDatabase)

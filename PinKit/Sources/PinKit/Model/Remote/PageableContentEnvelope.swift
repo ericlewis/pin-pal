@@ -183,12 +183,12 @@ public struct CaptureEnvelope: Codable, Equatable, Hashable {
 }
 
 public struct ContentEnvelope: Codable, Identifiable {
-    enum DataClass: Codable {
+    public enum DataClass: Codable {
         case capture(CaptureEnvelope)
         case note(RemoteNote)
         case unknown
         
-        init(from decoder: any Decoder) throws {
+        public init(from decoder: any Decoder) throws {
             let container = try decoder.container(keyedBy: CodingKeys.self)
             if let note = try? container.decodeIfPresent(RemoteNote.self, forKey: .note) {
                 self = .note(note)
@@ -199,7 +199,7 @@ public struct ContentEnvelope: Codable, Identifiable {
             }
         }
         
-        func encode(to encoder: any Encoder) throws {
+        public func encode(to encoder: any Encoder) throws {
             var container = encoder.container(keyedBy: CodingKeys.self)
             if case let .note(note) = self {
                 try container.encode(note, forKey: .note)
@@ -208,21 +208,21 @@ public struct ContentEnvelope: Codable, Identifiable {
             }
         }
         
-        enum CodingKeys: CodingKey {
+        public enum CodingKeys: CodingKey {
             case note
             case thumbnail
         }
     }
     
     public let id: UUID
-    let uuid: UUID
-    let originClientId: String
-    var favorite: Bool
-    let userLastModified: Date
-    let userCreatedAt: Date
-    let location: String?
+    public let uuid: UUID
+    public let originClientId: String
+    public var favorite: Bool
+    public let userLastModified: Date
+    public let userCreatedAt: Date
+    public let location: String?
     
-    var data: DataClass
+    public var data: DataClass
     
     public init(from decoder: any Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
@@ -250,7 +250,7 @@ public struct ContentEnvelope: Codable, Identifiable {
 }
 
 extension ContentEnvelope {
-    func get() -> RemoteNote? {
+    public func get() -> RemoteNote? {
         switch data {
         case let .note(note): note
         default: nil

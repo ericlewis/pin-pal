@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		6819B7F62BD85431009255A0 /* Ai_PinApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6819B7F52BD85431009255A0 /* Ai_PinApp.swift */; };
 		6819B7FA2BD85432009255A0 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 6819B7F92BD85432009255A0 /* Assets.xcassets */; };
+		683753342BE5808D00088FC1 /* StubAppIntents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 683753332BE5808D00088FC1 /* StubAppIntents.swift */; };
 		68C85B8A2BDFE01B0029A408 /* PinKit in Frameworks */ = {isa = PBXBuildFile; productRef = 68C85B892BDFE01B0029A408 /* PinKit */; };
 /* End PBXBuildFile section */
 
@@ -18,6 +19,7 @@
 		6819B7F92BD85432009255A0 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		6819B7FB2BD85432009255A0 /* Ai_Pin.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Ai_Pin.entitlements; sourceTree = "<group>"; };
 		6819B82C2BDB5468009255A0 /* Ai-Pin-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "Ai-Pin-Info.plist"; path = "Ai Pin/Resources/Ai-Pin-Info.plist"; sourceTree = SOURCE_ROOT; };
+		683753332BE5808D00088FC1 /* StubAppIntents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StubAppIntents.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -54,6 +56,7 @@
 			children = (
 				68C85B7B2BDCA1BE0029A408 /* Resources */,
 				6819B7F52BD85431009255A0 /* Ai_PinApp.swift */,
+				683753332BE5808D00088FC1 /* StubAppIntents.swift */,
 			);
 			path = "Ai Pin";
 			sourceTree = "<group>";
@@ -151,6 +154,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				6819B7F62BD85431009255A0 /* Ai_PinApp.swift in Sources */,
+				683753342BE5808D00088FC1 /* StubAppIntents.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

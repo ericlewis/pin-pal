@@ -297,7 +297,7 @@ extension HumaneCenterService {
     }
 }
 
-@Observable public class HumaneCenterService {
+@Observable public class HumaneCenterService: Sendable {
     public static let shared = HumaneCenterService.live
     
     private static let rootUrl = URL(string: "https://webapi.prod.humane.cloud/")!

@@ -19,7 +19,7 @@ public final class Location {
         .init(latitude: latitude, longitude: longitude)
     }
     
-    init(name: String, latitude: Double, longitude: Double, memories: [Memory] = []) {
+    public init(name: String, latitude: Double, longitude: Double, memories: [Memory] = []) {
         self.name = name
         self.latitude = latitude
         self.longitude = longitude
@@ -48,11 +48,11 @@ public final class Memory {
     var capture: Capture?
     
     @Relationship(deleteRule: .cascade, inverse: \Note.memory)
-    var note: Note?
+    public var note: Note?
     
     var location: Location?
     
-    init(
+    public init(
         uuid: UUID,
         favorite: Bool,
         createdAt: Date,
