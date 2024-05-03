@@ -14,8 +14,8 @@ public struct _CreateNoteIntent: AppIntent {
     
     public init() {}
     
-    public static var openAppWhenRun: Bool = CreateNoteIntent.openAppWhenRun
-    public static var isDiscoverable: Bool = CreateNoteIntent.isDiscoverable
+    public static var openAppWhenRun: Bool = false
+    public static var isDiscoverable: Bool = true
     
     @Dependency
     public var navigationStore: NavigationStore
@@ -45,8 +45,8 @@ public struct _UpdateNoteIntent: AppIntent {
 
     public init() {}
     
-    public static var openAppWhenRun: Bool = UpdateNoteIntent.openAppWhenRun
-    public static var isDiscoverable: Bool = UpdateNoteIntent.isDiscoverable
+    public static var openAppWhenRun: Bool = false
+    public static var isDiscoverable: Bool = true
     
     @Dependency
     public var navigationStore: NavigationStore
