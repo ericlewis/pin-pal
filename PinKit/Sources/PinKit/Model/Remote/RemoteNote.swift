@@ -4,16 +4,13 @@ public struct RemoteNote: Codable, Equatable {
     var uuid: UUID?
     var text: String
     var title: String
-    
-    var memoryId: UUID? = nil
-    
+        
     public static func create() -> RemoteNote {
         RemoteNote(text: "", title: "")
     }
     
-    public init(uuid: UUID? = nil, memoryId: UUID? = nil, text: String, title: String) {
+    public init(uuid: UUID? = nil, text: String, title: String) {
         self.uuid = uuid
-        self.memoryId = memoryId
         self.text = text
         self.title = title
     }

@@ -5,36 +5,35 @@ struct FavoriteButton: View {
     @Environment(HumaneCenterService.self)
     private var service
     
-    let note: Note
-    
-    init(for note: Note) {
-        self.note = note
-    }
-    
+    var note: Note
+
     var body: some View {
-        Toggle(
-            note.isFavorited ? "Unfavorite" : "Favorite",
-            systemImage: "heart",
-            isOn: Binding(
-                get: { note.isFavorited },
-                set: { newValue in
-                    handleToggle(value: newValue)
-                    note.isFavorited = newValue
-                }
+        if let memory = note.memory {
+            Toggle(
+                memory.favorite ? "Unfavorite" : "Favorite",
+                systemImage: "heart",
+                isOn: Binding(
+                    get: { memory.favorite },
+                    set: { newValue in
+                        memory.favorite = newValue
+                        handleToggle(value: newValue)
+                    }
+                )
+                .animation()
             )
-            .animation()
-        )
-        .symbolVariant(note.isFavorited ? .slash : .none)
-        .toggleStyle(.button)
+            .symbolVariant(memory.favorite ? .slash : .none)
+            .toggleStyle(.button)
+            .tint(.pink)
+        }
     }
     
     func handleToggle(value: Bool) {
-        if let memoryUuid = note.memoryUuid {
+        if let uuid = note.memory?.uuid {
             Task {
                 if value {
-                    try await service.favoriteById(memoryUuid)
+                    try await service.favoriteById(uuid)
                 } else {
-                    try await service.unfavoriteById(memoryUuid)
+                    try await service.unfavoriteById(uuid)
                 }
             }
         }

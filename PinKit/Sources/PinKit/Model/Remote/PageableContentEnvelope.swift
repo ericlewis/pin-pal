@@ -154,30 +154,25 @@ public struct Pageable: Codable {
     let paged: Bool
 }
 
-public struct FileAsset: Codable {
+public struct FileAsset: Codable, Equatable, Hashable {
     let fileUUID: UUID
     let accessToken: String
     let key: String?
-    let mediaType: MediaType
+    let mediaType: CaptureType
     let text: String?
     let url: URL?
 }
 
-struct Video: Codable {
-    let fileUUID: UUID
-    let accessToken: String
-}
-
-enum CaptureType: String, Codable {
+public enum CaptureType: String, Codable, Equatable, Hashable {
     case photo = "PHOTO"
     case video = "VIDEO"
 }
 
-public struct CaptureEnvelope: Codable {
+public struct CaptureEnvelope: Codable, Equatable, Hashable {
     let uuid: UUID
     let type: CaptureType
     let thumbnail: FileAsset
-    let video: Video?
+    let video: FileAsset?
     
     let originalThumbnails: [FileAsset]?
     let originals: [FileAsset]?
@@ -241,11 +236,6 @@ public struct ContentEnvelope: Codable, Identifiable {
         self.originClientId = try container.decode(String.self, forKey: .originClientId)
         self.favorite = try container.decode(Bool.self, forKey: .favorite)
         self.location = try container.decodeIfPresent(String.self, forKey: .location)
-        
-        if case var .note(note) = self.data {
-            note.memoryId = self.uuid
-            self.data = .note(note)
-        }
     }
     
     enum CodingKeys: CodingKey {

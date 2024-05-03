@@ -89,7 +89,7 @@ struct NoteComposerView: View {
         Task {
             isLoading = true
             do {
-                if let memoryUuid = editableNote.memoryUuid {
+                if let memoryUuid = editableNote.memory?.uuid {
                     let intent = UpdateNoteIntent(identifier: memoryUuid.uuidString, title: title, text: text)
                     intent.navigationStore = navigationStore
                     intent.database = database
@@ -102,7 +102,6 @@ struct NoteComposerView: View {
                     intent.service = service
                     let _ = try await intent.perform()
                 }
-                dismiss()
             } catch {
                 self.errorMessage = error.localizedDescription
                 showErrorAlert = true

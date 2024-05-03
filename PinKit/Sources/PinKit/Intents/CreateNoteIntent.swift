@@ -29,13 +29,19 @@ public struct CreateNoteIntent: AppIntent {
     public var service: HumaneCenterService
 
     public func perform() async throws -> some IntentResult {
-        var editableNote = Note.newNote()
         let result = try await service.create(.init(text: text, title: title))
-        guard let note: RemoteNote = result.get() else {
+        guard let remoteNote: RemoteNote = result.get() else {
             return .result()
-        }
-        editableNote.update(using: note, isFavorited: false, createdAt: .now)
-        await database.insert(editableNote)
+        }        
+        let memory = Memory(uuid: result.uuid, favorite: result.favorite, createdAt: result.userCreatedAt)
+        let note = Note(
+            uuid: remoteNote.uuid, 
+            title: remoteNote.title,
+            text: remoteNote.text,
+            createdAt: result.userCreatedAt
+        )
+        memory.note = note
+        await database.insert(memory)
         try await database.save()
         navigationStore.activeNote = nil
         return .result()

@@ -14,7 +14,7 @@ struct NoteCellView: View {
                 .font(.headline)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .overlay(alignment: .topTrailing) {
-                    if note.isFavorited {
+                    if note.memory?.favorite == true {
                         Image(systemName: "heart")
                             .symbolVariant(.fill)
                             .foregroundStyle(.red)

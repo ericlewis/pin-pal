@@ -20,10 +20,16 @@ struct NotesList: View {
     
     let isLoading: Bool
     
-    init(uuids: [UUID?]?, order: SortOrder, isLoading: Bool) {
+    init(uuids: [UUID]?, order: SortOrder, isLoading: Bool) {
         var descriptor = FetchDescriptor(sortBy: [SortDescriptor(\Note.createdAt, order: order)])
         if let uuids {
-            descriptor.predicate = #Predicate<Note> {  uuids.contains($0.memoryUuid) }
+            descriptor.predicate = #Predicate<Note> {
+                if let memory = $0.memory {
+                    return uuids.contains(memory.uuid)
+                } else {
+                    return false
+                }
+            }
         }
         self._notes = .init(descriptor)
         self.isLoading = isLoading
@@ -38,8 +44,7 @@ struct NotesList: View {
                     NoteCellView(note: note)
                 }
                 .swipeActions(edge: .leading, allowsFullSwipe: true) {
-                    FavoriteButton(for: note)
-                        .tint(.pink)
+                    FavoriteButton(note: note)
                 }
             }
             .onDelete(perform: deleteNotes)
@@ -61,8 +66,8 @@ struct NotesList: View {
                 for index in indexSet {
                     let note = notes[index]
                     try await database.delete(note)
-                    if let memoryUuid = note.memoryUuid {
-                        try await service.deleteByNoteId(memoryUuid)
+                    if let uuid = note.memory?.uuid {
+                        try await service.deleteById(uuid)
                     }
                 }
                 try await database.save()

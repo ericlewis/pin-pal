@@ -25,6 +25,10 @@ struct DefaultDatabase: Database {
         assertionFailure("No Database Set.")
     }
     
+    func insert(_: [some PersistentModel]) async {
+        assertionFailure("No Database Set.")
+    }
+    
     func save() async throws {
         assertionFailure("No Database Set.")
         throw NotImplmentedError.instance

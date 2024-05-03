@@ -39,7 +39,11 @@ struct Ai_PinApp: App {
         let settingsRepository = SettingsRepository(service: api)
         sceneSettingsRepository = settingsRepository
         
-        let modelContainer = try! ModelContainer(for: Note.self, Capture.self, Asset.self, configurations: .init("v1.2"))
+        let modelContainerConfig = ModelConfiguration("v1.38", isStoredInMemoryOnly: false)
+        let modelContainer = try! ModelContainer(
+            for: Memory.self,
+            configurations: modelContainerConfig
+        )
         sceneModelContainer = modelContainer
         
         let database = SharedDatabase(modelContainer: modelContainer).database

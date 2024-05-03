@@ -69,7 +69,7 @@ struct NotesView: View {
                 switch result {
                 case let .success(success):
                     let str = try String(contentsOf: success)
-                    self.navigationStore.activeNote = .init(title: success.lastPathComponent, text: str)
+                    self.navigationStore.activeNote = .init(title: success.lastPathComponent, text: str, createdAt: .now)
                 case let .failure(failure):
                     break
                 }
@@ -95,7 +95,10 @@ struct NotesView: View {
         } catch is CancellationError {
             // noop
         } catch {
-            print(error)
+            let err = error as NSError
+            if err.domain != NSURLErrorDomain, err.code != NSURLErrorCancelled {
+                print(error)
+            }
         }
     }
     
@@ -117,7 +120,10 @@ struct NotesView: View {
         } catch APIError.notAuthorized {
             self.navigationStore.authenticationPresented = true
         } catch {
-            print(error)
+            let err = error as NSError
+            if err.domain != NSURLErrorDomain, err.code != NSURLErrorCancelled {
+                print(error)
+            }
         }
         isLoading = false
     }
@@ -125,10 +131,18 @@ struct NotesView: View {
     private func process(content: [ContentEnvelope]) async {
         await withThrowingTaskGroup(of: Void.self) { group in
             for item in content {
+                let memory = Memory(uuid: item.uuid, favorite: item.favorite, createdAt: item.userCreatedAt)
+                if let remoteNote: RemoteNote = item.get() {
+                    let note = Note(
+                        uuid: remoteNote.uuid,
+                        title: remoteNote.title,
+                        text: remoteNote.text,
+                        createdAt: memory.createdAt
+                    )
+                    memory.note = note
+                }
                 group.addTask {
-                    guard var note: RemoteNote = item.get() else { return }
-                    note.memoryId = item.uuid
-                    await database.insert(Note(from: note, isFavorited: item.favorite, createdAt: item.userCreatedAt))
+                    await database.insert(memory)
                 }
             }
         }

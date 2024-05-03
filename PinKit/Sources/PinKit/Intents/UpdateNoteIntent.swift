@@ -37,10 +37,19 @@ public struct UpdateNoteIntent: AppIntent {
         guard let memoryId = UUID(uuidString: self.identifier) else {
             return .result()
         }
-        let content = try await service.update(memoryId.uuidString, RemoteNote(text: self.text, title: self.title))
-        var editableNote = Note.newNote()
-        editableNote.update(using: content.get()!, isFavorited: content.favorite, createdAt: content.userCreatedAt)
-        await database.insert(editableNote)
+        let result = try await service.update(memoryId.uuidString, RemoteNote(text: self.text, title: self.title))
+        guard let remoteNote: RemoteNote = result.get() else {
+            return .result()
+        }
+        let memory = Memory(uuid: result.uuid, favorite: result.favorite, createdAt: result.userCreatedAt)
+        let note = Note(
+            uuid: remoteNote.uuid,
+            title: remoteNote.title,
+            text: remoteNote.text,
+            createdAt: result.userCreatedAt
+        )
+        memory.note = note
+        await database.insert(memory)
         try await database.save()
         navigationStore.activeNote = nil
         return .result()

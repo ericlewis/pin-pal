@@ -23,15 +23,13 @@ struct CapturesView: View {
     
     var body: some View {
         @Bindable var navigationStore = navigationStore
-        NavigationStack(path: $navigationStore.capturesNavigationPath) {
-            ScrollView {
-                CapturesScrollGrid(uuids: searchResults, order: .reverse, isLoading: isLoading)
-            }
-            .refreshable {
-                await load()
-            }
-            .searchable(text: $searchQuery)
-            .navigationTitle("Captures", displayMode: .inline)
+        NavigationStack {
+            CapturesScrollGrid(uuids: searchResults, order: .reverse, isLoading: isLoading)
+                .refreshable {
+                    await load()
+                }
+                .searchable(text: $searchQuery)
+                .navigationTitle("Captures", displayMode: .inline)
         }
         .task(id: searchQuery, search)
         .task {
@@ -55,7 +53,10 @@ struct CapturesView: View {
         } catch is CancellationError {
             // noop
         } catch {
-            print(error)
+            let err = error as NSError
+            if err.domain != NSURLErrorDomain, err.code != NSURLErrorCancelled {
+                print(error)
+            }
         }
     }
     
@@ -63,45 +64,56 @@ struct CapturesView: View {
         isLoading = true
         do {
             let response = try await service.captures(0, chunkSize)
-            await process(content: response.content)
+            try await process(content: response.content)
             let responses = try await (1..<response.totalPages).asyncCompactMap { pageNumber in
                 try? await service.captures(pageNumber, chunkSize).content
             }
             let responsesContent = responses.flatMap({ $0 })
             var firstResponseContent = response.content
             firstResponseContent.append(contentsOf: responsesContent)
-            let fetchedUUIDs = Set(firstResponseContent.compactMap({ $0.uuid }))
-            await process(content: responsesContent)
+            let fetchedRecords: [CaptureEnvelope] = firstResponseContent.compactMap({ $0.get() })
+            let fetchedUUIDs = Set(fetchedRecords.map(\.uuid))
+            try Task.checkCancellation()
+            try await process(content: responsesContent)
             try await pruneStaleRecords(fetchedUUIDs: fetchedUUIDs)
             try await database.save()
         } catch APIError.notAuthorized {
             self.navigationStore.authenticationPresented = true
         } catch {
-            print(error)
+            let err = error as NSError
+            if err.domain != NSURLErrorDomain, err.code != NSURLErrorCancelled {
+                print(error)
+            }
         }
         isLoading = false
     }
     
-    private func process(content: [ContentEnvelope]) async {
-        await withThrowingTaskGroup(of: Void.self) { group in
+    private func process(content: [ContentEnvelope]) async throws {
+        try await withThrowingTaskGroup(of: Void.self) { group in
             for item in content {
-                group.addTask {
-                    guard var captureEnvelope: CaptureEnvelope = item.get() else { return }
-                    let thumbnailAsset = Asset(
-                        fileUUID: captureEnvelope.thumbnail.fileUUID,
-                        text: captureEnvelope.thumbnail.text,
-                        accessToken: captureEnvelope.thumbnail.accessToken,
-                        key: captureEnvelope.thumbnail.key,
-                        url: captureEnvelope.thumbnail.url
-                    )
-                    await database.insert(thumbnailAsset)
+                let memory = Memory(uuid: item.uuid, favorite: item.favorite, createdAt: item.userCreatedAt)
+                if let remoteCapture: CaptureEnvelope = item.get() {
                     let capture = Capture(
-                        uuid: item.uuid,
-                        isFavorited: item.favorite,
-                        createdAt: item.userCreatedAt,
-                        thumbnail: thumbnailAsset
+                        uuid: remoteCapture.uuid,
+                        type: remoteCapture.type,
+                        createdAt: memory.createdAt,
+                        originals: [],
+                        derivatives: []
                     )
-                    await database.insert(capture)
+                    
+                    let captureThumbnail = remoteCapture.thumbnail
+                    let thumbnail = Asset(fileUUID: captureThumbnail.fileUUID, accessToken: captureThumbnail.accessToken)
+                    capture.thumbnail = thumbnail
+                    
+                    if let captureVideo = remoteCapture.video {
+                        let video = Asset(fileUUID: captureVideo.fileUUID, accessToken: captureVideo.accessToken)
+                        capture.video = video
+                    }
+                    
+                    memory.capture = capture
+                }
+                group.addTask {
+                    await database.insert(memory)
                 }
             }
         }

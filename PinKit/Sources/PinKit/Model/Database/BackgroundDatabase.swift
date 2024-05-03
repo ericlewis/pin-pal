@@ -58,6 +58,10 @@ public class BackgroundDatabase: Database {
         return await self.database.insert(model)
     }
     
+    public func insert<T>(_ model: [T]) async where T : PersistentModel {
+        return await self.database.insert(model)
+    }
+    
     public func save() async throws {
         return try await self.database.save()
     }

@@ -284,7 +284,7 @@ extension HumaneCenterService {
             favoriteById: { try await service.favorite(uuid: $0) },
             unfavoriteById: { try await service.unfavorite(uuid: $0) },
             delete: { try await service.delete(memory: $0) },
-            deleteByNoteId: { try await service.delete(memoryId: $0) },
+            deleteById: { try await service.delete(memoryId: $0) },
             deleteEvent: { try await service.delete(event: $0) },
             memory: { try await service.memory(uuid: $0) },
             toggleFeatureFlag: { try await service.toggleFeatureFlag($0) },
@@ -341,7 +341,7 @@ extension HumaneCenterService {
     public var favoriteById: (UUID) async throws -> Void
     public var unfavoriteById: (UUID) async throws -> Void
     public var delete: (ContentEnvelope) async throws -> Void
-    public var deleteByNoteId: (UUID) async throws -> Void
+    public var deleteById: (UUID) async throws -> Void
     public var deleteEvent: (EventContentEnvelope) async throws -> Void
     public var memory: (UUID) async throws -> ContentEnvelope
     public var toggleFeatureFlag: (FeatureFlag) async throws -> FeatureFlagEnvelope
@@ -370,7 +370,7 @@ extension HumaneCenterService {
         favoriteById: @escaping (UUID) async throws -> Void,
         unfavoriteById: @escaping (UUID) async throws -> Void,
         delete: @escaping (ContentEnvelope) async throws -> Void,
-        deleteByNoteId: @escaping (UUID) async throws -> Void,
+        deleteById: @escaping (UUID) async throws -> Void,
         deleteEvent: @escaping (EventContentEnvelope) async throws -> Void,
         memory: @escaping (UUID) async throws -> ContentEnvelope,
         toggleFeatureFlag: @escaping (FeatureFlag) async throws -> FeatureFlagEnvelope,
@@ -402,7 +402,7 @@ extension HumaneCenterService {
         self.favorite = favorite
         self.unfavorite = unfavorite
         self.delete = delete
-        self.deleteByNoteId = deleteByNoteId
+        self.deleteById = deleteById
         self.deleteEvent = deleteEvent
         self.memory = memory
         self.toggleFeatureFlag = toggleFeatureFlag
@@ -473,14 +473,12 @@ func extractValue(from text: String, forKey key: String) -> String? {
 //        try await get(url: Self.memoryUrl.appending(path: id).appending(path: "derivatives"))
 //    }
 //
-//    // TODO: use correct method
 //    func pauseSubscription() async throws -> Bool {
-//        try await get(url: Self.subscriptionV3Url)
+//        try await put(url: Self.subscriptionV3Url)
 //    }
 //
-//    // TODO: use correct method
 //    func unpauseSubscription() async throws -> Bool {
-//        try await get(url: Self.subscriptionV3Url)
+//        try await put(url: Self.subscriptionV3Url)
 //    }
 //
 //    // has a postable version

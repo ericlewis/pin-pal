@@ -1,25 +1,54 @@
 import SwiftUI
 
-struct CaptureMenuContents: View {
-
+struct CaptureMenuFavoriteButton: View {
+    
+    var memory: Memory
+    
     @Environment(HumaneCenterService.self)
     private var service
+    
+    var buttonTitle: LocalizedStringKey {
+        (memory.favorite ?? false) ? "Unfavorite" : "Favorite"
+    }
+    
+    var body: some View {
+        Button(buttonTitle, systemImage: "heart", action: toggleFavorite)
+            .symbolVariant(memory.favorite ? .slash : .none)
+    }
+    
+    func toggleFavorite() {
+        Task { @MainActor in
+            if memory.favorite {
+                try await service.unfavoriteById(memory.uuid)
+                memory.favorite = false
+            } else {
+                try await service.favoriteById(memory.uuid)
+                memory.favorite = true
+            }
+        }
+    }
+}
+
+struct CaptureMenuContents: View {
     
     @Environment(\.dismiss)
     private var dismiss
     
-    var capture: Capture
+    @Environment(HumaneCenterService.self)
+    private var service
     
-    var buttonTitle: LocalizedStringKey {
-        capture.isFavorited ? "Unfavorite" : "Favorite"
-    }
+    @Environment(\.database)
+    private var database
+    
+    var capture: Capture
     
     var body: some View {
         Section {
             Button("Copy", systemImage: "doc.on.doc", action: copyThumbnailToClipboard)
             Button("Save to Camera Roll", systemImage: "square.and.arrow.down", action: saveToCameraRoll)
-            Button(buttonTitle, systemImage: "heart", action: toggleFavorite)
-                .symbolVariant(capture.isFavorited ? .slash : .none)
+            if let memory = capture.memory {
+                CaptureMenuFavoriteButton(memory: memory)
+            }
         }
         Section {
             Button("Delete", systemImage: "trash", role: .destructive, action: delete)
@@ -38,24 +67,19 @@ struct CaptureMenuContents: View {
         }
     }
     
-    func toggleFavorite() {
-        Task {
-            if capture.isFavorited {
-                try await service.unfavoriteById(capture.uuid)
-                capture.isFavorited = false
-                try? capture.modelContext?.save()
-            } else {
-                try await service.favoriteById(capture.uuid)
-                capture.isFavorited = true
-                try? capture.modelContext?.save()
-            }
-        }
-    }
-    
     func delete() {
-        Task { @MainActor in
-//            capture.modelContext?.delete(capture)
-            dismiss()
+        Task {
+            do {
+                if let memory = capture.memory {
+                    try await service.deleteById(memory.uuid)
+                    memory.modelContext?.delete(memory)
+                }
+                await MainActor.run {
+                    dismiss()
+                }
+            } catch {
+                print(error)
+            }
         }
     }
 }
