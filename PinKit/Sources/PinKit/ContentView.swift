@@ -5,6 +5,12 @@ public struct ContentView: View {
     
     @Environment(NavigationStore.self)
     private var navigationStore
+    
+    @Environment(CaptureSyncEngine.self)
+    private var captureSyncEngine
+    
+    @Environment(NoteSyncEngine.self)
+    private var noteSyncEngine
 
     public init() {
         SDWebImageManager.shared.cacheKeyFilter = SDWebImageCacheKeyFilter { url in
@@ -40,6 +46,26 @@ public struct ContentView: View {
                 .tag(Tab.settings)
         }
         .modifier(AuthHandlerViewModifier())
+        .task {
+            do {
+                while !Task.isCancelled {
+                    await captureSyncEngine.sync()
+                    try await Task.sleep(for: .seconds(5))
+                }
+            } catch {
+                print(error)
+            }
+        }
+        .task {
+            do {
+                while !Task.isCancelled {
+                    await noteSyncEngine.sync()
+                    try await Task.sleep(for: .seconds(5))
+                }
+            } catch {
+                print(error)
+            }
+        }
     }
 }
 

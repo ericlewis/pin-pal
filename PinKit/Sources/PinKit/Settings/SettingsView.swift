@@ -6,6 +6,9 @@ struct SettingsView: View {
     @Environment(NavigationStore.self)
     private var navigationStore
     
+    @Environment(HumaneCenterService.self)
+    private var service
+    
     @Environment(SettingsRepository.self)
     private var repository
     
@@ -20,6 +23,9 @@ struct SettingsView: View {
     
     @State
     private var deleteAllNotesConfirmationPresented = false
+    
+    @State
+    private var blockPinConfirmationPresented = false
     
     var body: some View {
         @Bindable var navigationStore = navigationStore
@@ -67,7 +73,17 @@ struct SettingsView: View {
                         }
                         .disabled(repository.subscription == nil)
                     }
-                    Toggle("Block my device", isOn: $repository.isDeviceLost)
+                    Toggle("Block my device", isOn: .constant(repository.isDeviceLost))
+                        .onTapGesture(perform: {
+                            if repository.isDeviceLost, let id = repository.extendedInfo?.id {
+                                Task {
+                                    try await service.toggleLostDeviceStatus(id, false)
+                                    repository.isDeviceLost = false
+                                }
+                            } else {
+                                self.blockPinConfirmationPresented = true
+                            }
+                        })
                         .disabled(repository.isLoading)
                 } header: {
                     Text("Features")
@@ -120,6 +136,26 @@ struct SettingsView: View {
                 }
             } message: {
                 Text("This operation is irreversible, all notes will be deleted!")
+            }
+            .alert("Lost or stolen Ai Pin", isPresented: $blockPinConfirmationPresented) {
+                Button("Block Pin", role: .destructive) {
+                    if let id = repository.extendedInfo?.id {
+                        Task {
+                            try await service.toggleLostDeviceStatus(id, true)
+                            repository.isDeviceLost = true
+                            blockPinConfirmationPresented = false
+                        }
+                    }
+                }
+                Button("Cancel", role: .cancel) {
+                    blockPinConfirmationPresented = false
+                }
+            } message: {
+                Text("""
+Enable “Block my device” if your Ai Pin is lost or stolen. While in this mode, if someone tries to use your device, it will instantly lock your Ai Pin—keeping your encrypted data on Humane’s servers safe and secure.
+
+Once your device has been recovered, turn this setting off.
+""")
             }
         }
         .task(repository.initial)

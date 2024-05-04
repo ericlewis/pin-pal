@@ -233,9 +233,8 @@ extension HumaneCenterService {
             try await get(url: memoryUrl.appending(path: uuid.uuidString))
         }
         
-        public func toggleFeatureFlag(_ flag: FeatureFlag) async throws -> FeatureFlagEnvelope {
-            var flagResponse = try await featureFlag(name: flag.rawValue)
-            flagResponse.isEnabled = !flagResponse.isEnabled
+        public func toggleFeatureFlag(_ flag: FeatureFlag, isEnabled: Bool) async throws -> FeatureFlagEnvelope {
+            var flagResponse = FeatureFlagEnvelope(state: isEnabled ? .enabled : .disabled)
             let _: String = try await put(url: featureFlagsUrl.appending(path: flag.rawValue), body: flagResponse)
             return try await featureFlag(name: flag.rawValue)
         }
@@ -246,10 +245,8 @@ extension HumaneCenterService {
             ]))
         }
         
-        func toggleLostDeviceStatus(deviceId: String) async throws -> LostDeviceEnvelope {
-            var status = try await lostDeviceStatus(deviceId: deviceId)
-            status.isLost = !status.isLost
-            return try await post(url: subscriptionUrl.appending(path: "deviceAuthorization").appending(path: "lostDevice"), body: status)
+        func toggleLostDeviceStatus(deviceId: String, isLost: Bool) async throws -> LostDeviceEnvelope {
+            return try await post(url: subscriptionUrl.appending(path: "deviceAuthorization").appending(path: "lostDevice"), body: LostDeviceEnvelope(isLost: isLost, deviceId: deviceId))
         }
         
         func deviceIdentifiers() async throws -> [String] {
@@ -287,9 +284,9 @@ extension HumaneCenterService {
             deleteById: { try await service.delete(memoryId: $0) },
             deleteEvent: { try await service.delete(event: $0) },
             memory: { try await service.memory(uuid: $0) },
-            toggleFeatureFlag: { try await service.toggleFeatureFlag($0) },
+            toggleFeatureFlag: { try await service.toggleFeatureFlag($0, isEnabled: $1) },
             lostDeviceStatus: { try await service.lostDeviceStatus(deviceId: $0) },
-            toggleLostDeviceStatus: { try await service.toggleLostDeviceStatus(deviceId: $0) },
+            toggleLostDeviceStatus: { try await service.toggleLostDeviceStatus(deviceId: $0, isLost: $1) },
             deviceIdentifiers: { try await service.deviceIdentifiers() },
             dashboard: { try await service.memories() },
             deleteAllNotes: { try await service.deleteAllNotes() }
@@ -344,9 +341,9 @@ extension HumaneCenterService {
     public var deleteById: (UUID) async throws -> Void
     public var deleteEvent: (EventContentEnvelope) async throws -> Void
     public var memory: (UUID) async throws -> ContentEnvelope
-    public var toggleFeatureFlag: (FeatureFlag) async throws -> FeatureFlagEnvelope
+    public var toggleFeatureFlag: (FeatureFlag, Bool) async throws -> FeatureFlagEnvelope
     public var lostDeviceStatus: (String) async throws -> LostDeviceEnvelope
-    public var toggleLostDeviceStatus: (String) async throws -> LostDeviceEnvelope
+    public var toggleLostDeviceStatus: (String, Bool) async throws -> LostDeviceEnvelope
     public var deviceIdentifiers: () async throws -> [String]
     public var dashboard: () async throws -> MemoriesResponse
     public var deleteAllNotes: () async throws -> Void
@@ -373,9 +370,9 @@ extension HumaneCenterService {
         deleteById: @escaping (UUID) async throws -> Void,
         deleteEvent: @escaping (EventContentEnvelope) async throws -> Void,
         memory: @escaping (UUID) async throws -> ContentEnvelope,
-        toggleFeatureFlag: @escaping (FeatureFlag) async throws -> FeatureFlagEnvelope,
+        toggleFeatureFlag: @escaping (FeatureFlag, Bool) async throws -> FeatureFlagEnvelope,
         lostDeviceStatus: @escaping (String) async throws -> LostDeviceEnvelope,
-        toggleLostDeviceStatus: @escaping (String) async throws -> LostDeviceEnvelope,
+        toggleLostDeviceStatus: @escaping (String, Bool) async throws -> LostDeviceEnvelope,
         deviceIdentifiers: @escaping () async throws -> [String],
         dashboard: @escaping () async throws -> MemoriesResponse,
         deleteAllNotes: @escaping () async throws -> Void

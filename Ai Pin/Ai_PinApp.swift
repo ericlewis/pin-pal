@@ -21,6 +21,12 @@ struct Ai_PinApp: App {
     @State
     private var sceneModelContainer: ModelContainer
     
+    @State
+    private var sceneCaptureSyncEngine: CaptureSyncEngine
+    
+    @State
+    private var sceneNoteSyncEngine: NoteSyncEngine
+    
     @AccentColor
     private var accentColor: Color
     
@@ -39,7 +45,7 @@ struct Ai_PinApp: App {
         let settingsRepository = SettingsRepository(service: service)
         sceneSettingsRepository = settingsRepository
         
-        let modelContainerConfig = ModelConfiguration("v1.38", isStoredInMemoryOnly: false)
+        let modelContainerConfig = ModelConfiguration("1.0", isStoredInMemoryOnly: true)
         let modelContainer = try! ModelContainer(
             for: Memory.self,
             configurations: modelContainerConfig
@@ -48,6 +54,12 @@ struct Ai_PinApp: App {
         
         let database = SharedDatabase(modelContainer: modelContainer).database
         sceneDatabase = database
+        
+        let captureSyncEngine = CaptureSyncEngine(service: service, database: database, navigationStore: navigationStore)
+        self.sceneCaptureSyncEngine = captureSyncEngine
+        
+        let noteSyncEngine = NoteSyncEngine(service: service, database: database, navigationStore: navigationStore)
+        self.sceneNoteSyncEngine = noteSyncEngine
 
         AppDependencyManager.shared.add(dependency: navigationStore)
         AppDependencyManager.shared.add(dependency: service)
@@ -60,6 +72,8 @@ struct Ai_PinApp: App {
                 .environment(sceneNavigationStore)
                 .environment(sceneMyDataRepository)
                 .environment(sceneSettingsRepository)
+                .environment(sceneCaptureSyncEngine)
+                .environment(sceneNoteSyncEngine)
                 .environment(sceneService)
                 .tint(accentColor)
         }

@@ -20,26 +20,18 @@ import OSLog
     }
     
     var isLoading = false
+    var isLoadingSwitches = false
     
     var isVisionBetaEnabled = false {
-        willSet {
+        didSet {
             if isLoading { return }
             Task {
-                try await self.service.toggleFeatureFlag(.visionAccess)
-            }
-        }
-    }
-    var isDeviceLost = false {
-        willSet {
-            if isLoading { return }
-            if let id = extendedInfo?.id {
-                Task {
-                    try await self.service.toggleLostDeviceStatus(id)
-                }
+                try await self.service.toggleFeatureFlag(.visionAccess, isVisionBetaEnabled)
             }
         }
     }
     
+    var isDeviceLost = false
     var service: HumaneCenterService
     var observationTask: Task<Void, Never>?
     
@@ -48,7 +40,6 @@ import OSLog
     }
     
     func initial() async {
-        // Hydrate
         if let subscriptionData = UserDefaults.standard.data(forKey: Constants.SUBSCRIPTION_INFO_CACHE), let subscription = try? decoder.decode(Subscription.self, from: subscriptionData) {
             self.subscription = subscription
         }
@@ -90,7 +81,7 @@ import OSLog
     func loadFeatureFlags() async {
         do {
             let flag = try await service.featureFlag(.visionAccess)
-            self.isVisionBetaEnabled = flag.isEnabled
+            self._isVisionBetaEnabled = flag.isEnabled
         } catch {
             logger.debug("\(error)")
         }
