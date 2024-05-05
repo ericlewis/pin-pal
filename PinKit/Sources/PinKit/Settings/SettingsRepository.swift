@@ -21,24 +21,8 @@ import OSLog
     
     var isLoading = false
     
-    var isVisionBetaEnabled = false {
-        willSet {
-            if isLoading { return }
-            Task {
-                try await self.service.toggleFeatureFlag(.visionAccess)
-            }
-        }
-    }
-    var isDeviceLost = false {
-        willSet {
-            if isLoading { return }
-            if let id = extendedInfo?.id {
-                Task {
-                    try await self.service.toggleLostDeviceStatus(id)
-                }
-            }
-        }
-    }
+    var isVisionBetaEnabled = false
+    var isDeviceLost = false
     
     var service: HumaneCenterService
     var observationTask: Task<Void, Never>?
