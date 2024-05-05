@@ -1,11 +1,13 @@
 import SwiftUI
 import OSLog
 import CollectionConcurrencyKit
+import OrderedCollections
 
 @Observable public final class NotesRepository: Sendable {
     let logger = Logger()
     var api: HumaneCenterService
     var data: PageableMemoryContentEnvelope?
+    var contentSet: OrderedSet<ContentEnvelope> = []
     var content: [ContentEnvelope] = []
     var isLoading: Bool = false
     var isFinished: Bool = false
@@ -28,9 +30,11 @@ extension NotesRepository {
             self.data = data
             withAnimation {
                 if reload {
-                    self.content = data.content
+                    self.contentSet = OrderedSet(data.content)
+                    self.content = contentSet.elements
                 } else {
-                    self.content.append(contentsOf: data.content)
+                    self.contentSet.append(contentsOf: data.content)
+                    self.content = contentSet.elements
                 }
             }
             self.hasMoreData = (data.totalPages - 1) != page
@@ -63,7 +67,8 @@ extension NotesRepository {
         do {
             for i in offsets {
                 let note = withAnimation {
-                    content.remove(at: i)
+                    let _ = contentSet.remove(at: i)
+                    return content.remove(at: i)
                 }
                 try await api.delete(note)
             }
@@ -118,6 +123,7 @@ extension NotesRepository {
         do {
             try await Task.sleep(for: .milliseconds(300))
             guard let searchIds = try await api.search(query.trimmingCharacters(in: .whitespacesAndNewlines), .notes).memories?.map(\.uuid) else {
+                self.contentSet.removeAll(keepingCapacity: true)
                 self.content = []
                 throw CancellationError()
             }
@@ -135,7 +141,8 @@ extension NotesRepository {
                 }
             }
             withAnimation {
-                self.content = fetchedResults
+                self.contentSet = OrderedSet(fetchedResults)
+                self.content = self.contentSet.elements
             }
         } catch is CancellationError {
             // noop

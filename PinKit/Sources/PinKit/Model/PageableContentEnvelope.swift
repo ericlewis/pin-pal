@@ -154,22 +154,22 @@ public struct Pageable: Codable {
     let paged: Bool
 }
 
-public struct FileAsset: Codable {
+public struct FileAsset: Codable, Hashable {
     let fileUUID: UUID
     let accessToken: String
 }
 
-struct Video: Codable {
+struct Video: Codable, Hashable {
     let fileUUID: UUID
     let accessToken: String
 }
 
-enum CaptureType: String, Codable {
+enum CaptureType: String, Codable, Hashable {
     case photo = "PHOTO"
     case video = "VIDEO"
 }
 
-enum CaptureState: String, Codable {
+enum CaptureState: String, Codable, Hashable {
     case pending = "PENDING_UPLOAD"
     case processed = "PROCESSED"
     case processing = "PROCESSING"
@@ -186,7 +186,7 @@ enum CaptureState: String, Codable {
     }
 }
 
-public struct CaptureEnvelope: Codable {
+public struct CaptureEnvelope: Codable, Hashable {
     let uuid: UUID
     let type: CaptureType
     let thumbnail: FileAsset
@@ -201,8 +201,8 @@ public struct CaptureEnvelope: Codable {
     let state: CaptureState
 }
 
-public struct ContentEnvelope: Codable, Identifiable {
-    enum DataClass: Codable {
+public struct ContentEnvelope: Codable, Identifiable, Hashable {
+    enum DataClass: Codable, Hashable {
         case capture(CaptureEnvelope)
         case note(Note)
         case unknown
@@ -230,6 +230,17 @@ public struct ContentEnvelope: Codable, Identifiable {
         enum CodingKeys: CodingKey {
             case note
             case thumbnail
+        }
+        
+        func hash(into hasher: inout Hasher) {
+            switch self {
+            case .capture(let captureEnvelope):
+                hasher.combine(captureEnvelope)
+            case .note(let note):
+                hasher.combine(note)
+            case .unknown:
+                hasher.combine("unknown")
+            }
         }
     }
     

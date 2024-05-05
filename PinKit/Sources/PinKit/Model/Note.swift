@@ -1,6 +1,6 @@
 import Foundation
 
-@Observable public class Note: Codable, Equatable {
+@Observable public class Note: Codable, Equatable, Hashable {
     var uuid: UUID? = nil
     var text: String
     var title: String
@@ -42,6 +42,13 @@ import Foundation
     
     public static func == (lhs: Note, rhs: Note) -> Bool {
         lhs.uuid == rhs.uuid && lhs.title == rhs.title && lhs.text == rhs.text
+    }
+    
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(uuid)
+        hasher.combine(text)
+        hasher.combine(title)
+        hasher.combine(memoryId)
     }
 }
 

@@ -18,6 +18,7 @@ extension HumaneCenterService {
             }
         }
         private var lastSessionUpdate: Date?
+        private var expiry: Date?
         private let decoder: JSONDecoder
         private let encoder = JSONEncoder()
         private let session: URLSession
@@ -123,11 +124,14 @@ extension HumaneCenterService {
         
         public func refreshIfNeeded() async throws {
             do {
-                let timeElapsed = Date.now.timeIntervalSince(self.lastSessionUpdate ?? .now)
-                if timeElapsed == 0 || timeElapsed > 60 {
-                    let accessToken = try await session().accessToken
-                    self.accessToken = accessToken
-                    self.lastSessionUpdate = .now
+                if let expiry, .now > expiry {
+                    let session = try await session()
+                    self.accessToken = session.accessToken
+                    self.expiry = session.expires
+                } else if expiry == nil {
+                    let session = try await session()
+                    self.accessToken = session.accessToken
+                    self.expiry = session.expires
                 }
             } catch is CancellationError {
                 // noop

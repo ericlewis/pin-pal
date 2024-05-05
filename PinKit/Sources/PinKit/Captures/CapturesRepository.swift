@@ -1,10 +1,12 @@
 import SwiftUI
 import OSLog
+import OrderedCollections
 
 @Observable public class CapturesRepository {
     let logger = Logger()
     var api: HumaneCenterService
     var data: PageableMemoryContentEnvelope?
+    var contentSet: OrderedSet<ContentEnvelope> = []
     var content: [ContentEnvelope] = []
     var isLoading: Bool = false
     var isFinished: Bool = false
@@ -27,9 +29,11 @@ extension CapturesRepository {
             self.data = data
             withAnimation {
                 if reload {
-                    self.content = data.content
+                    self.contentSet = OrderedSet(data.content)
+                    self.content = self.contentSet.elements
                 } else {
-                    self.content.append(contentsOf: data.content)
+                    self.contentSet.append(contentsOf: data.content)
+                    self.content = self.contentSet.elements
                 }
             }
             self.hasMoreData = !((data.totalPages - 1) == page)
@@ -62,7 +66,8 @@ extension CapturesRepository {
                 return
             }
             let capture = withAnimation {
-                self.content.remove(at: i)
+                let _ = self.contentSet.remove(at: i)
+                return self.content.remove(at: i)
             }
             try await api.delete(capture)
         } catch {
@@ -74,7 +79,8 @@ extension CapturesRepository {
         do {
             for i in offsets {
                 let capture = withAnimation {
-                    content.remove(at: i)
+                    let _ = self.contentSet.remove(at: i)
+                    return content.remove(at: i)
                 }
                 try await api.delete(capture)
             }
@@ -121,6 +127,7 @@ extension CapturesRepository {
             try await Task.sleep(for: .milliseconds(300))
             guard let searchIds = try await api.search(query.trimmingCharacters(in: .whitespacesAndNewlines), .captures).memories?.map(\.uuid) else {
                 self.content = []
+                self.contentSet = OrderedSet()
                 throw CancellationError()
             }
             var fetchedResults: [ContentEnvelope] = await try searchIds.asyncCompactMap { id in
@@ -137,7 +144,8 @@ extension CapturesRepository {
                 }
             }
             withAnimation {
-                self.content = fetchedResults
+                self.contentSet = OrderedSet(fetchedResults)
+                self.content = self.contentSet.elements
             }
         } catch is CancellationError {
             // noop

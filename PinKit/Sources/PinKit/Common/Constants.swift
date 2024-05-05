@@ -6,6 +6,7 @@ public struct Constants {
     public static let ACCESS_TOKEN = "ACCESS_TOKEN_V1"
     public static let SUBSCRIPTION_INFO_CACHE = "SUBSCRIPTION_INFO_CACHE_V1"
     public static let EXTENDED_INFO_CACHE = "EXTENDED_INFO_CACHE_V1"
+    public static let LAST_SESSION = "LAST_SESSION_V1"
 }
 
 

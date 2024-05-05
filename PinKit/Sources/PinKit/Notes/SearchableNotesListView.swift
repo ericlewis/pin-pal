@@ -32,22 +32,22 @@ struct SearchableNotesListView: View {
                     .tint(.pink)
                     .symbolVariant(memory.favorite ? .slash : .none)
                 }
-                if memory.uuid == repository.content.last?.uuid, !isSearching, repository.isFinished, repository.hasMoreData {
-                    HStack {
-                        Spacer()
-                        ProgressView()
-                        Spacer()
-                    }
-                    .task {
-                        await repository.loadMore()
-                    }
-                    .deleteDisabled(true)
-                }
             }
             .onDelete { indexSet in
                 Task {
                     await repository.remove(offsets: indexSet)
                 }
+            }
+            if !isSearching, repository.isFinished, repository.hasMoreData {
+                HStack {
+                    Spacer()
+                    ProgressView()
+                    Spacer()
+                }
+                .task {
+                    await repository.loadMore()
+                }
+                .deleteDisabled(true)
             }
         }
         .overlay {

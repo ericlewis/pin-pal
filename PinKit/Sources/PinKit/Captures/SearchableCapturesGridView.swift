@@ -26,16 +26,16 @@ struct SearchableCapturesGridView: View {
                     } preview: {
                         CaptureImageView(capture: capture)
                     }
-                    if capture.uuid == repository.content.last?.uuid, !isSearching, repository.isFinished, repository.hasMoreData {
-                        Rectangle()
-                            .fill(.bar)
-                            .aspectRatio(1, contentMode: .fit)
-                            .overlay(ProgressView())
-                            .task {
-                                await repository.loadMore()
-                            }
-                            .deleteDisabled(true)
-                    }
+                }
+                if !isSearching, repository.isFinished, repository.hasMoreData {
+                    Rectangle()
+                        .fill(.bar)
+                        .aspectRatio(1, contentMode: .fit)
+                        .overlay(ProgressView())
+                        .task {
+                            await repository.loadMore()
+                        }
+                        .deleteDisabled(true)
                 }
             }
         }
