@@ -26,6 +26,7 @@ struct SearchableCapturesGridView: View {
                     } preview: {
                         CaptureImageView(capture: capture)
                     }
+                    .buttonStyle(.plain)
                 }
                 if !isSearching, repository.isFinished, repository.hasMoreData {
                     Rectangle()
