@@ -34,9 +34,7 @@ struct SettingsView: View {
             Form {
                 Section("Device") {
                     LabeledContent("Account Number", value: repository.subscription?.accountNumber ?? "AAAAAAAAAAAAAAA")
-                        .privacySensitive(true)
                     LabeledContent("Phone Number", value: repository.subscription?.phoneNumber ?? "1111111111")
-                        .privacySensitive(true)
                     LabeledContent("Status", value: repository.subscription?.status ?? "ACTIVE")
                     LabeledContent("Plan", value: repository.subscription?.planType ?? "DEFAULT_PLAN")
                     LabeledContent("Monthly Price") {
@@ -95,11 +93,8 @@ struct SettingsView: View {
                 Section("Miscellaneous") {
                     let info = repository.extendedInfo
                     LabeledContent("Identifier", value: info?.id ?? "1F0B03041010012N")
-                        .privacySensitive(true)
                     LabeledContent("Serial Number", value: info?.serialNumber ?? "J64M2YAH170235")
-                        .privacySensitive(true)
                     LabeledContent("eSIM", value: info?.iccid ?? "847264928475637284")
-                        .privacySensitive(true)
                     LabeledContent("Color", value: (info?.color ?? "ECLIPSE").localizedCapitalized)
                 }
                 .labeledContentStyle(AsyncValueLabelContentStyle(isLoading: repository.extendedInfo == nil))
@@ -227,6 +222,7 @@ struct AsyncValueLabelContentStyle: LabeledContentStyle {
             configuration.content
                 .redacted(reason: isLoading ? .placeholder : .invalidated)
                 .textSelection(.enabled)
+                .privacySensitive(true)
         } label: {
             configuration.label
         }
