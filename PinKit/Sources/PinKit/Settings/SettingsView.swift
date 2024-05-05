@@ -6,11 +6,14 @@ struct SettingsView: View {
     @Environment(NavigationStore.self)
     private var navigationStore
     
+    @Environment(HumaneCenterService.self)
+    private var service
+    
     @Environment(SettingsRepository.self)
     private var repository
     
-    @AppStorage(Constants.UI_CUSTOM_ACCENT_COLOR_V1)
-    private var accentColor: Color = Constants.defaultAppAccentColor
+    @AccentColor
+    private var accentColor: Color
     
     @AppStorage(Constants.UI_CUSTOM_APP_ICON_V1)
     private var selectedIcon: Icon = Icon.initial
@@ -21,6 +24,9 @@ struct SettingsView: View {
     @State
     private var deleteAllNotesConfirmationPresented = false
     
+    @State
+    private var blockPinConfirmationPresented = false
+    
     var body: some View {
         @Bindable var navigationStore = navigationStore
         @Bindable var repository = repository
@@ -28,7 +34,9 @@ struct SettingsView: View {
             Form {
                 Section("Device") {
                     LabeledContent("Account Number", value: repository.subscription?.accountNumber ?? "AAAAAAAAAAAAAAA")
+                        .privacySensitive(true)
                     LabeledContent("Phone Number", value: repository.subscription?.phoneNumber ?? "1111111111")
+                        .privacySensitive(true)
                     LabeledContent("Status", value: repository.subscription?.status ?? "ACTIVE")
                     LabeledContent("Plan", value: repository.subscription?.planType ?? "DEFAULT_PLAN")
                     LabeledContent("Monthly Price") {
@@ -67,7 +75,17 @@ struct SettingsView: View {
                         }
                         .disabled(repository.subscription == nil)
                     }
-                    Toggle("Block my device", isOn: $repository.isDeviceLost)
+                    Toggle("Block my device", isOn: .constant(repository.isDeviceLost))
+                        .onTapGesture(perform: {
+                            if repository.isDeviceLost, let id = repository.extendedInfo?.id {
+                                Task {
+                                    try await service.toggleLostDeviceStatus(id, false)
+                                    repository.isDeviceLost = false
+                                }
+                            } else {
+                                self.blockPinConfirmationPresented = true
+                            }
+                        })
                         .disabled(repository.isLoading)
                 } header: {
                     Text("Features")
@@ -77,8 +95,11 @@ struct SettingsView: View {
                 Section("Miscellaneous") {
                     let info = repository.extendedInfo
                     LabeledContent("Identifier", value: info?.id ?? "1F0B03041010012N")
+                        .privacySensitive(true)
                     LabeledContent("Serial Number", value: info?.serialNumber ?? "J64M2YAH170235")
+                        .privacySensitive(true)
                     LabeledContent("eSIM", value: info?.iccid ?? "847264928475637284")
+                        .privacySensitive(true)
                     LabeledContent("Color", value: (info?.color ?? "ECLIPSE").localizedCapitalized)
                 }
                 .labeledContentStyle(AsyncValueLabelContentStyle(isLoading: repository.extendedInfo == nil))
@@ -100,10 +121,14 @@ struct SettingsView: View {
                 }
                 .pickerStyle(.inline)
 #endif
-                Section("Danger Zone") {
+                Section {
                     Button("Delete all notes", role: .destructive) {
                         self.deleteAllNotesConfirmationPresented = true
                     }
+                } header: {
+                    Text("Danger Zone")
+                } footer: {
+                    Text(version())
                 }
             }
             .refreshable(action: repository.reload)
@@ -120,6 +145,26 @@ struct SettingsView: View {
                 }
             } message: {
                 Text("This operation is irreversible, all notes will be deleted!")
+            }
+            .alert("Lost or stolen Ai Pin", isPresented: $blockPinConfirmationPresented) {
+                Button("Block Pin", role: .destructive) {
+                    if let id = repository.extendedInfo?.id {
+                        Task {
+                            try await service.toggleLostDeviceStatus(id, true)
+                            repository.isDeviceLost = true
+                            blockPinConfirmationPresented = false
+                        }
+                    }
+                }
+                Button("Cancel", role: .cancel) {
+                    blockPinConfirmationPresented = false
+                }
+            } message: {
+                Text("""
+Enable “Block my device” if your Ai Pin is lost or stolen. While in this mode, if someone tries to use your device, it will instantly lock your Ai Pin—keeping your encrypted data on Humane’s servers safe and secure.
+
+Once your device has been recovered, turn this setting off.
+""")
             }
         }
         .task(repository.initial)
@@ -140,6 +185,16 @@ struct SettingsView: View {
         } else {
             return false
         }
+    }
+    
+    func version() -> String {
+        guard let dictionary = Bundle.main.infoDictionary,
+              let version = dictionary["CFBundleShortVersionString"] as? String,
+              let build = dictionary["CFBundleVersion"] as? String else {
+            return ""
+        }
+        
+        return "\(version) (\(build))"
     }
 }
 

@@ -2,7 +2,7 @@ import SwiftUI
 import OSLog
 import CollectionConcurrencyKit
 
-@Observable public class NotesRepository {
+@Observable public final class NotesRepository: Sendable {
     let logger = Logger()
     var api: HumaneCenterService
     var data: PageableMemoryContentEnvelope?

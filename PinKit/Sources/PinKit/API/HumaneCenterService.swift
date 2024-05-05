@@ -2,6 +2,7 @@ import Foundation
 
 public enum APIError: Error {
     case notAuthorized
+    case notFound
 }
 
 public enum FeatureFlag: String, Codable {
@@ -81,13 +82,27 @@ extension HumaneCenterService {
             return try await decoder.decode(D.self, from: data(for: req))
         }
         
+        private func delete(url: URL) async throws {
+            try await refreshIfNeeded()
+            var req = try makeRequest(url: url)
+            req.httpMethod = "DELETE"
+            let _ = try await data(for: req)
+        }
+        
         private func unauthenticatedRequest<D: Decodable>(url: URL) async throws -> D {
             try await decoder.decode(D.self, from: data(for: makeRequest(url: url, skipsAuth: true)))
         }
         
         private func data(for request: URLRequest) async throws -> Data {
             let (data, response) = try await session.data(for: request)
-            guard let response = response as? HTTPURLResponse, (200...304).contains(response.statusCode) else {
+            guard let response = response as? HTTPURLResponse else {
+                throw APIError.notAuthorized
+            }
+            if response.statusCode == 404 {
+                throw APIError.notFound
+            }
+            // laziness
+            guard (200...304).contains(response.statusCode) else {
                 throw APIError.notAuthorized
             }
             return data
@@ -107,9 +122,21 @@ extension HumaneCenterService {
         }
         
         public func refreshIfNeeded() async throws {
-            let accessToken = try await session().accessToken
-            self.accessToken = accessToken
-            self.lastSessionUpdate = .now
+            do {
+                let timeElapsed = Date.now.timeIntervalSince(self.lastSessionUpdate ?? .now)
+                if timeElapsed == 0 || timeElapsed > 60 {
+                    let accessToken = try await session().accessToken
+                    self.accessToken = accessToken
+                    self.lastSessionUpdate = .now
+                }
+            } catch is CancellationError {
+                // noop
+            } catch {
+                let err = (error as NSError)
+                if err.domain != NSURLErrorDomain, err.code != NSURLErrorCancelled {
+                    throw APIError.notAuthorized
+                }
+            }
         }
         
         func session() async throws -> Session {
@@ -142,12 +169,20 @@ extension HumaneCenterService {
             ]))
         }
         
+        public func favorite(uuid: UUID) async throws {
+            try await post(url: memoryUrl.appending(path: uuid.uuidString).appending(path: "favorite"))
+        }
+        
+        public func unfavorite(uuid: UUID) async throws {
+            try await post(url: memoryUrl.appending(path: uuid.uuidString).appending(path: "unfavorite"))
+        }
+        
         public func favorite(memory: ContentEnvelope) async throws {
-            try await post(url: memoryUrl.appending(path: memory.uuid.uuidString).appending(path: "favorite"))
+            try await favorite(uuid: memory.uuid)
         }
         
         public func unfavorite(memory: ContentEnvelope) async throws {
-            try await post(url: memoryUrl.appending(path: memory.uuid.uuidString).appending(path: "unfavorite"))
+            try await unfavorite(uuid: memory.uuid)
         }
         
         public func notes(page: Int = 0, size: Int = 10) async throws -> PageableMemoryContentEnvelope {
@@ -186,8 +221,12 @@ extension HumaneCenterService {
             )
         }
         
-        public func delete(memory: ContentEnvelope) async throws -> String {
-            try await delete(url: memoryUrl.appending(path: memory.uuid.uuidString))
+        public func delete(memoryId: UUID) async throws {
+            try await delete(url: memoryUrl.appending(path: memoryId.uuidString))
+        }
+        
+        public func delete(memory: ContentEnvelope) async throws {
+            try await delete(memoryId: memory.uuid)
         }
         
         public func delete(event: EventContentEnvelope) async throws -> Bool {
@@ -205,9 +244,8 @@ extension HumaneCenterService {
             try await get(url: memoryUrl.appending(path: uuid.uuidString))
         }
         
-        public func toggleFeatureFlag(_ flag: FeatureFlag) async throws -> FeatureFlagEnvelope {
-            var flagResponse = try await featureFlag(name: flag.rawValue)
-            flagResponse.isEnabled = !flagResponse.isEnabled
+        public func toggleFeatureFlag(_ flag: FeatureFlag, isEnabled: Bool) async throws -> FeatureFlagEnvelope {
+            var flagResponse = FeatureFlagEnvelope(state: isEnabled ? .enabled : .disabled)
             let _: String = try await put(url: featureFlagsUrl.appending(path: flag.rawValue), body: flagResponse)
             return try await featureFlag(name: flag.rawValue)
         }
@@ -218,10 +256,8 @@ extension HumaneCenterService {
             ]))
         }
         
-        func toggleLostDeviceStatus(deviceId: String) async throws -> LostDeviceEnvelope {
-            var status = try await lostDeviceStatus(deviceId: deviceId)
-            status.isLost = !status.isLost
-            return try await post(url: subscriptionUrl.appending(path: "deviceAuthorization").appending(path: "lostDevice"), body: status)
+        func toggleLostDeviceStatus(deviceId: String, isLost: Bool) async throws -> LostDeviceEnvelope {
+            return try await post(url: subscriptionUrl.appending(path: "deviceAuthorization").appending(path: "lostDevice"), body: LostDeviceEnvelope(isLost: isLost, deviceId: deviceId))
         }
         
         func deviceIdentifiers() async throws -> [String] {
@@ -234,6 +270,12 @@ extension HumaneCenterService {
         
         func deleteAllNotes() async throws -> Bool {
             try await delete(url: noteUrl)
+        }
+        
+        func capturesList(uuids: [UUID]) async throws -> [ContentEnvelope] {
+            try await get(url: captureUrl.appending(path: "captures").appending(path: "list").appending(queryItems: [
+                .init(name: "uuids", value: uuids.map(\.uuidString).joined(separator: ","))
+            ]))
         }
     }
     
@@ -253,20 +295,24 @@ extension HumaneCenterService {
             search: { try await service.search(query: $0, domain: $1) },
             favorite: { try await service.favorite(memory: $0) },
             unfavorite: { try await service.unfavorite(memory: $0) },
+            favoriteById: { try await service.favorite(uuid: $0) },
+            unfavoriteById: { try await service.unfavorite(uuid: $0) },
             delete: { try await service.delete(memory: $0) },
+            deleteById: { try await service.delete(memoryId: $0) },
             deleteEvent: { try await service.delete(event: $0) },
             memory: { try await service.memory(uuid: $0) },
-            toggleFeatureFlag: { try await service.toggleFeatureFlag($0) },
+            toggleFeatureFlag: { try await service.toggleFeatureFlag($0, isEnabled: $1) },
             lostDeviceStatus: { try await service.lostDeviceStatus(deviceId: $0) },
-            toggleLostDeviceStatus: { try await service.toggleLostDeviceStatus(deviceId: $0) },
+            toggleLostDeviceStatus: { try await service.toggleLostDeviceStatus(deviceId: $0, isLost: $1) },
             deviceIdentifiers: { try await service.deviceIdentifiers() },
             dashboard: { try await service.memories() },
-            deleteAllNotes: { try await service.deleteAllNotes() }
+            deleteAllNotes: { try await service.deleteAllNotes() },
+            capturesList: { try await service.capturesList(uuids: $0) }
         )
     }
 }
 
-@Observable public class HumaneCenterService {
+@Observable public class HumaneCenterService: Sendable {
     public static let shared = HumaneCenterService.live
     
     private static let rootUrl = URL(string: "https://webapi.prod.humane.cloud/")!
@@ -294,10 +340,18 @@ extension HumaneCenterService {
     
     private var lastSessionUpdate: Date?
     
+    @ObservationIgnored
     public var session: () async throws -> Session
+    
+    @ObservationIgnored
     public var notes: (Int, Int) async throws -> PageableMemoryContentEnvelope
+    
+    @ObservationIgnored
     public var captures: (Int, Int) async throws -> PageableMemoryContentEnvelope
+    
+    @ObservationIgnored
     public var events: (EventDomain, Int, Int) async throws -> PageableEventContentEnvelope
+    
     public var allEvents: (Int, Int) async throws -> EventStream
     public var featureFlag: (FeatureFlag) async throws -> FeatureFlagEnvelope
     public var subscription: () async throws -> Subscription
@@ -307,15 +361,19 @@ extension HumaneCenterService {
     public var search: (String, SearchDomain) async throws -> SearchResults
     public var favorite: (ContentEnvelope) async throws -> Void
     public var unfavorite: (ContentEnvelope) async throws -> Void
+    public var favoriteById: (UUID) async throws -> Void
+    public var unfavoriteById: (UUID) async throws -> Void
     public var delete: (ContentEnvelope) async throws -> Void
+    public var deleteById: (UUID) async throws -> Void
     public var deleteEvent: (EventContentEnvelope) async throws -> Void
     public var memory: (UUID) async throws -> ContentEnvelope
-    public var toggleFeatureFlag: (FeatureFlag) async throws -> FeatureFlagEnvelope
+    public var toggleFeatureFlag: (FeatureFlag, Bool) async throws -> FeatureFlagEnvelope
     public var lostDeviceStatus: (String) async throws -> LostDeviceEnvelope
-    public var toggleLostDeviceStatus: (String) async throws -> LostDeviceEnvelope
+    public var toggleLostDeviceStatus: (String, Bool) async throws -> LostDeviceEnvelope
     public var deviceIdentifiers: () async throws -> [String]
     public var dashboard: () async throws -> MemoriesResponse
     public var deleteAllNotes: () async throws -> Void
+    public var capturesList: ([UUID]) async throws -> [ContentEnvelope]
 
     required public init(
         accessToken: String? = nil,
@@ -333,15 +391,19 @@ extension HumaneCenterService {
         search: @escaping (String, SearchDomain) async throws -> SearchResults,
         favorite: @escaping (ContentEnvelope) async throws -> Void,
         unfavorite: @escaping (ContentEnvelope) async throws -> Void,
+        favoriteById: @escaping (UUID) async throws -> Void,
+        unfavoriteById: @escaping (UUID) async throws -> Void,
         delete: @escaping (ContentEnvelope) async throws -> Void,
+        deleteById: @escaping (UUID) async throws -> Void,
         deleteEvent: @escaping (EventContentEnvelope) async throws -> Void,
         memory: @escaping (UUID) async throws -> ContentEnvelope,
-        toggleFeatureFlag: @escaping (FeatureFlag) async throws -> FeatureFlagEnvelope,
+        toggleFeatureFlag: @escaping (FeatureFlag, Bool) async throws -> FeatureFlagEnvelope,
         lostDeviceStatus: @escaping (String) async throws -> LostDeviceEnvelope,
-        toggleLostDeviceStatus: @escaping (String) async throws -> LostDeviceEnvelope,
+        toggleLostDeviceStatus: @escaping (String, Bool) async throws -> LostDeviceEnvelope,
         deviceIdentifiers: @escaping () async throws -> [String],
         dashboard: @escaping () async throws -> MemoriesResponse,
-        deleteAllNotes: @escaping () async throws -> Void
+        deleteAllNotes: @escaping () async throws -> Void,
+        capturesList: @escaping ([UUID]) async throws -> [ContentEnvelope]
     ) {
         self.userDefaults = userDefaults
         let decoder = JSONDecoder()
@@ -365,6 +427,7 @@ extension HumaneCenterService {
         self.favorite = favorite
         self.unfavorite = unfavorite
         self.delete = delete
+        self.deleteById = deleteById
         self.deleteEvent = deleteEvent
         self.memory = memory
         self.toggleFeatureFlag = toggleFeatureFlag
@@ -373,6 +436,9 @@ extension HumaneCenterService {
         self.deviceIdentifiers = deviceIdentifiers
         self.dashboard = dashboard
         self.deleteAllNotes = deleteAllNotes
+        self.favoriteById = favoriteById
+        self.unfavoriteById = unfavoriteById
+        self.capturesList = capturesList
     }
     
     public func isLoggedIn() -> Bool {
@@ -433,14 +499,12 @@ func extractValue(from text: String, forKey key: String) -> String? {
 //        try await get(url: Self.memoryUrl.appending(path: id).appending(path: "derivatives"))
 //    }
 //
-//    // TODO: use correct method
 //    func pauseSubscription() async throws -> Bool {
-//        try await get(url: Self.subscriptionV3Url)
+//        try await put(url: Self.subscriptionV3Url)
 //    }
 //
-//    // TODO: use correct method
 //    func unpauseSubscription() async throws -> Bool {
-//        try await get(url: Self.subscriptionV3Url)
+//        try await put(url: Self.subscriptionV3Url)
 //    }
 //
 //    // has a postable version
