@@ -20,7 +20,7 @@ import CollectionConcurrencyKit
 }
 
 extension NotesRepository {
-    private func load(page: Int = 0, size: Int = 10, reload: Bool = false) async {
+    private func load(page: Int = 0, size: Int = 30, reload: Bool = false) async {
         guard !isLoading else { return }
         isLoading = true
         do {

@@ -19,7 +19,7 @@ import OSLog
 }
 
 extension CapturesRepository {
-    private func load(page: Int = 0, size: Int = 18, reload: Bool = false) async {
+    private func load(page: Int = 0, size: Int = 30, reload: Bool = false) async {
         guard !isLoading else { return }
         isLoading = true
         do {
@@ -32,7 +32,7 @@ extension CapturesRepository {
                     self.content.append(contentsOf: data.content)
                 }
             }
-            self.hasMoreData = (data.totalPages - 1) != page
+            self.hasMoreData = !((data.totalPages - 1) == page)
         } catch {
             logger.debug("\(error)")
         }

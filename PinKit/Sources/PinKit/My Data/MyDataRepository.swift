@@ -31,7 +31,7 @@ import OSLog
 }
 
 extension MyDataRepository {
-    private func load(page: Int = 0, size: Int = 10, reload: Bool = false) async {
+    private func load(page: Int = 0, size: Int = 30, reload: Bool = false) async {
         isLoading = true
         do {
             let data = try await api.events(selectedFilter.domain, page, size)

@@ -2,6 +2,37 @@ import SwiftUI
 import SDWebImageSwiftUI
 import MapKit
 
+struct CaptureImageView: View {
+    
+    let capture: ContentEnvelope
+    
+    var body: some View {
+        WebImage(url: makeThumbnailURL(content: capture, capture: capture.get()!)) { image in
+            image
+                .resizable()
+                .scaledToFill()
+                .clipShape(RoundedRectangle(cornerRadius: 8))
+        } placeholder: {
+            RoundedRectangle(cornerRadius: 8)
+                .fill(.bar)
+                .aspectRatio(1.33333333333, contentMode: .fit)
+                .overlay(ProgressView())
+        }
+    }
+    
+    func makeThumbnailURL(content: ContentEnvelope, capture: CaptureEnvelope) -> URL? {
+        makeThumbnailURL(uuid: content.uuid, fileUUID: capture.thumbnail.fileUUID, accessToken: capture.thumbnail.accessToken)
+    }
+    
+    func makeThumbnailURL(uuid: UUID, fileUUID: UUID, accessToken: String) -> URL? {
+        URL(string: "https://webapi.prod.humane.cloud/capture/memory/\(uuid.uuidString)/file/\(fileUUID)")?.appending(queryItems: [
+            .init(name: "token", value: accessToken),
+            .init(name: "w", value: "640"),
+            .init(name: "q", value: "100")
+        ])
+    }
+}
+
 struct CaptureDetailView: View {
     
     let capture: ContentEnvelope
@@ -33,17 +64,7 @@ struct CaptureDetailView: View {
                             .scaledToFill()
                             .clipShape(RoundedRectangle(cornerRadius: 8))
                     } else {
-                        WebImage(url: makeThumbnailURL(content: capture, capture: capture.get()!)) { image in
-                            image
-                                .resizable()
-                                .scaledToFill()
-                                .clipShape(RoundedRectangle(cornerRadius: 8))
-                        } placeholder: {
-                            RoundedRectangle(cornerRadius: 8)
-                                .fill(.bar)
-                                .aspectRatio(1.33333333333, contentMode: .fit)
-                                .overlay(ProgressView())
-                        }
+                        CaptureImageView(capture: capture)
                     }
                     HStack {
                         if originalPhotos.isEmpty, capture.get()?.state == .processed {

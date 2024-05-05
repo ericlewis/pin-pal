@@ -23,6 +23,8 @@ struct SearchableCapturesGridView: View {
                     }
                     .contextMenu {
                         CaptureMenuContents(capture: capture)
+                    } preview: {
+                        CaptureImageView(capture: capture)
                     }
                     if capture.uuid == repository.content.last?.uuid, !isSearching, repository.isFinished, repository.hasMoreData {
                         Rectangle()

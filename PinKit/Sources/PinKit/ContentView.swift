@@ -1,11 +1,18 @@
 import SwiftUI
+import SDWebImage
 
 public struct ContentView: View {
     
     @Environment(NavigationStore.self)
     private var navigationStore
-
-    public init() {}
+    
+    public init() {
+        SDWebImageManager.shared.cacheKeyFilter = SDWebImageCacheKeyFilter { url in
+            var components = URLComponents(url: url, resolvingAgainstBaseURL: false)
+            components?.query = nil
+            return components?.url?.absoluteString ?? ""
+        }
+    }
     
     public var body: some View {
         @Bindable
