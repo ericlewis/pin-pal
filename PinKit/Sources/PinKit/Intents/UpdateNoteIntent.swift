@@ -20,7 +20,7 @@ public struct UpdateNoteIntent: AppIntent {
     
     public init() {}
     
-    public static var openAppWhenRun: Bool = true
+    public static var openAppWhenRun: Bool = false
     public static var isDiscoverable: Bool = true
     
     @Dependency
