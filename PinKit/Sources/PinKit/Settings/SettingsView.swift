@@ -104,7 +104,7 @@ struct SettingsView: View {
                 }
                 .labeledContentStyle(AsyncValueLabelContentStyle(isLoading: repository.extendedInfo == nil))
                 Section("Appearance") {
-//                    ColorPicker("Theme", selection: $accentColor, supportsOpacity: false)
+                    ColorPicker("Theme", selection: $accentColor, supportsOpacity: false)
                 }
 #if os(iOS)
                 Picker("App Icon", selection: $selectedIcon) {
