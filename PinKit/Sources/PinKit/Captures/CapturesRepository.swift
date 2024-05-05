@@ -49,9 +49,7 @@ extension CapturesRepository {
     }
     
     public func loadMore() async {
-        guard let data, hasMoreData, !isLoading else {
-            return
-        }
+        guard let data, hasMoreData, !isLoading else { return }
         let nextPage = min(data.pageable.pageNumber + 1, data.totalPages)
         logger.debug("next page: \(nextPage)")
         await load(page: nextPage)

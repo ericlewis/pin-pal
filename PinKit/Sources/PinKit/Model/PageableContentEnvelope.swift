@@ -169,6 +169,12 @@ enum CaptureType: String, Codable {
     case video = "VIDEO"
 }
 
+enum CaptureState: String, Codable {
+    case pending = "PENDING_UPLOAD"
+    case processed = "PROCESSED"
+    case processing = "PROCESSING"
+}
+
 public struct CaptureEnvelope: Codable {
     let uuid: UUID
     let type: CaptureType
@@ -181,6 +187,7 @@ public struct CaptureEnvelope: Codable {
     let location: String?
     let latitude: Double?
     let longitude: Double?
+    let state: CaptureState
 }
 
 public struct ContentEnvelope: Codable, Identifiable {
@@ -237,7 +244,7 @@ public struct ContentEnvelope: Codable, Identifiable {
         self.originClientId = try container.decode(String.self, forKey: .originClientId)
         self.favorite = try container.decode(Bool.self, forKey: .favorite)
         self.location = try container.decodeIfPresent(String.self, forKey: .location)
-        
+
         if case var .note(note) = self.data {
             note.memoryId = self.uuid
             self.data = .note(note)
