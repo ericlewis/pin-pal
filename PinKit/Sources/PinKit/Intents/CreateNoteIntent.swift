@@ -25,9 +25,9 @@ public struct CreateNoteIntent: AppIntent {
     @Dependency
     public var notesRepository: NotesRepository
     
-    public func perform() async throws -> some IntentResult {
-        let _ = try await notesRepository.create(note: .init(text: text, title: title))
+    public func perform() async throws -> some IntentResult & ReturnsValue<String?> {
+        try await notesRepository.create(note: .init(text: text, title: title))
         navigationStore.activeNote = nil
-        return .result()
+        return .result(value: notesRepository.content.last?.uuid.uuidString)
     }
 }

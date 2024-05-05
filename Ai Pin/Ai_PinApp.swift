@@ -93,7 +93,7 @@ public struct _CreateNoteIntent: AppIntent {
     @Dependency
     public var notesRepository: NotesRepository
     
-    public func perform() async throws -> some IntentResult {
+    public func perform() async throws -> some IntentResult & ReturnsValue<String?> {
         try await CreateNoteIntent(title: title, text: text).perform()
     }
 }
