@@ -21,7 +21,14 @@ import OSLog
     
     var isLoading = false
     
-    var isVisionBetaEnabled = false
+    var isVisionBetaEnabled = false {
+        didSet {
+            if isLoading { return }
+            Task {
+                try await self.service.toggleFeatureFlag(.visionAccess, isVisionBetaEnabled)
+            }
+        }
+    }
     var isDeviceLost = false
     
     var service: HumaneCenterService

@@ -21,6 +21,7 @@ import CollectionConcurrencyKit
 
 extension NotesRepository {
     private func load(page: Int = 0, size: Int = 10, reload: Bool = false) async {
+        guard !isLoading else { return }
         isLoading = true
         do {
             let data = try await api.notes(page, size)

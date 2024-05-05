@@ -20,6 +20,7 @@ import OSLog
 
 extension CapturesRepository {
     private func load(page: Int = 0, size: Int = 18, reload: Bool = false) async {
+        guard !isLoading else { return }
         isLoading = true
         do {
             let data = try await api.captures(page, size)
