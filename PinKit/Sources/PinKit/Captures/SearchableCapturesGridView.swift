@@ -24,15 +24,16 @@ struct SearchableCapturesGridView: View {
                     .contextMenu {
                         CaptureMenuContents(capture: capture)
                     }
-                }
-                if !isSearching, repository.hasMoreData {
-                    Rectangle()
-                        .fill(.bar)
-                        .aspectRatio(1, contentMode: .fit)
-                        .overlay(ProgressView())
-                        .task {
-                            await repository.loadMore()
-                        }
+                    if capture.uuid == repository.content.last?.uuid, !isSearching, repository.isFinished, repository.hasMoreData {
+                        Rectangle()
+                            .fill(.bar)
+                            .aspectRatio(1, contentMode: .fit)
+                            .overlay(ProgressView())
+                            .task {
+                                await repository.loadMore()
+                            }
+                            .deleteDisabled(true)
+                    }
                 }
             }
         }

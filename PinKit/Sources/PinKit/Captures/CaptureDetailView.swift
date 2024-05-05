@@ -27,20 +27,6 @@ struct CaptureDetailView: View {
     var body: some View {
         List {
             Section {
-                LabeledContent("Created") {
-                    Text(capture.userCreatedAt, format: .dateTime)
-                }
-                if let locationName {
-                    LabeledContent("Location", value: locationName)
-                }
-                if let location {
-                    Map {
-                        Marker("", coordinate: location)
-                    }
-                    .aspectRatio(1.777, contentMode: .fit)
-                    .listRowInsets(.init())
-                }
-            } header: {
                 VStack {
                     if let vidUrl = capture.videoDownloadUrl() {
                         VideoView(id: capture.uuid, vidUrl: vidUrl)
@@ -55,31 +41,63 @@ struct CaptureDetailView: View {
                         } placeholder: {
                             RoundedRectangle(cornerRadius: 8)
                                 .fill(.bar)
+                                .aspectRatio(1.33333333333, contentMode: .fit)
                                 .overlay(ProgressView())
                         }
                     }
                     HStack {
-                        ForEach(originalPhotos, id: \.fileUUID) { photo in
-                            WebImage(url: makeThumbnailURL(
-                                uuid: capture.uuid,
-                                fileUUID: photo.fileUUID,
-                                accessToken: photo.accessToken
-                            )) { image in
-                                image
-                                    .resizable()
-                                    .scaledToFit()
-                                    .clipShape(RoundedRectangle(cornerRadius: 8))
-                            } placeholder: {
-                                RoundedRectangle(cornerRadius: 8)
-                                    .fill(.bar)
-                                    .aspectRatio(960 / 720, contentMode: .fit)
-                                    .overlay(ProgressView())
+                        if originalPhotos.isEmpty, capture.get()?.state == .processed {
+                            RoundedRectangle(cornerRadius: 8)
+                                .fill(.bar)
+                                .aspectRatio(1.33333333333, contentMode: .fit)
+                                .overlay(ProgressView())
+                            RoundedRectangle(cornerRadius: 8)
+                                .fill(.bar)
+                                .aspectRatio(1.33333333333, contentMode: .fit)
+                                .overlay(ProgressView())
+                            RoundedRectangle(cornerRadius: 8)
+                                .fill(.bar)
+                                .aspectRatio(1.33333333333, contentMode: .fit)
+                                .overlay(ProgressView())
+                        } else {
+                            ForEach(originalPhotos, id: \.fileUUID) { photo in
+                                WebImage(url: makeThumbnailURL(
+                                    uuid: capture.uuid,
+                                    fileUUID: photo.fileUUID,
+                                    accessToken: photo.accessToken
+                                )) { image in
+                                    image
+                                        .resizable()
+                                        .aspectRatio(1.33333333333, contentMode: .fit)
+                                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                                } placeholder: {
+                                    RoundedRectangle(cornerRadius: 8)
+                                        .fill(.bar)
+                                        .aspectRatio(1.33333333333, contentMode: .fit)
+                                        .overlay(ProgressView())
+                                }
                             }
                         }
                     }
                 }
                 .listRowInsets(.init())
-                .padding(.vertical)
+                .listRowBackground(Color.clear)
+            }
+            Section {
+                LabeledContent("Created") {
+                    Text(capture.userCreatedAt, format: .dateTime)
+                }
+                if let locationName {
+                    LabeledContent("Location", value: locationName)
+                }
+                if let location {
+                    Map {
+                        Marker("", coordinate: location)
+                    }
+                    .aspectRatio(1.777, contentMode: .fit)
+                    .listRowInsets(.init())
+                    .allowsHitTesting(false)
+                }
             }
         }
         .toolbar {
