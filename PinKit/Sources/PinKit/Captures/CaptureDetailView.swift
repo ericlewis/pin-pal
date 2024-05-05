@@ -84,6 +84,9 @@ struct CaptureDetailView: View {
                 .listRowBackground(Color.clear)
             }
             Section {
+                if let state = capture.get()?.state {
+                    LabeledContent("Status", value: state.title)
+                }
                 LabeledContent("Created") {
                     Text(capture.userCreatedAt, format: .dateTime)
                 }

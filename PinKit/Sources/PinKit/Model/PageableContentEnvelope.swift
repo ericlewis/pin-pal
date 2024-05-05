@@ -173,6 +173,17 @@ enum CaptureState: String, Codable {
     case pending = "PENDING_UPLOAD"
     case processed = "PROCESSED"
     case processing = "PROCESSING"
+    
+    var title: String {
+        switch self {
+        case .pending:
+            "Pending upload"
+        case .processed:
+            "Processed"
+        case .processing:
+            "Processing"
+        }
+    }
 }
 
 public struct CaptureEnvelope: Codable {
