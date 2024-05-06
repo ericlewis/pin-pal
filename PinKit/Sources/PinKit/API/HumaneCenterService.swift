@@ -124,15 +124,8 @@ extension HumaneCenterService {
         
         public func refreshIfNeeded() async throws {
             do {
-                if let expiry, .now > expiry {
-                    let session = try await session()
-                    self.accessToken = session.accessToken
-                    self.expiry = session.expires
-                } else if expiry == nil {
-                    let session = try await session()
-                    self.accessToken = session.accessToken
-                    self.expiry = session.expires
-                }
+                let session = try await session()
+                self.accessToken = session.accessToken
             } catch is CancellationError {
                 // noop
             } catch {
