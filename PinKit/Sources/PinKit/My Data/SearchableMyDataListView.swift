@@ -61,7 +61,7 @@ struct SearchableMyDataListView: View {
                     await repository.remove(offsets: indexSet)
                 }
             }
-            if !isSearching, repository.isFinished, repository.hasMoreData {
+            if !isSearching, repository.isFinished, repository.hasContent, repository.hasMoreData {
                 HStack {
                     Spacer()
                     ProgressView()

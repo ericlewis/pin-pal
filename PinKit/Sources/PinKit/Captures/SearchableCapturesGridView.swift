@@ -28,7 +28,7 @@ struct SearchableCapturesGridView: View {
                     }
                     .buttonStyle(.plain)
                 }
-                if !isSearching, repository.isFinished, repository.hasMoreData {
+                if !isSearching, repository.isFinished, repository.hasContent, repository.hasMoreData {
                     Rectangle()
                         .fill(.bar)
                         .aspectRatio(1, contentMode: .fit)
