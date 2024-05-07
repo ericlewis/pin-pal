@@ -347,7 +347,7 @@ extension HumaneCenterService {
     private let userDefaults: UserDefaults
     private let sessionTimeout: TimeInterval = 60 * 5 // 5 min
     
-    private var accessToken: String? {
+    public var accessToken: String? {
         UserDefaults.standard.string(forKey: Constants.ACCESS_TOKEN)
     }
     

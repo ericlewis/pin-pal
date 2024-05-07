@@ -127,7 +127,7 @@ extension NotesRepository {
                 self.content = []
                 throw CancellationError()
             }
-            var fetchedResults: [ContentEnvelope] = await try searchIds.asyncCompactMap { id in
+            var fetchedResults: [ContentEnvelope] = await try searchIds.concurrentCompactMap { id in
                 if let localContent = self.content.first(where: { $0.uuid == id }) {
                     return localContent
                 } else {

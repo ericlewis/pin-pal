@@ -1,6 +1,6 @@
 import Foundation
 
-struct SmartGeneratedPlaylist: Codable {
+public struct SmartGeneratedPlaylist: Codable {
     static let decoder = JSONDecoder()
     
     struct Track: Codable {
@@ -22,7 +22,7 @@ struct SmartGeneratedPlaylist: Codable {
     
     let tracks: [Track]
     
-    init(from decoder: any Decoder) throws {
+    public init(from decoder: any Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         guard let tracksData = try container.decode(String.self, forKey: .tracks).data(using: .utf8) else {
             self.tracks = []
@@ -32,7 +32,7 @@ struct SmartGeneratedPlaylist: Codable {
     }
 }
 
-struct MusicEvent: Codable {
+public struct MusicEvent: Codable {
     let artistName: String?
     let albumName: String?
     let trackTitle: String?
@@ -43,7 +43,7 @@ struct MusicEvent: Codable {
     let sourceService: String
     let trackID: String?
     
-    init(from decoder: any Decoder) throws {
+    public init(from decoder: any Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         self.artistName = try container.decodeIfPresent(String.self, forKey: .artistName)
         self.albumName = try container.decodeIfPresent(String.self, forKey: .albumName)
@@ -61,17 +61,17 @@ struct MusicEvent: Codable {
     }
 }
 
-struct AiMicEvent: Codable {
-    let request: String
-    let response: String
+public struct AiMicEvent: Codable {
+    public let request: String
+    public let response: String
 }
 
-struct TranslationEvent: Codable {
+public struct TranslationEvent: Codable {
     let targetLanguage: String
     let originLanguage: String
 }
 
-struct CallEvent: Codable {
+public struct CallEvent: Codable {
     struct Peer: Codable {
         let displayName: String
         let phoneNumber: String
@@ -80,7 +80,7 @@ struct CallEvent: Codable {
     let duration: Duration?
     let peers: [Peer]
     
-    init(from decoder: any Decoder) throws {
+    public init(from decoder: any Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         self.peers = try container.decode([Peer].self, forKey: .peers)
         if let durationSeconds = try container.decodeIfPresent(Double.self, forKey: .durationSeconds) {
@@ -90,7 +90,7 @@ struct CallEvent: Codable {
         }
     }
     
-    func encode(to encoder: any Encoder) throws {
+    public func encode(to encoder: any Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(self.duration, forKey: .durationSeconds)
         try container.encode(self.peers, forKey: .peers)
@@ -102,14 +102,14 @@ struct CallEvent: Codable {
     }
 }
 
-enum EventDataEnvelope: Codable {
+public enum EventDataEnvelope: Codable {
     case aiMic(AiMicEvent)
     case music(MusicEvent)
     case call(CallEvent)
     case translation(TranslationEvent)
     case unknown
     
-    init(from decoder: any Decoder) throws {
+    public init(from decoder: any Decoder) throws {
         let container = try decoder.singleValueContainer()
         if let aiMicEvent = try? container.decode(AiMicEvent.self) {
             self = .aiMic(aiMicEvent)
@@ -128,11 +128,11 @@ enum EventDataEnvelope: Codable {
 public struct EventContentEnvelope: Codable {
     let originatorIdentifier: String
     let feedbackUUID: UUID?
-    let eventCreationTime: Date
+    public let eventCreationTime: Date
     let feedbackCategory: String?
     let eventType: String
-    let eventIdentifier: UUID
-    let eventData: EventDataEnvelope
+    public let eventIdentifier: UUID
+    public let eventData: EventDataEnvelope
 }
 
 extension EventContentEnvelope: Identifiable {
@@ -155,13 +155,13 @@ public struct Pageable: Codable {
 }
 
 public struct FileAsset: Codable, Hashable {
-    let fileUUID: UUID
-    let accessToken: String
+    public let fileUUID: UUID
+    public let accessToken: String
 }
 
-struct Video: Codable, Hashable {
-    let fileUUID: UUID
-    let accessToken: String
+public struct Video: Codable, Hashable {
+    public let fileUUID: UUID
+    public let accessToken: String
 }
 
 enum CaptureType: String, Codable, Hashable {
@@ -189,12 +189,13 @@ enum CaptureState: String, Codable, Hashable {
 public struct CaptureEnvelope: Codable, Hashable {
     let uuid: UUID
     let type: CaptureType
-    let thumbnail: FileAsset
-    let video: Video?
+    public let thumbnail: FileAsset
+    public var memoryId: UUID?
+    public let video: Video?
     
     let originalThumbnails: [FileAsset]?
-    let originals: [FileAsset]?
-    let derivatives: [FileAsset]?
+    public let originals: [FileAsset]?
+    public let derivatives: [FileAsset]?
     let location: String?
     let latitude: Double?
     let longitude: Double?
@@ -248,8 +249,8 @@ public struct ContentEnvelope: Codable, Identifiable, Hashable {
     let uuid: UUID
     let originClientId: String
     var favorite: Bool
-    let userLastModified: Date
-    let userCreatedAt: Date
+    public let userLastModified: Date
+    public let userCreatedAt: Date
     let location: String?
     
     var data: DataClass
@@ -272,6 +273,9 @@ public struct ContentEnvelope: Codable, Identifiable, Hashable {
             note.createdAt = self.userCreatedAt
             note.modifiedAt = self.userLastModified
             self.data = .note(note)
+        } else if case var .capture(capture) = self.data {
+            capture.memoryId = self.uuid
+            self.data = .capture(capture)
         }
     }
     

@@ -1,6 +1,7 @@
 import Foundation
 
-@Observable @objcMembers public class Note: NSObject, Codable {
+@Observable public class Note: Codable, Hashable, Equatable {
+    
     public var uuid: UUID? = nil
     public var text: String
     public var title: String
@@ -42,6 +43,16 @@ import Foundation
         case uuid
         case text
         case title
+    }
+    
+    // TODO:
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(uuid)
+    }
+    
+    // TODO:
+    public static func == (lhs: Note, rhs: Note) -> Bool {
+        lhs.uuid == rhs.uuid
     }
 }
 

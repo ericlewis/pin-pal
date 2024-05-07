@@ -11,7 +11,7 @@ extension URL {
 }
 
 extension ContentEnvelope {
-    func videoDownloadUrl() -> URL? {
+    public func videoDownloadUrl() -> URL? {
         guard let cap: CaptureEnvelope = self.get(), let vid = cap.video else {
             return nil
         }

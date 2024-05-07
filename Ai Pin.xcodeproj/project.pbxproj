@@ -10,6 +10,9 @@
 		6819B7F62BD85431009255A0 /* Ai_PinApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6819B7F52BD85431009255A0 /* Ai_PinApp.swift */; };
 		6819B7FA2BD85432009255A0 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 6819B7F92BD85432009255A0 /* Assets.xcassets */; };
 		6897F2A32BE9CE1C00224555 /* Intents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6897F2A22BE9CE1C00224555 /* Intents.swift */; };
+		6897F2A62BEA7E2700224555 /* NoteIntents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6897F2A52BEA7E2700224555 /* NoteIntents.swift */; };
+		6897F2A82BEA7E4E00224555 /* CaptureIntents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6897F2A72BEA7E4E00224555 /* CaptureIntents.swift */; };
+		6897F2AA2BEAC34D00224555 /* AiMicIntents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6897F2A92BEAC34D00224555 /* AiMicIntents.swift */; };
 		68C85B8A2BDFE01B0029A408 /* PinKit in Frameworks */ = {isa = PBXBuildFile; productRef = 68C85B892BDFE01B0029A408 /* PinKit */; };
 /* End PBXBuildFile section */
 
@@ -20,6 +23,9 @@
 		6819B7FB2BD85432009255A0 /* Ai_Pin.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Ai_Pin.entitlements; sourceTree = "<group>"; };
 		6819B82C2BDB5468009255A0 /* Ai-Pin-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "Ai-Pin-Info.plist"; path = "Ai Pin/Resources/Ai-Pin-Info.plist"; sourceTree = SOURCE_ROOT; };
 		6897F2A22BE9CE1C00224555 /* Intents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Intents.swift; sourceTree = "<group>"; };
+		6897F2A52BEA7E2700224555 /* NoteIntents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteIntents.swift; sourceTree = "<group>"; };
+		6897F2A72BEA7E4E00224555 /* CaptureIntents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaptureIntents.swift; sourceTree = "<group>"; };
+		6897F2A92BEAC34D00224555 /* AiMicIntents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AiMicIntents.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -54,9 +60,9 @@
 		6819B7F42BD85431009255A0 /* Ai Pin */ = {
 			isa = PBXGroup;
 			children = (
+				6897F2A42BEA7E1B00224555 /* Intents */,
 				68C85B7B2BDCA1BE0029A408 /* Resources */,
 				6819B7F52BD85431009255A0 /* Ai_PinApp.swift */,
-				6897F2A22BE9CE1C00224555 /* Intents.swift */,
 			);
 			path = "Ai Pin";
 			sourceTree = "<group>";
@@ -66,6 +72,17 @@
 			children = (
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		6897F2A42BEA7E1B00224555 /* Intents */ = {
+			isa = PBXGroup;
+			children = (
+				6897F2A22BE9CE1C00224555 /* Intents.swift */,
+				6897F2A52BEA7E2700224555 /* NoteIntents.swift */,
+				6897F2A72BEA7E4E00224555 /* CaptureIntents.swift */,
+				6897F2A92BEAC34D00224555 /* AiMicIntents.swift */,
+			);
+			path = Intents;
 			sourceTree = "<group>";
 		};
 		68C85B7B2BDCA1BE0029A408 /* Resources */ = {
@@ -153,8 +170,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6897F2A82BEA7E4E00224555 /* CaptureIntents.swift in Sources */,
 				6819B7F62BD85431009255A0 /* Ai_PinApp.swift in Sources */,
+				6897F2AA2BEAC34D00224555 /* AiMicIntents.swift in Sources */,
 				6897F2A32BE9CE1C00224555 /* Intents.swift in Sources */,
+				6897F2A62BEA7E2700224555 /* NoteIntents.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
