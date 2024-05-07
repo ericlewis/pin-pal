@@ -135,52 +135,11 @@ struct SyncEngine {
 }
 
 @Model
-class _Note {
-    var uuid: UUID? = nil
-    var title: String
-    var text: String
-    
-    init(uuid: UUID? = nil, title: String, text: String) {
-        self.uuid = uuid
-        self.text = text
-        self.title = title
-    }
-    
-    init(from note: Note) {
-        self.uuid = note.id
-        self.title = note.title
-        self.text = note.text
-    }
-}
-
-@Model
 class _Capture {
     var uuid: UUID? = nil
 
     init(uuid: UUID? = nil) {
         self.uuid = uuid
-    }
-}
-
-@Model
-class _Memory {
-    let uuid: UUID
-    let origin: String
-    var isFavorited: Bool
-    let lastModifiedAt: Date
-    let createdAt: Date
-    
-    var note: _Note?
-    var capture: _Capture?
-    
-    init(uuid: UUID, origin: String, isFavorited: Bool, lastModifiedAt: Date, createdAt: Date, note: _Note? = nil, capture: _Capture? = nil) {
-        self.uuid = uuid
-        self.origin = origin
-        self.isFavorited = isFavorited
-        self.lastModifiedAt = lastModifiedAt
-        self.createdAt = createdAt
-        self.note = note
-        self.capture = capture
     }
 }
 

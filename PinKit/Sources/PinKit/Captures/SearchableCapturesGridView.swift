@@ -58,4 +58,3 @@ struct SearchableCapturesGridView: View {
         }
     }
 }
-

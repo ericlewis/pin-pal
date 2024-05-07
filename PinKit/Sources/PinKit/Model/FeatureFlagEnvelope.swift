@@ -7,7 +7,7 @@ public struct FeatureFlagEnvelope: Codable {
     }
     
     var state: State
-    var isEnabled: Bool {
+    public var isEnabled: Bool {
         get {
             switch state {
             case .enabled: true

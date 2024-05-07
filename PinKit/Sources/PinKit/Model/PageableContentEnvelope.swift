@@ -269,6 +269,8 @@ public struct ContentEnvelope: Codable, Identifiable, Hashable {
 
         if case var .note(note) = self.data {
             note.memoryId = self.uuid
+            note.createdAt = self.userCreatedAt
+            note.modifiedAt = self.userLastModified
             self.data = .note(note)
         }
     }
@@ -285,14 +287,14 @@ public struct ContentEnvelope: Codable, Identifiable, Hashable {
 }
 
 extension ContentEnvelope {
-    func get() -> Note? {
+    public func get() -> Note? {
         switch data {
         case let .note(note): note
         default: nil
         }
     }
     
-    func get() -> CaptureEnvelope? {
+    public func get() -> CaptureEnvelope? {
         switch data {
         case let .capture(capture): capture
         default: nil
@@ -302,7 +304,7 @@ extension ContentEnvelope {
 
 public struct PageableContentEnvelope<C: Codable>: Codable {
     let number: Int
-    var content: [C]
+    public var content: [C]
     let pageable: Pageable
     let sort: Sort
     let numberOfElements: Int

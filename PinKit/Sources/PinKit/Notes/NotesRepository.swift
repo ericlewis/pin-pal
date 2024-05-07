@@ -8,7 +8,7 @@ import OrderedCollections
     var api: HumaneCenterService
     var data: PageableMemoryContentEnvelope?
     var contentSet: OrderedSet<ContentEnvelope> = []
-    var content: [ContentEnvelope] = []
+    public var content: [ContentEnvelope] = []
     var isLoading: Bool = false
     var isFinished: Bool = false
     var hasMoreData: Bool = false

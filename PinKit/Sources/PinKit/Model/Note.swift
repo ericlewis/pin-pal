@@ -1,21 +1,25 @@
 import Foundation
 
-@Observable public class Note: Codable, Equatable, Hashable {
-    var uuid: UUID? = nil
-    var text: String
-    var title: String
+@Observable @objcMembers public class Note: NSObject, Codable {
+    public var uuid: UUID? = nil
+    public var text: String
+    public var title: String
     
-    var memoryId: UUID? = nil
-    
+    public var memoryId: UUID? = nil
+    public var createdAt: Date? = nil
+    public var modifiedAt: Date? = nil
+
     public static func create() -> Note {
         Note(text: "", title: "")
     }
     
-    public init(uuid: UUID? = nil, memoryId: UUID? = nil, text: String, title: String) {
+    public init(uuid: UUID? = nil, memoryId: UUID? = nil, text: String, title: String, createdAt: Date = .now, modifedAt: Date = .now) {
         self.uuid = uuid
         self.memoryId = memoryId
         self.text = text
         self.title = title
+        self.createdAt = createdAt
+        self.modifiedAt = modifedAt
     }
     
     public required init(from decoder: any Decoder) throws {
@@ -38,17 +42,6 @@ import Foundation
         case uuid
         case text
         case title
-    }
-    
-    public static func == (lhs: Note, rhs: Note) -> Bool {
-        lhs.uuid == rhs.uuid && lhs.title == rhs.title && lhs.text == rhs.text
-    }
-    
-    public func hash(into hasher: inout Hasher) {
-        hasher.combine(uuid)
-        hasher.combine(text)
-        hasher.combine(title)
-        hasher.combine(memoryId)
     }
 }
 

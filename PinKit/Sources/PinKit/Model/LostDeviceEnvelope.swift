@@ -1,6 +1,6 @@
 import Foundation
 
 public struct LostDeviceEnvelope: Codable {
-    var isLost: Bool
+    public var isLost: Bool
     let deviceId: String
 }

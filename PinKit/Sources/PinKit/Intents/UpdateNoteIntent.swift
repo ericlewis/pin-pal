@@ -29,12 +29,18 @@ public struct UpdateNoteIntent: AppIntent {
     @Dependency
     public var notesRepository: NotesRepository
     
-    public func perform() async throws -> some IntentResult {
+    public func perform() async throws -> some IntentResult & ReturnsValue<String> {
+        guard !title.isEmpty else {
+            throw $title.needsValueError("What would you like to update the title to?")
+        }
+        guard !text.isEmpty else {
+            throw $text.needsValueError("What would you like to update the content to?")
+        }
         guard let memoryId = UUID(uuidString: self.identifier) else {
-            return .result()
+            throw $identifier.needsValueError("What is identifier of the note to update?")
         }
         try await notesRepository.update(note: Note(memoryId: memoryId, text: self.text, title: self.title))
         navigationStore.activeNote = nil
-        return .result()
+        return .result(value: memoryId.uuidString)
     }
 }

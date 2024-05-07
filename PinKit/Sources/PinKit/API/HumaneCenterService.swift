@@ -274,6 +274,19 @@ extension HumaneCenterService {
                 .init(name: "uuids", value: uuids.map(\.uuidString).joined(separator: ","))
             ]))
         }
+        
+        func remove(uuids: [UUID]) async throws -> BulkResponse {
+            try await post(url: memoryUrl.appending(path: "bulk-delete"), body: ["memoryUUIDs": uuids])
+        }
+        
+        func favorite(uuids: [UUID]) async throws -> BulkResponse {
+            try await post(url: memoryUrl.appending(path: "bulk-favorite"), body: ["memoryUUIDs": uuids])
+
+        }
+        
+        func unfavorite(uuids: [UUID]) async throws -> BulkResponse {
+            try await post(url: memoryUrl.appending(path: "bulk-unfavorite"), body: ["memoryUUIDs": uuids])
+        }
     }
     
     public static func live() -> Self {
@@ -304,7 +317,10 @@ extension HumaneCenterService {
             deviceIdentifiers: { try await service.deviceIdentifiers() },
             dashboard: { try await service.memories() },
             deleteAllNotes: { try await service.deleteAllNotes() },
-            capturesList: { try await service.capturesList(uuids: $0) }
+            capturesList: { try await service.capturesList(uuids: $0) },
+            bulkFavorite: { try await service.favorite(uuids: $0) },
+            bulkUnfavorite: { try await service.unfavorite(uuids: $0) },
+            bulkRemove: { try await service.remove(uuids: $0) }
         )
     }
 }
@@ -371,6 +387,9 @@ extension HumaneCenterService {
     public var dashboard: () async throws -> MemoriesResponse
     public var deleteAllNotes: () async throws -> Void
     public var capturesList: ([UUID]) async throws -> [ContentEnvelope]
+    public var bulkFavorite: ([UUID]) async throws -> BulkResponse
+    public var bulkUnfavorite: ([UUID]) async throws -> BulkResponse
+    public var bulkRemove: ([UUID]) async throws -> BulkResponse
 
     required public init(
         accessToken: String? = nil,
@@ -400,7 +419,10 @@ extension HumaneCenterService {
         deviceIdentifiers: @escaping () async throws -> [String],
         dashboard: @escaping () async throws -> MemoriesResponse,
         deleteAllNotes: @escaping () async throws -> Void,
-        capturesList: @escaping ([UUID]) async throws -> [ContentEnvelope]
+        capturesList: @escaping ([UUID]) async throws -> [ContentEnvelope],
+        bulkFavorite: @escaping ([UUID]) async throws -> BulkResponse,
+        bulkUnfavorite: @escaping ([UUID]) async throws -> BulkResponse,
+        bulkRemove: @escaping ([UUID]) async throws -> BulkResponse
     ) {
         self.userDefaults = userDefaults
         let decoder = JSONDecoder()
@@ -436,6 +458,9 @@ extension HumaneCenterService {
         self.favoriteById = favoriteById
         self.unfavoriteById = unfavoriteById
         self.capturesList = capturesList
+        self.bulkFavorite = bulkFavorite
+        self.bulkUnfavorite = bulkUnfavorite
+        self.bulkRemove = bulkRemove
     }
     
     public func isLoggedIn() -> Bool {
@@ -516,4 +541,21 @@ func extractValue(from text: String, forKey key: String) -> String? {
 //    func availableAddons() async throws -> [Addon] {
 //        try await get(url: Self.addonsUrl.appending(path: "types"))
 //    }
+//}
+
+//
+//async bulkFavoriteMemories(e) {
+//    await t.post("/memory/bulk-favorite", {
+//        memoryUUIDs: e
+//    })
+//},
+//async bulkUnFavoriteMemories(e) {
+//    await t.post("/memory/bulk-unfavorite", {
+//        memoryUUIDs: e
+//    })
+//},
+//async bulkDeleteMemories(e) {
+//    await t.post("/memory/bulk-delete", {
+//        memoryUUIDs: e
+//    })
 //}
