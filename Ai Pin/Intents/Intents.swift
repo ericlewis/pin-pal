@@ -174,6 +174,17 @@ public struct ShowSettingsIntent: AppIntent {
     }
 }
 
+public enum FavoriteAction: String, AppEnum {
+    case add
+    case remove
+    
+    public static var typeDisplayRepresentation: TypeDisplayRepresentation = .init(name: "Favorite Action")
+    public static var caseDisplayRepresentations: [FavoriteAction: DisplayRepresentation] = [
+        .add: "Add",
+        .remove: "Remove"
+    ]
+}
+
 // MARK: Util
 
 protocol DateSortable {

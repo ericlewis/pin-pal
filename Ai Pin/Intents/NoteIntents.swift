@@ -212,17 +212,6 @@ public struct DeleteNotesIntent: DeleteIntent {
     }
 }
 
-public enum FavoriteAction: String, AppEnum {
-    case add
-    case remove
-    
-    public static var typeDisplayRepresentation: TypeDisplayRepresentation = .init(name: "Favorite Action")
-    public static var caseDisplayRepresentations: [FavoriteAction: DisplayRepresentation] = [
-        .add: "Add",
-        .remove: "Remove"
-    ]
-}
-
 public struct SearchNotesIntent: AppIntent {
     public static var title: LocalizedStringResource = "Search Notes"
     public static var description: IntentDescription? = .init("Performs a search for the specified text.", categoryName: "Notes")
@@ -369,6 +358,24 @@ public struct ShowNotesIntent: AppIntent {
     
     public func perform() async throws -> some IntentResult {
         navigationStore.selectedTab = .notes
+        return .result()
+    }
+}
+
+public struct OpenNewNoteIntent: AppIntent {
+    public static var title: LocalizedStringResource = "Open New Note"
+    public static var description: IntentDescription? = .init("Get quick access to create a note in Pin Pal", categoryName: "Notes")
+    
+    public init() {}
+    
+    public static var openAppWhenRun: Bool = true
+    public static var isDiscoverable: Bool = true
+
+    @Dependency
+    public var navigationStore: NavigationStore
+    
+    public func perform() async throws -> some IntentResult {
+        navigationStore.activeNote = .create()
         return .result()
     }
 }

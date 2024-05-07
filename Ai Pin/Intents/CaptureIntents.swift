@@ -22,8 +22,22 @@ extension FileAsset {
     }
 }
 
+public enum CaptureType: String, AppEnum {
+    case photo
+    case video
+    
+    public static var typeDisplayRepresentation: TypeDisplayRepresentation = .init(name: "Capture Type")
+    public static var caseDisplayRepresentations: [CaptureType: DisplayRepresentation] = [
+        .photo: "Photo",
+        .video: "Video"
+    ]
+}
+
 public struct CaptureEntity: Identifiable, DateSortable {
     public let id: UUID
+    
+    @Property(title: "Media Type")
+    public var type: CaptureType
 
     @Property(title: "Creation Date")
     public var createdAt: Date
@@ -37,6 +51,7 @@ public struct CaptureEntity: Identifiable, DateSortable {
         let capture: CaptureEnvelope? = content.get()
         self.id = content.id
         self.url = capture?.makeThumbnailURL()
+        self.type = capture?.video == nil ? .photo : .video
         self.createdAt = content.userCreatedAt
         self.modifiedAt = content.userLastModified
     }
