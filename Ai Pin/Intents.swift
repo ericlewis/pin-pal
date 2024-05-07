@@ -3,54 +3,6 @@ import Foundation
 import PinKit
 import SwiftUI
 
-public struct CreateNoteIntent: AppIntent {
-    public static var title: LocalizedStringResource = "Create Note"
-    public static var description: IntentDescription? = .init("This action allows you to create new notes for Ai Pin.", categoryName: "Notes")
-    public static var parameterSummary: some ParameterSummary {
-        Summary("Create note with \(\.$text) named \(\.$title)")
-    }
-    
-    @Parameter(title: "Name")
-    public var title: String
-    
-    @Parameter(title: "Body")
-    public var text: String
-    
-    public init(title: String, text: String) {
-        self.title = title.trimmingCharacters(in: .whitespacesAndNewlines)
-        self.text = text.trimmingCharacters(in: .whitespacesAndNewlines)
-    }
-    
-    public init() {}
-    
-    public static var openAppWhenRun: Bool = false
-    public static var isDiscoverable: Bool = true
-    
-    @Dependency
-    public var navigationStore: NavigationStore
-    
-    @Dependency
-    public var notesRepository: NotesRepository
-    
-    public func perform() async throws -> some IntentResult & ReturnsValue<NoteEntity> {
-        guard !title.isEmpty else {
-            throw $title.needsValueError("What is the name of the note you would like to add?")
-        }
-        guard !text.isEmpty else {
-            throw $text.needsValueError("What is the content of the note you would like to add?")
-        }
-        
-        await notesRepository.create(note: .init(text: text, title: title))
-        navigationStore.activeNote = nil
-        
-        guard let note: Note = notesRepository.content.first?.get() else {
-            fatalError()
-        }
-        
-        return .result(value: .init(from: note))
-    }
-}
-
 public struct NoteEntity: Identifiable {
     public let id: UUID
     
@@ -89,7 +41,7 @@ extension NoteEntity: AppEntity {
     }
     
     public static var defaultQuery: NoteEntityQuery = NoteEntityQuery()
-    public static var typeDisplayRepresentation: TypeDisplayRepresentation = TypeDisplayRepresentation(name: "Notes")
+    public static var typeDisplayRepresentation: TypeDisplayRepresentation = TypeDisplayRepresentation(name: "Note", numericFormat: "Notes")
 }
 
 public struct NoteEntityQuery: EntityQuery, EntityStringQuery, EntityPropertyQuery {
@@ -176,6 +128,54 @@ public struct NoteEntityQuery: EntityQuery, EntityStringQuery, EntityPropertyQue
         try await service.notes(0, 10).content
             .compactMap({ $0.get() })
             .map(NoteEntity.init(from:))
+    }
+}
+
+public struct CreateNoteIntent: AppIntent {
+    public static var title: LocalizedStringResource = "Create Note"
+    public static var description: IntentDescription? = .init("Creates a note using the content passed as input.", categoryName: "Notes")
+    public static var parameterSummary: some ParameterSummary {
+        Summary("Create note with \(\.$text) named \(\.$title)")
+    }
+    
+    @Parameter(title: "Name")
+    public var title: String
+    
+    @Parameter(title: "Body")
+    public var text: String
+    
+    public init(title: String, text: String) {
+        self.title = title.trimmingCharacters(in: .whitespacesAndNewlines)
+        self.text = text.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+    
+    public init() {}
+    
+    public static var openAppWhenRun: Bool = false
+    public static var isDiscoverable: Bool = true
+    
+    @Dependency
+    public var navigationStore: NavigationStore
+    
+    @Dependency
+    public var notesRepository: NotesRepository
+    
+    public func perform() async throws -> some IntentResult & ReturnsValue<NoteEntity> {
+        guard !title.isEmpty else {
+            throw $title.needsValueError("What is the name of the note you would like to add?")
+        }
+        guard !text.isEmpty else {
+            throw $text.needsValueError("What is the content of the note you would like to add?")
+        }
+        
+        await notesRepository.create(note: .init(text: text, title: title))
+        navigationStore.activeNote = nil
+        
+        guard let note: Note = notesRepository.content.first?.get() else {
+            fatalError()
+        }
+        
+        return .result(value: .init(from: note))
     }
 }
 
