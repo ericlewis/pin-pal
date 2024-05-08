@@ -18,14 +18,6 @@ public struct NoteEntity: Identifiable {
     
     @Property(title: "Last Modified Date")
     public var modifiedAt: Date
-    
-    public init(id: UUID, title: String, text: String, createdAt: Date, modifiedAt: Date) {
-        self.id = id
-        self.createdAt = createdAt
-        self.modifiedAt = modifiedAt
-        self.title = title
-        self.text = text
-    }
 
     public init(from content: ContentEnvelope) {
         let note: Note = content.get()!
@@ -73,7 +65,7 @@ public struct NoteEntityQuery: EntityQuery, EntityStringQuery, EnumerableEntityQ
     }
   
     public func suggestedEntities() async throws -> [NoteEntity] {
-        try await service.notes(0, 10)
+        try await service.notes(0, 30)
             .content
             .map(NoteEntity.init(from:))
     }

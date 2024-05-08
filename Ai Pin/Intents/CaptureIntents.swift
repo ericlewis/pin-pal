@@ -14,10 +14,9 @@ extension Video {
 
 extension FileAsset {
     func makeImageURL(memoryUUID: UUID) -> URL? {
-        URL(string: "https://webapi.prod.humane.cloud/capture/memory/\(memoryUUID)/file/\(fileUUID)")?.appending(queryItems: [
+        URL(string: "https://webapi.prod.humane.cloud/capture/memory/\(memoryUUID)/file/\(fileUUID)/download")?.appending(queryItems: [
             .init(name: "token", value: accessToken),
-            .init(name: "w", value: "640"),
-            .init(name: "q", value: "100")
+            .init(name: "rawData", value: "false")
         ])
     }
 }
@@ -105,7 +104,7 @@ public struct CaptureEntityQuery: EntityQuery, EntityStringQuery, EnumerableEnti
     }
 
     public func suggestedEntities() async throws -> [CaptureEntity] {
-        try await service.captures(0, 10)
+        try await service.captures(0, 30)
             .content
             .concurrentMap(CaptureEntity.init(from:))
     }
@@ -166,11 +165,13 @@ public struct GetBestPhotoIntent: AppIntent {
     var service: HumaneCenterService
 
     public func perform() async throws -> some IntentResult & ReturnsValue<IntentFile?> {
-        guard let capture: CaptureEnvelope = try await service.memory(capture.id).get(), let url = capture.makeThumbnailURL() else {
+        guard let cap: CaptureEnvelope = try await service.memory(capture.id).get(), let url = cap.thumbnail.makeImageURL(memoryUUID: capture.id) else {
             return .result(value: nil)
         }
-        let (d, _) = try await URLSession.shared.data(from: url)
-        return .result(value: .init(data: d, filename: "\(capture.memoryId ?? .init()).png"))
+        var req = URLRequest(url: url)
+        req.setValue("Bearer \(service.accessToken!)", forHTTPHeaderField: "Authorization")
+        let (d, _) = try await URLSession.shared.data(for: req)
+        return .result(value: .init(data: d, filename: "\(capture.id).png"))
     }
 }
 
@@ -206,7 +207,9 @@ public struct GetOriginalPhotosIntent: AppIntent {
             return ($0.fileUUID, url)
         })
         let result = try await urlAndIds?.concurrentCompactMap { (id, url) in
-            let (d, _) = try await URLSession.shared.data(from: url)
+            var req = URLRequest(url: url)
+            req.setValue("Bearer \(service.accessToken!)", forHTTPHeaderField: "Authorization")
+            let (d, _) = try await URLSession.shared.data(for: req)
             return IntentFile(data: d, filename: "\(id).png")
         }
         return .result(value: result ?? [])
@@ -245,7 +248,9 @@ public struct GetProcessedPhotosIntent: AppIntent {
             return ($0.fileUUID, url)
         })
         let result = try await urlAndIds?.concurrentCompactMap { (id, url) in
-            let (d, _) = try await URLSession.shared.data(from: url)
+            var req = URLRequest(url: url)
+            req.setValue("Bearer \(service.accessToken!)", forHTTPHeaderField: "Authorization")
+            let (d, _) = try await URLSession.shared.data(for: req)
             return IntentFile(data: d, filename: "\(id).png")
         }
         return .result(value: result ?? [])
