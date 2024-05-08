@@ -3,17 +3,8 @@ import AppIntents
 import PinKit
 
 #if os(iOS)
-@Observable class AppDelegate: NSObject, UIApplicationDelegate {
-    
-    var shortcutItemType: String?
-    
-    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
-        if let shortcutItem = launchOptions?[UIApplication.LaunchOptionsKey.shortcutItem] as? UIApplicationShortcutItem {
-            shortcutItemType = shortcutItem.type
-        }
-        return true
-    }
-    
+class AppDelegate: NSObject, UIApplicationDelegate {
+
     func application(_ application: UIApplication, configurationForConnecting connectingSceneSession: UISceneSession, options: UIScene.ConnectionOptions) -> UISceneConfiguration {
         let sceneConfiguration = UISceneConfiguration(name: "Custom Configuration", sessionRole: connectingSceneSession.role)
         sceneConfiguration.delegateClass = SceneDelegate.self
