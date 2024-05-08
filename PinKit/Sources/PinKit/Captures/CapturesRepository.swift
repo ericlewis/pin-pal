@@ -172,11 +172,12 @@ extension CapturesRepository {
     
     func image(for capture: ContentEnvelope) async throws -> UIImage {
         guard let cap: CaptureEnvelope = capture.get() else { return UIImage() }
-        let (data, _) = try await URLSession.shared.data(from: URL(string: "https://webapi.prod.humane.cloud/capture/memory/\(capture.uuid)/file/\(cap.thumbnail.fileUUID)")!.appending(queryItems: [
-            .init(name: "token", value: cap.thumbnail.accessToken),
-            .init(name: "w", value: "640"),
-            .init(name: "q", value: "100")
+        var req = URLRequest(url: URL(string: "https://webapi.prod.humane.cloud/capture/memory/\(capture.uuid)/file/\(cap.closeupAsset?.fileUUID ?? cap.thumbnail.fileUUID)/download")!.appending(queryItems: [
+            .init(name: "token", value: cap.closeupAsset?.accessToken ?? cap.thumbnail.accessToken),
+            .init(name: "rawData", value: "false")
         ]))
+        req.setValue("Bearer \(api.accessToken!)", forHTTPHeaderField: "Authorization")
+        let (data, _) = try await URLSession.shared.data(for: req)
         guard let image = UIImage(data: data) else {
             fatalError()
         }

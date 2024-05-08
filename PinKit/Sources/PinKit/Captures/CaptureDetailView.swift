@@ -67,7 +67,7 @@ struct CaptureDetailView: View {
                         CaptureImageView(capture: capture)
                     }
                     HStack {
-                        if originalPhotos.isEmpty, capture.get()?.state == .processed {
+                        if capture.get()?.video == nil, originalPhotos.isEmpty, capture.get()?.state == .processed {
                             RoundedRectangle(cornerRadius: 8)
                                 .fill(.bar)
                                 .aspectRatio(1.33333333333, contentMode: .fit)
@@ -80,7 +80,7 @@ struct CaptureDetailView: View {
                                 .fill(.bar)
                                 .aspectRatio(1.33333333333, contentMode: .fit)
                                 .overlay(ProgressView())
-                        } else {
+                        } else if capture.get()?.video == nil {
                             ForEach(originalPhotos, id: \.fileUUID) { photo in
                                 WebImage(url: makeThumbnailURL(
                                     uuid: capture.uuid,

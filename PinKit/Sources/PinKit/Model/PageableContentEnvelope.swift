@@ -190,6 +190,7 @@ public struct CaptureEnvelope: Codable, Hashable {
     let uuid: UUID
     let type: CaptureType
     public let thumbnail: FileAsset
+    public let closeupAsset: FileAsset?
     public var memoryId: UUID?
     public let video: Video?
     
