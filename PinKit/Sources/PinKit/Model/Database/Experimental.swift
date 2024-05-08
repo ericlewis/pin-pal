@@ -1,25 +1,6 @@
 import SwiftData
 import Foundation
 
-//"eventData": {
-//      "noteId": "f660d8d2-8ab5-40ce-b517-aec633cdf7b3",
-//      "text": "Testing",
-//      "memoryUUID": "182467d4-72db-4065-a49a-bd8b39d71be6"
-//    },
-
-//{
-//  "eventIdentifier": "c7593988-087a-4a50-ad65-c42e84b1cb7a",
-//  "originatorIdentifier": "humane.experience.photography",
-//  "eventCreationTime": "2024-04-25T19:31:03.541031Z",
-//  "eventData": {
-//    "memoryId": "14874160-5c35-4b48-b90d-3f483682aafe",
-//    "type": "PHOTO"
-//  },
-//  "eventType": "humane.capture",
-//  "feedbackUUID": null,
-//  "feedbackCategory": null
-//},
-
 enum HumaneCloudOrigin {
     case aiBus(String)
 }
@@ -130,24 +111,50 @@ public struct EventStream: Codable {
     let content: [Event]
 }
 
-struct SyncEngine {
-    
-}
-
 @Model
 class _Capture {
-    var uuid: UUID? = nil
-
-    init(uuid: UUID? = nil) {
+    var uuid: UUID
+    let parentUUID: UUID
+    
+    let thumbnailUUID: UUID
+    let thumbnailAccessToken: UUID
+    
+    init(uuid: UUID, parentUUID: UUID, thumbnailUUID: UUID, thumbnailAccessToken: UUID) {
         self.uuid = uuid
+        self.parentUUID = parentUUID
+        self.thumbnailUUID = thumbnailUUID
+        self.thumbnailAccessToken = thumbnailAccessToken
     }
 }
 
 @Model
-class _Event {
-    let uuid: UUID
+public class _Note {
     
-    init(uuid: UUID) {
+    @Attribute(.unique)
+    public let uuid: UUID
+    public let parentUUID: UUID
+    
+    public let name: String
+    public let body: String
+    
+    public let isFavorite: Bool
+    
+    public let createdAt: Date
+    public let modifiedAt: Date
+    
+    public init(uuid: UUID, parentUUID: UUID, name: String, body: String, isFavorite: Bool, createdAt: Date, modifedAt: Date) {
         self.uuid = uuid
+        self.parentUUID = parentUUID
+        self.name = name
+        self.body = body
+        self.isFavorite = isFavorite
+        self.createdAt = createdAt
+        self.modifiedAt = modifedAt
+    }
+}
+
+extension _Note {
+    static func all(order: SortOrder = .reverse) -> FetchDescriptor<_Note> {
+        FetchDescriptor<_Note>(sortBy: [.init(\.createdAt, order: order)])
     }
 }

@@ -2,7 +2,7 @@ import SwiftUI
 
 struct NotesView: View {
     
-    @Environment(NavigationStore.self) 
+    @Environment(NavigationStore.self)
     private var navigationStore
     
     @Environment(NotesRepository.self)
@@ -26,9 +26,7 @@ struct NotesView: View {
                     }
                     ToolbarItem(placement: .primaryAction) {
                         Menu("Create note", systemImage: "plus") {
-                            Button("Create", systemImage: "note.text.badge.plus") {
-                                self.navigationStore.activeNote = .create()
-                            }
+                            Button("Create", systemImage: "note.text.badge.plus", intent: OpenNewNoteIntent())
                             Button("Import", systemImage: "square.and.arrow.down") {
                                 self.fileImporterPresented = true
                             }
@@ -62,10 +60,4 @@ struct NotesView: View {
         }
         .task(repository.initial)
     }
-}
-
-#Preview {
-    NotesView()
-        .environment(NotesRepository())
-        .environment(NavigationStore())
 }

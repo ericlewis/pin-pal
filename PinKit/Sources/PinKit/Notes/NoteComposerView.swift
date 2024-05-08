@@ -77,14 +77,13 @@ public struct NoteComposerView: View {
                     Group {
                         if state.isLoading {
                             ProgressView()
+                        } else if let id = note.memoryId {
+                            Button("Save", intent: UpdateNoteIntent(identifier: id.uuidString, title: note.title, text: note.text))
                         } else {
-                            Button("Save") {
-                                save()
-                            }
+                            Button("Save", intent: CreateNoteIntent(title: note.title, text: note.text))
                         }
                     }
                     .disabled(note.title.isEmpty || note.text.isEmpty)
-                    
                 }
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") {
@@ -96,27 +95,6 @@ public struct NoteComposerView: View {
         }
         .disabled(state.isLoading)
         .interactiveDismissDisabled(state.isLoading)
-    }
-    
-    func save() {
-        Task {
-            do {
-                state.isLoading = true
-                if let uuid = note.memoryId {
-                    let intent = UpdateNoteIntent(identifier: uuid.uuidString, title: note.title, text: note.text)
-                    intent.navigationStore = navigationStore
-                    intent.notesRepository = notesRepository
-                    let _ = try await intent.perform()
-                } else {
-                    let intent = CreateNoteIntent(title: note.title, text: note.text)
-                    intent.navigationStore = navigationStore
-                    intent.notesRepository = notesRepository
-                    let _ = try await intent.perform()
-                }
-            } catch {
-                print(error)
-            }
-        }
     }
 }
 

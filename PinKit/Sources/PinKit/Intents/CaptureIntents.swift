@@ -21,7 +21,7 @@ extension FileAsset {
     }
 }
 
-public enum CaptureType: String, AppEnum {
+public enum CaptureType: String, AppEnum, Codable {
     case photo
     case video
     

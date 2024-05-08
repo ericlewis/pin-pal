@@ -1,7 +1,5 @@
 import AppIntents
-import Foundation
 import PinKit
-import SwiftUI
 
 public struct NoteEntity: Identifiable {
     
@@ -26,6 +24,14 @@ public struct NoteEntity: Identifiable {
         self.modifiedAt = note.modifiedAt!
         self.title = note.title
         self.text = note.text
+    }
+    
+    public init(from note: _Note) {
+        self.id = note.parentUUID
+        self.createdAt = note.createdAt
+        self.modifiedAt = note.modifiedAt
+        self.title = note.name
+        self.text = note.body
     }
 }
 
@@ -71,6 +77,43 @@ public struct NoteEntityQuery: EntityQuery, EntityStringQuery, EnumerableEntityQ
     }
 }
 
+
+public struct OpenNoteIntent: OpenIntent {
+        
+    public static var title: LocalizedStringResource = "Open Note"
+    public static var description: IntentDescription? = .init("Opens a specific note in Pin Pal", categoryName: "Notes")
+    public static var parameterSummary: some ParameterSummary {
+        Summary("Open \(\.$target)")
+    }
+
+    @Parameter(title: "Note")
+    public var target: NoteEntity
+
+    public init(note: NoteEntity) {
+        self.target = note
+    }
+    
+    public init() {}
+    
+    public static var openAppWhenRun: Bool = true
+    public static var isDiscoverable: Bool = true
+    
+    @Dependency
+    public var navigationStore: NavigationStore
+
+    public func perform() async throws -> some IntentResult {
+        navigationStore.activeNote = .init(
+            uuid: target.id,
+            memoryId: target.id,
+            text: target.text,
+            title: target.title,
+            createdAt: target.createdAt,
+            modifedAt: target.modifiedAt
+        )
+        return .result()
+    }
+}
+
 public struct CreateNoteIntent: AppIntent {
     public static var title: LocalizedStringResource = "Create Note"
     public static var description: IntentDescription? = .init("Creates a note using the content passed as input.",
@@ -103,15 +146,100 @@ public struct CreateNoteIntent: AppIntent {
     @Dependency
     public var notesRepository: NotesRepository
     
-    public func perform() async throws -> some IntentResult & ReturnsValue<NoteEntity> & ProvidesDialog {
-        await notesRepository.create(note: .init(text: text, title: title))
+    @Dependency
+    public var database: any Database
+    
+    @Dependency
+    public var service: HumaneCenterService
+    
+    public func perform() async throws -> some IntentResult {
+        let content = try await service.create(.init(text: text, title: title))
+        let note: Note = content.get()!
+        try await database.insert(
+            _Note(
+                uuid: note.id ?? .init(),
+                parentUUID: content.id,
+                name: note.title,
+                body: note.text,
+                isFavorite: content.favorite,
+                createdAt: content.userCreatedAt,
+                modifedAt: content.userLastModified
+            )
+        )
+        try await database.save()
         navigationStore.activeNote = nil
-        
-        guard let note = notesRepository.content.first else {
-            fatalError()
+        return .result()
+    }
+}
+
+public enum FavoriteAction: String, AppEnum {
+    case add
+    case remove
+    
+    public static var typeDisplayRepresentation: TypeDisplayRepresentation = .init(name: "Favorite Action")
+    public static var caseDisplayRepresentations: [FavoriteAction: DisplayRepresentation] = [
+        .add: "Add",
+        .remove: "Remove"
+    ]
+}
+
+public struct FavoriteNotesIntent: AppIntent {
+    public static var title: LocalizedStringResource = "Favorite Notes"
+    public static var description: IntentDescription? = .init("Adds or removes notes from the set of favorited notes.", categoryName: "Notes")
+    public static var parameterSummary: some ParameterSummary {
+        Summary("\(\.$action) \(\.$notes) to favorites")
+    }
+
+    @Parameter(title: "Favorite Action", default: FavoriteAction.add)
+    public var action: FavoriteAction
+    
+    @Parameter(title: "Notes")
+    public var notes: [NoteEntity]
+    
+    public init(action: FavoriteAction, notes: [NoteEntity]) {
+        self.action = action
+        self.notes = notes
+    }
+    
+    public init() {}
+    
+    public static var openAppWhenRun: Bool = false
+    public static var isDiscoverable: Bool = true
+    
+    @Dependency
+    public var service: HumaneCenterService
+    
+    @Dependency
+    var database: any Database
+
+    public func perform() async throws -> some IntentResult {
+        let ids = notes.map(\.id)
+        if action == .add {
+            let _ = try await service.bulkFavorite(ids)
+        } else {
+            let _ = try await service.bulkUnfavorite(ids)
         }
-        
-        return .result(value: .init(from: note), dialog: .init("Added your note."))
+        await ids.concurrentForEach { id in
+            do {
+                let content = try await service.memory(id)
+                guard let note: Note = content.get() else {
+                    return
+                }
+                await self.database.insert(_Note(
+                    uuid: note.uuid ?? .init(),
+                    parentUUID: content.id,
+                    name: note.title,
+                    body: note.text,
+                    isFavorite: content.favorite,
+                    createdAt: content.userCreatedAt,
+                    modifedAt: content.userLastModified)
+                )
+            } catch {
+                print(error)
+            }
+        }
+        try await self.database.save()
+        return .result()
     }
 }
 
@@ -227,42 +355,6 @@ public struct SearchNotesIntent: AppIntent {
     }
 }
 
-public struct FavoriteNotesIntent: AppIntent {
-    public static var title: LocalizedStringResource = "Favorite Notes"
-    public static var description: IntentDescription? = .init("Adds or removes notes from the set of favorited notes.", categoryName: "Notes")
-    public static var parameterSummary: some ParameterSummary {
-        Summary("\(\.$action) \(\.$notes) to favorites")
-    }
-
-    @Parameter(title: "Favorite Action", default: FavoriteAction.add)
-    public var action: FavoriteAction
-    
-    @Parameter(title: "Notes")
-    public var notes: [NoteEntity]
-    
-    public init(notes: [NoteEntity]) {
-        self.notes = notes
-    }
-    
-    public init() {}
-    
-    public static var openAppWhenRun: Bool = false
-    public static var isDiscoverable: Bool = true
-    
-    @Dependency
-    public var service: HumaneCenterService
-
-    public func perform() async throws -> some IntentResult {
-        let ids = notes.map(\.id)
-        if action == .add {
-            let _ = try await service.bulkFavorite(ids)
-        } else {
-            let _ = try await service.bulkUnfavorite(ids)
-        }
-        return .result()
-    }
-}
-
 public struct ReplaceNoteBodyIntent: AppIntent {
     public static var title: LocalizedStringResource = "Update Note"
     public static var description: IntentDescription? = .init("Replace the body or title of the specified note.", categoryName: "Notes")
@@ -290,42 +382,6 @@ public struct ReplaceNoteBodyIntent: AppIntent {
 
     public func perform() async throws -> some IntentResult & ReturnsValue<NoteEntity> {
         try await .result(value: .init(from: service.update(note.id.uuidString, .init(text: body, title: note.title))))
-    }
-}
-
-public struct OpenNoteIntent: OpenIntent {
-        
-    public static var title: LocalizedStringResource = "Open Note"
-    public static var description: IntentDescription? = .init("Opens a specific note in Pin Pal", categoryName: "Notes")
-    public static var parameterSummary: some ParameterSummary {
-        Summary("Open \(\.$target)")
-    }
-
-    @Parameter(title: "Note")
-    public var target: NoteEntity
-
-    public init(note: NoteEntity) {
-        self.target = note
-    }
-    
-    public init() {}
-    
-    public static var openAppWhenRun: Bool = true
-    public static var isDiscoverable: Bool = true
-    
-    @Dependency
-    public var navigationStore: NavigationStore
-
-    public func perform() async throws -> some IntentResult {
-        navigationStore.activeNote = .init(
-            uuid: target.id,
-            memoryId: target.id,
-            text: target.text,
-            title: target.title,
-            createdAt: target.createdAt,
-            modifedAt: target.modifiedAt
-        )
-        return .result()
     }
 }
 
@@ -364,5 +420,70 @@ public struct OpenNewNoteIntent: AppIntent {
             navigationStore.activeNote = .create()
         }
         return .result()
+    }
+}
+
+public struct UpdateNoteIntent: AppIntent {
+    public static var title: LocalizedStringResource = "Update Note"
+    
+    @Parameter(title: "Identifier", description: "The identifier is from the parent memory.")
+    public var identifier: String
+    
+    @Parameter(title: "Title")
+    public var title: String
+    
+    @Parameter(title: "Text")
+    public var text: String
+    
+    public init(identifier: String, title: String, text: String) {
+        self.identifier = identifier
+        self.title = title.trimmingCharacters(in: .whitespacesAndNewlines)
+        self.text = text.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+    
+    public init() {}
+    
+    public static var openAppWhenRun: Bool = false
+    public static var isDiscoverable: Bool = true
+    
+    @Dependency
+    public var navigationStore: NavigationStore
+    
+    @Dependency
+    public var notesRepository: NotesRepository
+    
+    @Dependency
+    public var service: HumaneCenterService
+    
+    @Dependency
+    public var database: any Database
+    
+    public func perform() async throws -> some IntentResult & ReturnsValue<String> {
+        guard !title.isEmpty else {
+            throw $title.needsValueError("What would you like to update the title to?")
+        }
+        guard !text.isEmpty else {
+            throw $text.needsValueError("What would you like to update the content to?")
+        }
+        guard let memoryId = UUID(uuidString: self.identifier) else {
+            throw $identifier.needsValueError("What is identifier of the note to update?")
+        }
+        
+        let content = try await service.update(identifier, .init(text: text, title: title))
+        let note: Note = content.get()!
+        try await database.insert(
+            _Note(
+                uuid: note.id ?? .init(),
+                parentUUID: content.id,
+                name: note.title,
+                body: note.text,
+                isFavorite: content.favorite,
+                createdAt: content.userCreatedAt,
+                modifedAt: content.userLastModified
+            )
+        )
+        try await database.save()
+        navigationStore.activeNote = nil
+        return .result(value: memoryId.uuidString)
     }
 }

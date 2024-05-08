@@ -6,6 +6,7 @@ import OrderedCollections
 @Observable public final class NotesRepository: Sendable {
     let logger = Logger()
     var api: HumaneCenterService
+    var database: any Database
     var data: PageableMemoryContentEnvelope?
     var contentSet: OrderedSet<ContentEnvelope> = []
     public var content: [ContentEnvelope] = []
@@ -16,30 +17,41 @@ import OrderedCollections
         !content.isEmpty
     }
     
-    public init(api: HumaneCenterService = .live()) {
+    public init(api: HumaneCenterService = .live(), database: any Database) {
         self.api = api
+        self.database = database
     }
 }
 
 extension NotesRepository {
-    private func load(page: Int = 0, size: Int = 30, reload: Bool = false) async {
+    private func load(page: Int = 0, size: Int = 15, reload: Bool = false) async {
         guard !isLoading else { return }
         isLoading = true
         do {
             let data = try await api.notes(page, size)
             self.data = data
-            withAnimation {
-                if reload {
-                    self.contentSet = OrderedSet(data.content)
-                    self.content = contentSet.elements
-                } else {
-                    self.contentSet.append(contentsOf: data.content)
-                    self.content = contentSet.elements
+            self.hasMoreData = (data.totalPages - 1) != page
+            try await data.content.concurrentForEach { content in
+                do {
+                    guard let note: Note = content.get() else {
+                        return
+                    }
+                    try await self.database.insert(_Note(
+                        uuid: note.uuid ?? .init(),
+                        parentUUID: content.id,
+                        name: note.title,
+                        body: note.text,
+                        isFavorite: content.favorite,
+                        createdAt: content.userCreatedAt,
+                        modifedAt: content.userLastModified)
+                    )
+                } catch {
+                    print(error)
                 }
             }
-            self.hasMoreData = (data.totalPages - 1) != page
+            try await self.database.save()
         } catch {
-            logger.debug("\(error)")
+            print(error)
         }
         isFinished = true
         isLoading = false
@@ -93,29 +105,14 @@ extension NotesRepository {
         }
     }
     
+    // TODO: the main app intents are using these
     public func create(note: Note) async {
-        do {
-            let note = try await api.create(note)
-            withAnimation {
-                content.insert(note, at: 0)
-            }
-        } catch {
-            logger.debug("\(error)")
-        }
+        
     }
     
+    // TODO: the main app intents are using these
     public func update(note: Note) async {
-        do {
-            let note = try await api.update(note.memoryId!.uuidString, .init(text: note.text, title: note.title))
-            guard let idx = self.content.firstIndex(where: { $0.uuid == note.uuid }) else {
-                return
-            }
-            withAnimation {
-                self.content[idx] = note
-            }
-        } catch {
-            logger.debug("\(error)")
-        }
+        
     }
     
     public func search(query: String) async {

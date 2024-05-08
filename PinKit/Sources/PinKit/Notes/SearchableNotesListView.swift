@@ -1,5 +1,6 @@
 import SwiftUI
 import AppIntents
+import SwiftData
 
 struct SearchableNotesListView: View {
     
@@ -15,23 +16,29 @@ struct SearchableNotesListView: View {
     @Binding
     var query: String
     
+    @Query(_Note.all())
+    var notes: [_Note]
+    
     var body: some View {
         List {
-            ForEach(repository.content) { memory in
-                Button {
-                    self.navigationStore.activeNote = memory.get()
-                } label: {
-                    ContentCellView(content: memory)
-                }
-                .foregroundStyle(.primary)
-                .swipeActions(edge: .leading, allowsFullSwipe: true) {
-                    Button(memory.favorite ? "Unfavorite" : "Favorite", systemImage: "heart") {
-                        Task {
-                            await repository.toggleFavorite(content: memory)
-                        }
+            ForEach(notes) { note in
+                Button(intent: OpenNoteIntent(note: .init(from: note))) {
+                    LabeledContent {} label: {
+                        Text(note.name)
+                        Text(note.body)
+                        DateTextView(date: note.createdAt)
                     }
+                    .tint(.primary)
+                }
+                .swipeActions(edge: .leading, allowsFullSwipe: true) {
+                    let favorite = note.isFavorite
+                    Button(
+                        favorite ? "Unfavorite" : "Favorite",
+                        systemImage: "heart",
+                        intent: FavoriteNotesIntent(action: favorite ? .remove : .add, notes: [.init(from: note)])
+                    )
+                    .symbolVariant(favorite ? .slash : .none)
                     .tint(.pink)
-                    .symbolVariant(memory.favorite ? .slash : .none)
                 }
             }
             .onDelete { indexSet in
@@ -39,7 +46,7 @@ struct SearchableNotesListView: View {
                     await repository.remove(offsets: indexSet)
                 }
             }
-            if !isSearching, repository.isFinished, repository.hasContent, repository.hasMoreData {
+            if !isSearching, repository.isFinished, !notes.isEmpty, repository.hasMoreData {
                 HStack {
                     Spacer()
                     ProgressView()
@@ -52,11 +59,11 @@ struct SearchableNotesListView: View {
             }
         }
         .overlay {
-            if isSearching, !repository.isLoading, !repository.hasContent {
+            if notes.isEmpty, isSearching, !repository.isLoading {
                 ContentUnavailableView.search
-            } else if !repository.hasContent, repository.isLoading {
+            } else if notes.isEmpty, repository.isLoading {
                 ProgressView()
-            } else if !repository.hasContent, !isSearching, repository.isFinished {
+            } else if notes.isEmpty, !isSearching, repository.isFinished {
                 ContentUnavailableView("No notes yet", systemImage: "note.text")
             }
         }
