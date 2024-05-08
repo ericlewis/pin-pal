@@ -15,7 +15,7 @@ struct CallCellView: View {
             if let duration = event.duration {
                 Text(duration.formatted())
             }
-            Text(createdAt, format: .dateTime)
+            DateTextView(date: createdAt)
                 .font(.caption)
                 .foregroundStyle(.secondary)
         }

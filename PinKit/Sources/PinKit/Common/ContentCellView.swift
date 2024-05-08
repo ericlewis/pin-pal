@@ -6,7 +6,7 @@ struct ContentCellView: View {
     
     @AccentColor
     private var accentColor: Color
-    
+
     var body: some View {
         switch content.data {
         case let .capture(capture):
@@ -60,7 +60,7 @@ struct ContentCellView: View {
                     }
                 Text(LocalizedStringKey(note.text))
                     .lineLimit(note.text.count > 500 ? 5 : nil)
-                Text(content.userCreatedAt, format: .dateTime)
+                DateTextView(date: content.userCreatedAt)
                     .font(.caption)
                     .foregroundStyle(.tertiary)
             }
@@ -69,7 +69,7 @@ struct ContentCellView: View {
                 Text("Unknown")
                     .foregroundStyle(.red)
                     .font(.headline)
-                Text(content.userCreatedAt, format: .dateTime)
+                DateTextView(date: content.userCreatedAt)
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }

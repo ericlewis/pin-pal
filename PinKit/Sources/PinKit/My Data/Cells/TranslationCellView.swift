@@ -20,7 +20,7 @@ struct TranslationCellView: View {
                 Image(systemName: "arrow.forward")
             }
             .foregroundStyle(accentColor)
-            Text(createdAt, format: .dateTime)
+            DateTextView(date: createdAt)
                 .font(.caption)
                 .foregroundStyle(.secondary)
         }

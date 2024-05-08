@@ -2,6 +2,11 @@ import SwiftUI
 import OSLog
 import AppIntents
 
+enum DateFormat: String {
+    case relative
+    case timestamp
+}
+
 struct SettingsView: View {
     
     @Environment(NavigationStore.self)
@@ -18,6 +23,9 @@ struct SettingsView: View {
     
     @AppStorage(Constants.UI_CUSTOM_APP_ICON_V1)
     private var selectedIcon: Icon = Icon.initial
+    
+    @AppStorage(Constants.UI_DATE_FORMAT)
+    private var dateFormatPreference: DateFormat = .relative
     
     @Environment(\.openURL)
     private var openURL
@@ -101,6 +109,10 @@ struct SettingsView: View {
                 .labeledContentStyle(AsyncValueLabelContentStyle(isLoading: repository.extendedInfo == nil))
                 Section("Appearance") {
                     ColorPicker("Theme", selection: $accentColor, supportsOpacity: false)
+                    Picker("Date Format", selection: $dateFormatPreference) {
+                        Text("Relative").tag(DateFormat.relative)
+                        Text("Timestamp").tag(DateFormat.timestamp)
+                    }
                 }
 #if os(iOS)
                 Picker("App Icon", selection: $selectedIcon) {
@@ -228,6 +240,10 @@ struct AsyncValueLabelContentStyle: LabeledContentStyle {
             configuration.label
         }
     }
+}
+
+struct T {
+    
 }
 
 #Preview {

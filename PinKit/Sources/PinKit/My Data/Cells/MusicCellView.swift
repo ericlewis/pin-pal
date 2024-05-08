@@ -80,7 +80,7 @@ struct MusicCellView: View {
                     if let length = event.length, let lengthCount = Int(length) {
                         Text("^[\(lengthCount) track](inflect: true)")
                     }
-                    Text(createdAt, format: .dateTime)
+                    DateTextView(date: createdAt)
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }

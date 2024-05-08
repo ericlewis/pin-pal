@@ -13,7 +13,7 @@ struct AiMicCellView: View {
                 .font(.headline)
                 .foregroundStyle(accentColor)
             Text(event.response)
-            Text(createdAt, format: .dateTime)
+            DateTextView(date: createdAt)
                 .font(.caption)
                 .foregroundStyle(.tertiary)
         }
