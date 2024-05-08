@@ -1,4 +1,5 @@
 import SwiftUI
+import AppIntents
 
 struct SearchableNotesListView: View {
     
@@ -10,7 +11,7 @@ struct SearchableNotesListView: View {
     
     @Environment(\.isSearching)
     private var isSearching
-    
+
     @Binding
     var query: String
     

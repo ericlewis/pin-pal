@@ -152,7 +152,7 @@ extension CapturesRepository {
     }
     
     func saveVideo(capture: ContentEnvelope) async throws {
-        guard let url = capture.videoDownloadUrl(), let accessToken = UserDefaults.standard.string(forKey: Constants.ACCESS_TOKEN) else { return }
+        guard let url = capture.videoDownloadUrl(), let accessToken = (UserDefaults(suiteName: "group.com.ericlewis.Pin-Pal") ?? .standard).string(forKey: Constants.ACCESS_TOKEN) else { return }
         let tempDirectoryURL = URL(fileURLWithPath: NSTemporaryDirectory(), isDirectory: true)
         let targetURL = tempDirectoryURL.appendingPathComponent(capture.uuid.uuidString).appendingPathExtension("mp4")
         var req = URLRequest(url: url)

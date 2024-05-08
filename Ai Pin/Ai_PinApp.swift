@@ -64,5 +64,6 @@ struct Ai_PinApp: App {
                 .environment(sceneApi)
                 .tint(accentColor)
         }
+        .defaultAppStorage(.init(suiteName: "group.com.ericlewis.Pin-Pal") ?? .standard)
     }
 }

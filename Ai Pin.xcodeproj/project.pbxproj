@@ -16,12 +16,27 @@
 		68C85B8A2BDFE01B0029A408 /* PinKit in Frameworks */ = {isa = PBXBuildFile; productRef = 68C85B892BDFE01B0029A408 /* PinKit */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXCopyFilesBuildPhase section */
+		68774C882BEBF9DC00824064 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
 		6819B7F22BD85431009255A0 /* Ai Pin.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Ai Pin.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		6819B7F52BD85431009255A0 /* Ai_PinApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Ai_PinApp.swift; sourceTree = "<group>"; };
 		6819B7F92BD85432009255A0 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		6819B7FB2BD85432009255A0 /* Ai_Pin.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Ai_Pin.entitlements; sourceTree = "<group>"; };
 		6819B82C2BDB5468009255A0 /* Ai-Pin-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "Ai-Pin-Info.plist"; path = "Ai Pin/Resources/Ai-Pin-Info.plist"; sourceTree = SOURCE_ROOT; };
+		68774C762BEBF9DB00824064 /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = /System/Library/Frameworks/WidgetKit.framework; sourceTree = "<absolute>"; };
+		68774C782BEBF9DB00824064 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = /System/Library/Frameworks/SwiftUI.framework; sourceTree = "<absolute>"; };
 		6897F2A22BE9CE1C00224555 /* Intents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Intents.swift; sourceTree = "<group>"; };
 		6897F2A52BEA7E2700224555 /* NoteIntents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteIntents.swift; sourceTree = "<group>"; };
 		6897F2A72BEA7E4E00224555 /* CaptureIntents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaptureIntents.swift; sourceTree = "<group>"; };
@@ -70,6 +85,8 @@
 		6819B8292BDB5451009255A0 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				68774C762BEBF9DB00824064 /* WidgetKit.framework */,
+				68774C782BEBF9DB00824064 /* SwiftUI.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -105,6 +122,7 @@
 				6819B7EE2BD85431009255A0 /* Sources */,
 				6819B7EF2BD85431009255A0 /* Frameworks */,
 				6819B7F02BD85431009255A0 /* Resources */,
+				68774C882BEBF9DC00824064 /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
@@ -125,7 +143,7 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
-				LastSwiftUpdateCheck = 1530;
+				LastSwiftUpdateCheck = 1540;
 				LastUpgradeCheck = 1540;
 				TargetAttributes = {
 					6819B7F12BD85431009255A0 = {
@@ -314,6 +332,7 @@
 				INFOPLIST_FILE = "Ai Pin/Resources/Ai-Pin-Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "Pin Pal";
 				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "Save Ai Pin captures.";
+				INFOPLIST_KEY_NSSiriUsageDescription = "Creating new notes.";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
@@ -359,6 +378,7 @@
 				INFOPLIST_FILE = "Ai Pin/Resources/Ai-Pin-Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "Pin Pal";
 				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "Save Ai Pin captures.";
+				INFOPLIST_KEY_NSSiriUsageDescription = "Creating new notes.";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;

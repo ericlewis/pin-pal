@@ -9,9 +9,18 @@ struct PinPalShortcuts: AppShortcutsProvider {
     static var appShortcuts: [AppShortcut] {
         AppShortcut(
             intent: CreateNoteIntent(),
-            phrases: ["Create a new note in \(.applicationName)"],
-            shortTitle: "Add Note",
-            systemImageName: "plus"
+            phrases: [
+                "Create a new note in \(.applicationName)",
+                "Create a note in \(.applicationName)",
+                "Make a new note in \(.applicationName)",
+                "Make a note in \(.applicationName)",
+                "Start a new note in \(.applicationName)",
+                "Start a note in \(.applicationName)",
+                "Add a new note in \(.applicationName)",
+                "Add a note in \(.applicationName)",
+            ],
+            shortTitle: "New Note",
+            systemImageName: "square.and.pencil"
         )
     }
     
@@ -26,6 +35,10 @@ public struct ToggleVisionAccessIntent: AppIntent {
     
     @Parameter(title: "Enabled")
     public var enabled: Bool
+    
+    public init(enabled: Bool) {
+        self.enabled = enabled
+    }
     
     public init() {}
     
@@ -50,9 +63,9 @@ public struct ToggleDeviceBlockIntent: AppIntent {
     
     @Parameter(title: "Enabled")
     public var enabled: Bool
-    
+
     public init() {}
-    
+
     public static var openAppWhenRun: Bool = false
     public static var isDiscoverable: Bool = true
     

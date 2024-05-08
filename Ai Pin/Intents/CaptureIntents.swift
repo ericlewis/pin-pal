@@ -32,7 +32,7 @@ public enum CaptureType: String, AppEnum {
     ]
 }
 
-public struct CaptureEntity: Identifiable, DateSortable {
+public struct CaptureEntity: Identifiable {
     public let id: UUID
     
     @Property(title: "Media Type")

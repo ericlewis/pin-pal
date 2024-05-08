@@ -14,7 +14,7 @@ extension HumaneCenterService {
     actor Service {
         private var accessToken: String? {
             didSet {
-                UserDefaults.standard.setValue(accessToken, forKey: Constants.ACCESS_TOKEN)
+                userDefaults.setValue(accessToken, forKey: Constants.ACCESS_TOKEN)
             }
         }
         private var lastSessionUpdate: Date?
@@ -25,7 +25,7 @@ extension HumaneCenterService {
         private let userDefaults: UserDefaults
         
         public init(
-            userDefaults: UserDefaults = .standard
+            userDefaults: UserDefaults = UserDefaults(suiteName: "group.com.ericlewis.Pin-Pal") ?? .standard
         ) {
             self.session = .shared
             self.userDefaults = userDefaults
@@ -348,7 +348,7 @@ extension HumaneCenterService {
     private let sessionTimeout: TimeInterval = 60 * 5 // 5 min
     
     public var accessToken: String? {
-        UserDefaults.standard.string(forKey: Constants.ACCESS_TOKEN)
+        (UserDefaults(suiteName: "group.com.ericlewis.Pin-Pal") ?? .standard).string(forKey: Constants.ACCESS_TOKEN)
     }
     
     private var lastSessionUpdate: Date?
