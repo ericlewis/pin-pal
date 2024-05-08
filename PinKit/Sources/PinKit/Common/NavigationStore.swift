@@ -2,6 +2,7 @@ import SwiftUI
 import AppIntents
 
 @Observable public class NavigationStore: @unchecked Sendable {
+    public static let shared = NavigationStore()
     public var selectedTab: Tab = .notes
     
     public var notesNavigationPath = NavigationPath()

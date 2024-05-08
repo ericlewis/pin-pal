@@ -2,10 +2,43 @@ import SwiftUI
 import AppIntents
 import PinKit
 
+#if os(iOS)
+@Observable class AppDelegate: NSObject, UIApplicationDelegate {
+    
+    var shortcutItemType: String?
+    
+    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
+        if let shortcutItem = launchOptions?[UIApplication.LaunchOptionsKey.shortcutItem] as? UIApplicationShortcutItem {
+            shortcutItemType = shortcutItem.type
+        }
+        return true
+    }
+    
+    func application(_ application: UIApplication, configurationForConnecting connectingSceneSession: UISceneSession, options: UIScene.ConnectionOptions) -> UISceneConfiguration {
+        let sceneConfiguration = UISceneConfiguration(name: "Custom Configuration", sessionRole: connectingSceneSession.role)
+        sceneConfiguration.delegateClass = SceneDelegate.self
+        return sceneConfiguration
+    }
+    
+    class SceneDelegate: UIResponder, UIWindowSceneDelegate {
+        func windowScene(_ windowScene: UIWindowScene, performActionFor shortcutItem: UIApplicationShortcutItem, completionHandler: @escaping (Bool) -> Void) {
+            if NavigationStore.shared.activeNote == nil {
+                NavigationStore.shared.activeNote = .create()
+            }
+        }
+    }
+}
+#endif
+
 @main
 struct Ai_PinApp: App {
     
-    @State 
+    #if os(iOS)
+    @UIApplicationDelegateAdaptor(AppDelegate.self)
+    var appDelegate
+    #endif
+
+    @State
     private var sceneNavigationStore: NavigationStore
     
     @State
@@ -25,9 +58,12 @@ struct Ai_PinApp: App {
     
     @AccentColor
     private var accentColor: Color
+    
+    @Environment(\.scenePhase)
+    private var phase
 
     init() {
-        let navigationStore = NavigationStore()
+        let navigationStore = NavigationStore.shared
         sceneNavigationStore = navigationStore
         
         let api = HumaneCenterService.live()

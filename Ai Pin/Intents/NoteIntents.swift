@@ -360,7 +360,9 @@ public struct OpenNewNoteIntent: AppIntent {
     public var navigationStore: NavigationStore
     
     public func perform() async throws -> some IntentResult {
-        navigationStore.activeNote = .create()
+        if navigationStore.activeNote == nil {
+            navigationStore.activeNote = .create()
+        }
         return .result()
     }
 }
