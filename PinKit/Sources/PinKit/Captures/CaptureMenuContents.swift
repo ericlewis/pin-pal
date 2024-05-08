@@ -5,6 +5,9 @@ struct CaptureMenuContents: View {
     @Environment(CapturesRepository.self)
     private var repository
     
+    @Environment(NavigationStore.self)
+    private var navigation
+    
     @Environment(\.dismiss)
     private var dismiss
     
@@ -19,7 +22,13 @@ struct CaptureMenuContents: View {
             }
             Button("Save to Camera Roll", systemImage: "square.and.arrow.down") {
                 Task {
-                    await repository.save(capture: capture)
+                    do {
+                        navigation.show(toast: .downloadingCapture)
+                        try await repository.save(capture: capture)
+                        navigation.show(toast: .captureSaved)
+                    } catch {
+                        navigation.show(toast: .error)
+                    }
                 }
             }
             Button(capture.favorite ? "Unfavorite" : "Favorite", systemImage: "heart") {

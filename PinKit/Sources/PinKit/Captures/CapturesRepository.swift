@@ -109,15 +109,11 @@ extension CapturesRepository {
         UIPasteboard.general.image = try? await image(for: capture)
     }
     
-    public func save(capture: ContentEnvelope) async {
-        do {
-            if capture.get()?.video == nil {
-                try await UIImageWriteToSavedPhotosAlbum(image(for: capture), nil, nil, nil)
-            } else {
-                try await saveVideo(capture: capture)
-            }
-        } catch {
-            logger.debug("\(error)")
+    public func save(capture: ContentEnvelope) async throws {
+        if capture.get()?.video == nil {
+            try await UIImageWriteToSavedPhotosAlbum(image(for: capture), nil, nil, nil)
+        } else {
+            try await saveVideo(capture: capture)
         }
     }
     
@@ -159,15 +155,11 @@ extension CapturesRepository {
         guard let url = capture.videoDownloadUrl(), let accessToken = UserDefaults.standard.string(forKey: Constants.ACCESS_TOKEN) else { return }
         let tempDirectoryURL = URL(fileURLWithPath: NSTemporaryDirectory(), isDirectory: true)
         let targetURL = tempDirectoryURL.appendingPathComponent(capture.uuid.uuidString).appendingPathExtension("mp4")
-        if try FileManager.default.fileExists(atPath: targetURL.path()) {
-            UISaveVideoAtPathToSavedPhotosAlbum(targetURL.path(), nil, nil, nil)
-        } else {
-            var req = URLRequest(url: url)
-            req.setValue("Bearer \(accessToken)", forHTTPHeaderField: "Authorization")
-            let (data, _) = try await URLSession.shared.data(for: req)
-            try FileManager.default.createFile(atPath: targetURL.path(), contents: data)
-            UISaveVideoAtPathToSavedPhotosAlbum(targetURL.path(), nil, nil, nil)
-        }
+        var req = URLRequest(url: url)
+        req.setValue("Bearer \(accessToken)", forHTTPHeaderField: "Authorization")
+        let (data, _) = try await URLSession.shared.data(for: req)
+        try FileManager.default.createFile(atPath: targetURL.path(), contents: data)
+        UISaveVideoAtPathToSavedPhotosAlbum(targetURL.path(), nil, nil, nil)
     }
     
     func image(for capture: ContentEnvelope) async throws -> UIImage {

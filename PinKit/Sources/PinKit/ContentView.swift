@@ -15,9 +15,7 @@ public struct ContentView: View {
     }
     
     public var body: some View {
-        @Bindable
-        var navigationStore = navigationStore
-        
+        @Bindable var navigationStore = navigationStore
         TabView(selection: $navigationStore.selectedTab) {
             DashboardView()
                 .tabItem {
@@ -46,6 +44,7 @@ public struct ContentView: View {
                 .tag(Tab.settings)
         }
         .modifier(AuthHandlerViewModifier())
+        .modifier(ToastViewModifier())
         .environment(navigationStore)
     }
 }

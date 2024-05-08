@@ -3,6 +3,20 @@ import Foundation
 import PinKit
 import SwiftUI
 
+struct PinPalShortcuts: AppShortcutsProvider {
+    
+    @AppShortcutsBuilder
+    static var appShortcuts: [AppShortcut] {
+        AppShortcut(
+            intent: CreateNoteIntent(),
+            phrases: ["Create a new note in \(.applicationName)"],
+            shortTitle: "Add Note",
+            systemImageName: "plus"
+        )
+    }
+    
+}
+
 public struct ToggleVisionAccessIntent: AppIntent {
     public static var title: LocalizedStringResource = "Toggle Vision Beta"
     public static var description: IntentDescription? = .init("Turns on or off the Vision Beta access on your Ai Pin.", categoryName: "Device")

@@ -14,7 +14,21 @@ import AppIntents
     public var textColorPresented = false
     public var iconChangerPresented = false
     
+    public var showToast: Toast = .none
+    
     public init() {}
+    
+    func show(toast: Toast) {
+        withAnimation {
+            self.showToast = toast
+        }
+    }
+    
+    func dismissToast() {
+        withAnimation {
+            self.showToast = .none
+        }
+    }
 }
 
 public enum Tab: String, AppEnum {

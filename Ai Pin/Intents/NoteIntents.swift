@@ -81,10 +81,10 @@ public struct CreateNoteIntent: AppIntent {
         Summary("Create note with \(\.$text) named \(\.$title)")
     }
     
-    @Parameter(title: "Name")
+    @Parameter(title: "Name", requestValueDialog: .init("What would you like to name your note?"))
     public var title: String
     
-    @Parameter(title: "Body")
+    @Parameter(title: "Body", requestValueDialog: .init("What would you like your note to say?"))
     public var text: String
     
     public init(title: String, text: String) {
@@ -103,14 +103,7 @@ public struct CreateNoteIntent: AppIntent {
     @Dependency
     public var notesRepository: NotesRepository
     
-    public func perform() async throws -> some IntentResult & ReturnsValue<NoteEntity> {
-        guard !title.isEmpty else {
-            throw $title.needsValueError("What is the name of the note you would like to add?")
-        }
-        guard !text.isEmpty else {
-            throw $text.needsValueError("What is the content of the note you would like to add?")
-        }
-        
+    public func perform() async throws -> some IntentResult & ReturnsValue<NoteEntity> & ProvidesDialog {
         await notesRepository.create(note: .init(text: text, title: title))
         navigationStore.activeNote = nil
         
@@ -118,7 +111,7 @@ public struct CreateNoteIntent: AppIntent {
             fatalError()
         }
         
-        return .result(value: .init(from: note))
+        return .result(value: .init(from: note), dialog: .init("Added your note."))
     }
 }
 
