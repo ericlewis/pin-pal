@@ -70,17 +70,25 @@ public struct _ToggleVisionAccessIntent: AppIntent {
     public var service: HumaneCenterService
     
     @Dependency
-    public var settings: SettingsRepository
-    
+    public var database: any Database
+
     public init() {}
 
     public func perform() async throws -> some IntentResult & ReturnsValue<Bool> {
-        let newValue = !settings.isVisionBetaEnabled
+        guard let device = try await database.fetch(Device.all()).first else {
+            throw Error.noDevice
+        }
+        let newValue = !device.isVisionEnabled
         Task.detached {
             let _ = try await service.toggleFeatureFlag(.visionAccess, newValue)
         }
-        settings.isVisionBetaEnabled = newValue
+        device.isVisionEnabled = newValue
+        try await database.save()
         return .result(value: newValue)
+    }
+    
+    enum Error: Swift.Error {
+        case noDevice
     }
 }
 
@@ -105,17 +113,22 @@ public struct ToggleDeviceBlockIntent: AppIntent {
     
     @Dependency
     public var service: HumaneCenterService
-    
+
     @Dependency
-    public var settings: SettingsRepository
+    public var database: any Database
 
     public func perform() async throws -> some IntentResult & ReturnsValue<Bool> {
-        guard let deviceId = try await service.deviceIdentifiers().first else {
-            fatalError()
+        guard let device = try await database.fetch(Device.all()).first else {
+            throw Error.noDevice
         }
-        let result = try await service.toggleLostDeviceStatus(deviceId, enabled)
-        settings.isDeviceLost = result.isLost
+        let result = try await service.toggleLostDeviceStatus(device.id, enabled)
+        device.isLost = result.isLost
+        try await database.save()
         return .result(value: result.isLost)
+    }
+    
+    enum Error: Swift.Error {
+        case noDevice
     }
 }
 
@@ -281,5 +294,83 @@ extension EntityQuerySort.Ordering {
         case .descending:
             return SortOrder.reverse
         }
+    }
+}
+
+// MARK: Device
+
+public struct FetchDeviceInfoIntent: AppIntent {
+    public static var title: LocalizedStringResource = "Fetch Device Info"
+
+    public init() {}
+    
+    public static var openAppWhenRun: Bool = false
+    public static var isDiscoverable: Bool = false
+    
+    @Dependency
+    public var service: HumaneCenterService
+    
+    @Dependency
+    public var database: any Database
+
+    public func perform() async throws -> some IntentResult {
+        
+        let sub = try await service.subscription()
+        let extendedInfo = try await service.detailedDeviceInformation()
+        let flag = try await service.featureFlag(.visionAccess)
+        let status = try await service.lostDeviceStatus(extendedInfo.id)
+        
+        let device = Device(
+            id: extendedInfo.id,
+            serialNumber: extendedInfo.serialNumber,
+            eSIM: extendedInfo.iccid,
+            status: sub.status,
+            phoneNumber: sub.phoneNumber,
+            color: extendedInfo.color,
+            isLost: status.isLost,
+            isVisionEnabled: flag.isEnabled
+        )
+        
+        await database.insert(device)
+        try await database.save()
+
+        return .result()
+    }
+}
+
+public struct _ToggleDeviceBlockIntent: AppIntent {
+    public static var title: LocalizedStringResource = "Toggle Device Lost or Stolen"
+
+    public init() {}
+
+    public static var openAppWhenRun: Bool = false
+    public static var isDiscoverable: Bool = false
+    
+    @Dependency
+    public var service: HumaneCenterService
+    
+    @Dependency
+    public var navigation: NavigationStore
+    
+    @Dependency
+    public var database: any Database
+
+    public func perform() async throws -> some IntentResult & ReturnsValue<Bool> {
+        guard let device = try await database.fetch(Device.all()).first else {
+            throw Error.noDevice
+        }
+        
+        if device.isLost {
+            let result = try await ToggleDeviceBlockIntent(isBlocked: false).perform()
+            return .result(value: result.value ?? false)
+        } else {
+            navigation.blockPinConfirmationPresented = true
+        }
+        
+        return .result(value: device.isLost)
+    }
+    
+    enum Error: Swift.Error {
+        case noDevice
     }
 }

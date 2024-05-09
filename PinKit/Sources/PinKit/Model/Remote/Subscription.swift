@@ -1,7 +1,7 @@
 import Foundation
 
 public struct Subscription: Codable {
-    let status: String
+    public let status: String
     public let phoneNumber: String
     let accountNumber: String
     let planType: String

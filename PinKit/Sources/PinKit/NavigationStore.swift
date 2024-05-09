@@ -12,6 +12,7 @@ import AppIntents
     public var textColorPresented = false
     public var iconChangerPresented = false
     public var showToast: Toast = .none
+    public var blockPinConfirmationPresented = false
     
     public var savingNote = false
     

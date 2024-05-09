@@ -18,6 +18,6 @@ extension SchemaV1 {
             self.thumbnailAccessToken = thumbnailAccessToken
         }
     }
-    
+
 }
 

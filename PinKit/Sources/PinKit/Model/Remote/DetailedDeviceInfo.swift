@@ -1,11 +1,11 @@
 import Foundation
 
 public struct DetailedDeviceInfo: Codable {
-    let id: String
-    let iccid: String
-    let serialNumber: String
-    let sku: String
-    let color: String
+    public let id: String
+    public let iccid: String
+    public let serialNumber: String
+    public let sku: String
+    public let color: String
     
     public init(id: String, iccid: String, serialNumber: String, sku: String, color: String) {
         self.id = id

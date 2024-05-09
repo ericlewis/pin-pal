@@ -9,6 +9,12 @@ public struct ContentView: View {
     @AccentColor
     private var tint
     
+    @Environment(\.database)
+    private var database
+    
+    @Environment(HumaneCenterService.self)
+    private var service
+    
     public init() {
         SDWebImageManager.shared.cacheKeyFilter = SDWebImageCacheKeyFilter { url in
             var components = URLComponents(url: url, resolvingAgainstBaseURL: false)
@@ -49,6 +55,14 @@ public struct ContentView: View {
         .tint(tint)
         .modifier(AuthHandlerViewModifier())
         .modifier(ToastViewModifier())
+        .task {
+            do {
+                let intent = FetchDeviceInfoIntent()
+                intent.database = database
+                intent.service = service
+                try await intent.perform()
+            } catch {}
+        }
     }
 }
 

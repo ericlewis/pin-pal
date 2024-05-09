@@ -1,6 +1,8 @@
 import SwiftData
 import Foundation
 
+public typealias Device = SchemaV1.Device
+
 extension SchemaV1 {
     
     @Model
@@ -38,4 +40,10 @@ extension SchemaV1 {
         }
     }
     
+}
+
+extension Device {
+    public static func all(order: SortOrder = .reverse) -> FetchDescriptor<Device> {
+        FetchDescriptor<Device>(sortBy: [.init(\.id, order: order)])
+    }
 }
