@@ -103,7 +103,7 @@ struct SettingsView: View {
                             Image(systemName: "arrow.up.right.square")
                         }
                     }
-                    Link(destination: .init(string: "https://humane.center/account/contacts")!) {
+                    Link(destination: .init(string: "https://humane.center/contacts")!) {
                         LabeledContent("Contacts") {
                             Image(systemName: "arrow.up.right.square")
                         }
