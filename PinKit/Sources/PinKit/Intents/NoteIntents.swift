@@ -542,7 +542,7 @@ struct LoadNotesIntent: AppIntent {
     @Parameter(title: "Page Size")
     public var pageSize: Int
     
-    public init(page: Int, pageSize: Int = 15) {
+    public init(page: Int = 0, pageSize: Int = 15) {
         self.page = page
         self.pageSize = pageSize
     }

@@ -59,7 +59,7 @@ struct SearchableNotesListView: View {
             if notes.isEmpty, isSearching, !isLoading {
                 ContentUnavailableView.search
             } else if notes.isEmpty, isLoading {
-                ProgressView()
+                ProgressView("This may take a little while.")
             } else if notes.isEmpty, !isSearching, !isFirstLoad {
                 ContentUnavailableView("No notes yet", systemImage: "note.text")
             }

@@ -2,6 +2,7 @@ import SwiftUI
 import AppIntents
 import PinKit
 import SwiftData
+import BackgroundTasks
 
 @main
 struct Ai_PinApp: App {
@@ -53,7 +54,7 @@ struct Ai_PinApp: App {
         let settingsRepository = SettingsRepository(service: service)
         sceneSettingsRepository = settingsRepository
         
-        let modelContainerConfig = ModelConfiguration("asdf", isStoredInMemoryOnly: false)
+        let modelContainerConfig = ModelConfiguration("fdas", isStoredInMemoryOnly: false)
         let modelContainer = try! ModelContainer(
             for: _Note.self,
             configurations: modelContainerConfig
@@ -84,6 +85,39 @@ struct Ai_PinApp: App {
         .defaultAppStorage(.init(suiteName: "group.com.ericlewis.Pin-Pal") ?? .standard)
         .environment(\.database, sceneDatabase)
         .modelContainer(sceneModelContainer)
+        .backgroundTask(.appRefresh("com.ericlewis.Pin-Pal.Notes.refresh")) {
+            await handleNotesRefresh()
+        }
+        .onChange(of: phase) { oldPhase, newPhase in
+            switch (oldPhase, newPhase) {
+            case (.inactive, .background):
+                requestNotesRefreshBackgroundTask()
+            default: break
+            }
+        }
+    }
+    
+    func requestNotesRefreshBackgroundTask() {
+        let request = BGAppRefreshTaskRequest(identifier: "com.ericlewis.Pin-Pal.Notes.refresh")
+        request.earliestBeginDate = Date(timeIntervalSinceNow: 5 * 60) // 5 min
+        do {
+            try BGTaskScheduler.shared.submit(request)
+            print("submitted bg task")
+        } catch {
+            print("Could not schedule app refresh: \(error)")
+        }
+    }
+    
+    func handleNotesRefresh() async {
+        do {
+            let intent = LoadNotesIntent(page: 0)
+            intent.database = sceneDatabase
+            intent.service = sceneService
+            let _ = try await intent.perform()
+            requestNotesRefreshBackgroundTask()
+        } catch {
+            
+        }
     }
 }
 

@@ -26,7 +26,7 @@ struct NotesView: View {
     
     @State
     private var filter = _Note.all()
-    
+
     var body: some View {
         @Bindable var navigationStore = navigationStore
         NavigationStack(path: $navigationStore.notesNavigationPath) {
@@ -88,7 +88,10 @@ struct NotesView: View {
                     ids.contains($0.parentUUID)
                 }
                 filter = FetchDescriptor(predicate: predicate)
+            } catch is CancellationError {
+                
             } catch {
+                filter = _Note.all()
                 print(error)
             }
         }
