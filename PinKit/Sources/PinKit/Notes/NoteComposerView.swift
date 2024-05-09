@@ -6,19 +6,12 @@ public struct NoteComposerView: View {
         case title
         case text
     }
-    
-    struct ViewState {
-        var isLoading = false
-    }
-    
-    @State
-    private var state = ViewState()
-    
+
     @Environment(\.dismiss)
     private var dismiss
     
     @Environment(NavigationStore.self)
-    private var navigationStore
+    private var navigation
 
     @FocusState
     private var focus: Field?
@@ -72,7 +65,7 @@ public struct NoteComposerView: View {
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
                     Group {
-                        if state.isLoading {
+                        if navigation.savingNote {
                             ProgressView()
                         } else if let id = note.memoryId {
                             Button("Save", intent: UpdateNoteIntent(identifier: id.uuidString, title: note.title, text: note.text))
@@ -90,8 +83,8 @@ public struct NoteComposerView: View {
             }
             .navigationTitle(isEditing ? "Update Note" : "New Note")
         }
-        .disabled(state.isLoading)
-        .interactiveDismissDisabled(state.isLoading)
+        .disabled(navigation.savingNote)
+        .interactiveDismissDisabled(navigation.savingNote)
     }
 }
 

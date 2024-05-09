@@ -38,7 +38,7 @@ struct SearchableNotesListView: View {
                             .foregroundStyle(accentColor)
                         Text(note.body)
                             .foregroundStyle(.primary)
-                        DateTextView(date: note.createdAt)
+                        DateTextView(date: note.modifiedAt)
                             .font(.caption)
                             .foregroundStyle(.tertiary)
                     }

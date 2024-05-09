@@ -158,6 +158,7 @@ public struct CreateNoteIntent: AppIntent {
     public var service: HumaneCenterService
     
     public func perform() async throws -> some IntentResult {
+        navigationStore.savingNote = true
         let content = try await service.create(.init(text: text, title: title))
         let note: Note = content.get()!
         await database.insert(
@@ -173,6 +174,7 @@ public struct CreateNoteIntent: AppIntent {
         )
         try await database.save()
         navigationStore.activeNote = nil
+        navigationStore.savingNote = false
         return .result()
     }
 }
@@ -533,7 +535,7 @@ public struct UpdateNoteIntent: AppIntent {
         guard let memoryId = UUID(uuidString: self.identifier) else {
             throw $identifier.needsValueError("What is identifier of the note to update?")
         }
-        
+        navigationStore.savingNote = true
         let content = try await service.update(identifier, .init(text: text, title: title))
         let note: Note = content.get()!
         await database.insert(
@@ -549,6 +551,7 @@ public struct UpdateNoteIntent: AppIntent {
         )
         try await database.save()
         navigationStore.activeNote = nil
+        navigationStore.savingNote = false
         return .result(value: memoryId.uuidString)
     }
 }
