@@ -26,11 +26,13 @@ struct CallEventListView: View {
                 true
             }
         } else {
+            // TODO: this seems broken
             return #Predicate { event in
-                true
-//                event.peers.contains { peer in
-//                    peer.displayName.contains(query)
-//                }
+                if let peers = event.peers {
+                    return peers.contains(where: { $0.displayName == query })
+                } else {
+                    return false
+                }
             }
         }
     }

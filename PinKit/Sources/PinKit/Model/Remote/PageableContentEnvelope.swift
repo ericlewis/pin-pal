@@ -169,7 +169,7 @@ public struct Video: Codable, Hashable {
     public let accessToken: String
 }
 
-enum CaptureState: String, Codable, Hashable {
+public enum CaptureState: String, Codable, Hashable {
     case pending = "PENDING_UPLOAD"
     case processed = "PROCESSED"
     case processing = "PROCESSING"
@@ -188,7 +188,7 @@ enum CaptureState: String, Codable, Hashable {
 
 public struct CaptureEnvelope: Codable, Hashable {
     let uuid: UUID
-    let type: CaptureType
+    public let type: CaptureType
     public let thumbnail: FileAsset
     public let closeupAsset: FileAsset?
     public var memoryId: UUID?
@@ -200,7 +200,7 @@ public struct CaptureEnvelope: Codable, Hashable {
     let location: String?
     let latitude: Double?
     let longitude: Double?
-    let state: CaptureState
+    public let state: CaptureState
 }
 
 public struct ContentEnvelope: Codable, Identifiable, Hashable {

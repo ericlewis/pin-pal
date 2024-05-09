@@ -82,10 +82,14 @@ struct PinPalApp: App {
         .backgroundTask(.appRefresh("com.ericlewis.Pin-Pal.Notes.refresh")) {
             await handleNotesRefresh()
         }
+        .backgroundTask(.appRefresh("com.ericlewis.Pin-Pal.Captures.refresh")) {
+            await handleCapturesRefresh()
+        }
         .onChange(of: phase) { oldPhase, newPhase in
             switch (oldPhase, newPhase) {
             case (.inactive, .background):
                 requestNotesRefreshBackgroundTask()
+                requestCapturesRefreshBackgroundTask()
             default: break
             }
         }
@@ -102,13 +106,38 @@ struct PinPalApp: App {
         }
     }
     
+    func requestCapturesRefreshBackgroundTask() {
+        let request = BGAppRefreshTaskRequest(identifier: "com.ericlewis.Pin-Pal.Captures.refresh")
+        request.earliestBeginDate = Date(timeIntervalSinceNow: 5 * 60) // 5 min
+        do {
+            try BGTaskScheduler.shared.submit(request)
+            print("submitted bg task")
+        } catch {
+            print("Could not schedule app refresh: \(error)")
+        }
+    }
+    
     func handleNotesRefresh() async {
         do {
             let intent = SyncNotesIntent()
             intent.database = sceneDatabase
             intent.service = sceneService
+            intent.app = sceneAppState
             let _ = try await intent.perform()
             requestNotesRefreshBackgroundTask()
+        } catch {
+            
+        }
+    }
+    
+    func handleCapturesRefresh() async {
+        do {
+            let intent = SyncCapturesIntent()
+            intent.database = sceneDatabase
+            intent.service = sceneService
+            intent.app = sceneAppState
+            let _ = try await intent.perform()
+            requestCapturesRefreshBackgroundTask()
         } catch {
             
         }

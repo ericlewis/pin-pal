@@ -3,24 +3,6 @@ import Foundation
 import PinKit
 import SwiftUI
 
-extension Video {
-    func videoDownloadUrl(memoryUUID: UUID) -> URL? {
-        return URL(string: "https://webapi.prod.humane.cloud/capture/memory/\(memoryUUID)/file/\(fileUUID)/download")?.appending(queryItems: [
-            URLQueryItem(name: "token", value: accessToken),
-            URLQueryItem(name: "rawData", value: "false")
-        ])
-    }
-}
-
-extension FileAsset {
-    func makeImageURL(memoryUUID: UUID) -> URL? {
-        URL(string: "https://webapi.prod.humane.cloud/capture/memory/\(memoryUUID)/file/\(fileUUID)/download")?.appending(queryItems: [
-            .init(name: "token", value: accessToken),
-            .init(name: "rawData", value: "false")
-        ])
-    }
-}
-
 public enum CaptureType: String, AppEnum, Codable {
     case photo = "PHOTO"
     case video = "VIDEO"
@@ -100,7 +82,7 @@ public struct CaptureEntityQuery: EntityQuery, EntityStringQuery, EnumerableEnti
     }
     
     public func entities(matching string: String) async throws -> Self.Result {
-        try await entities(for: service.search(string, .notes).memories?.map(\.uuid) ?? [])
+        try await entities(for: service.search(string, .captures).memories?.map(\.uuid) ?? [])
     }
 
     public func suggestedEntities() async throws -> [CaptureEntity] {
@@ -375,5 +357,87 @@ public struct SearchCapturesIntent: AppIntent {
             try? await service.memory(id)
         }
         return await .result(value: memories.concurrentMap(CaptureEntity.init(from:)))
+    }
+}
+
+struct SyncCapturesIntent: AppIntent {
+    public static var title: LocalizedStringResource = "Sync Captures"
+
+    public init() {}
+    
+    public static var openAppWhenRun: Bool = false
+    public static var isDiscoverable: Bool = false
+    
+    @Dependency
+    public var service: HumaneCenterService
+    
+    @Dependency
+    public var database: any Database
+    
+    @Dependency
+    public var app: AppState
+    
+    public func perform() async throws -> some IntentResult {
+        let chunkSize = 30
+        let total = try await service.captures(0, 1).totalElements
+        let totalPages = (total + chunkSize - 1) / chunkSize
+
+        await MainActor.run {
+            withAnimation {
+                app.totalCapturesToSync = total
+            }
+        }
+        
+        let ids = try await (0..<totalPages).concurrentMap { page in
+            let data = try await service.captures(page, chunkSize)
+            let result = try await data.content.concurrentMap(process)
+                        
+            await MainActor.run {
+                withAnimation {
+                    app.numberOfCapturesSynced += result.count
+                }
+            }
+                        
+            return result
+        }
+        .flatMap({ $0 })
+                        
+        try await self.database.save()
+
+        let predicate = #Predicate<Capture> {
+            !ids.contains($0.uuid)
+        }
+        try await self.database.delete(where: predicate)
+        try await self.database.save()
+        
+        await MainActor.run {
+            app.totalCapturesToSync = 0
+            app.numberOfCapturesSynced = 0
+        }
+    
+        return .result()
+    }
+    
+    private func process(_ content: ContentEnvelope) async throws -> UUID {
+        guard let capture: CaptureEnvelope = content.get() else {
+            throw Error.invalidContentType
+        }
+        let newCapture = Capture(
+            uuid: content.id,
+            state: capture.state,
+            type: capture.type,
+            isPhoto: capture.type == .photo,
+            thumbnailUUID: capture.thumbnail.fileUUID,
+            thumbnailAccessToken: capture.thumbnail.accessToken,
+            isFavorite: content.favorite,
+            createdAt: content.userCreatedAt,
+            modifiedAt: content.userLastModified
+        )
+        await self.database.insert(newCapture)
+        return newCapture.uuid
+    }
+    
+    enum Error: Swift.Error {
+        case invalidContentType
     }
 }

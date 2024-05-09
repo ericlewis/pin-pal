@@ -4,10 +4,10 @@ import MapKit
 
 struct CaptureImageView: View {
     
-    let capture: ContentEnvelope
+    let capture: Capture
     
     var body: some View {
-        WebImage(url: makeThumbnailURL(content: capture, capture: capture.get()!)) { image in
+        WebImage(url: makeThumbnailURL(capture: capture)) { image in
             image
                 .resizable()
                 .scaledToFill()
@@ -20,8 +20,8 @@ struct CaptureImageView: View {
         }
     }
     
-    func makeThumbnailURL(content: ContentEnvelope, capture: CaptureEnvelope) -> URL? {
-        makeThumbnailURL(uuid: content.uuid, fileUUID: capture.thumbnail.fileUUID, accessToken: capture.thumbnail.accessToken)
+    func makeThumbnailURL(capture: Capture) -> URL? {
+        makeThumbnailURL(uuid: capture.uuid, fileUUID: capture.thumbnailUUID, accessToken: capture.thumbnailAccessToken)
     }
     
     func makeThumbnailURL(uuid: UUID, fileUUID: UUID, accessToken: String) -> URL? {
@@ -64,7 +64,7 @@ struct CaptureDetailView: View {
                             .scaledToFill()
                             .clipShape(RoundedRectangle(cornerRadius: 8))
                     } else {
-                        CaptureImageView(capture: capture)
+//                        CaptureImageView(capture: capture)
                     }
                     HStack {
                         if capture.get()?.video == nil, originalPhotos.isEmpty, capture.get()?.state == .processed {
@@ -126,7 +126,7 @@ struct CaptureDetailView: View {
         }
         .toolbar {
             Menu("Options", systemImage: "ellipsis.circle") {
-                CaptureMenuContents(capture: capture)
+//                CaptureMenuContents(capture: capture)
             }
         }
         .navigationTitle("Capture")

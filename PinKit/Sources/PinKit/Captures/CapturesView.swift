@@ -1,55 +1,250 @@
 import SwiftUI
 
+struct CaptureImageContentModeKey: EnvironmentKey {
+    static var defaultValue: ContentMode = .fill
+}
+
+extension EnvironmentValues {
+    var imageContentMode: ContentMode {
+        get { self[CaptureImageContentModeKey.self] }
+        set { self[CaptureImageContentModeKey.self] = newValue }
+    }
+}
+
 struct CapturesView: View {
+    
+    enum Filter {
+        case all
+        case photo
+        case video
+        case favorites
+    }
     
     @Environment(CapturesRepository.self)
     private var repository
+    
+    @Environment(\.database)
+    private var database
+    
+    @Environment(HumaneCenterService.self)
+    private var service
+    
+    @Environment(AppState.self)
+    private var app
 
     @State
     private var query = ""
     
+    @State
+    private var isLoading = false
+    
+    @State
+    private var isFirstLoad = true
+    
+    @State
+    private var filter = Filter.all
+    
+    @State
+    private var order = SortOrder.reverse
+    
+    @State
+    private var sort = SortDescriptor<Capture>(\.createdAt, order: .reverse)
+    
+    @State
+    private var imageContentMode = ContentMode.fill
+    
+    var predicate: Predicate<Capture> {
+        switch filter {
+        case .all:
+            return #Predicate<Capture> { _ in
+                true
+            }
+        case .photo:
+            return #Predicate<Capture> {
+                $0.isPhoto
+            }
+        case .video:
+            return #Predicate<Capture> {
+                !$0.isPhoto
+            }
+        case .favorites:
+            return #Predicate<Capture> {
+                $0.isFavorite
+            }
+        }
+    }
+    
     var body: some View {
         NavigationStack {
-            SearchableCapturesGridView(query: $query)
-                .refreshable(action: repository.reload)
-                .searchable(text: $query)
-                .listSectionSpacing(15)
-                .navigationTitle("Captures")
-                .toolbar {
-                    ToolbarItemGroup(placement: .primaryAction) {
-                        Button("Select") {
-                            
-                        }
-                        .disabled(true)
+            var descriptor = Capture.all()
+            let _ = descriptor.predicate = predicate
+            let _ = descriptor.sortBy = [sort]
+            QueryGridView(descriptor: descriptor) { capture in
+                NavigationLink {
+                    // CaptureDetailView(capture: capture)
+                } label: {
+                    CaptureCellView(capture: capture)
+                        .environment(\.imageContentMode, imageContentMode)
+                }
+                .contextMenu {
+                    CaptureMenuContents(capture: capture)
+                } preview: {
+                    CaptureImageView(capture: capture)
+                }
+                .buttonStyle(.plain)
+            } placeholder: {
+                ContentUnavailableView("No captures yet", systemImage: "camera.aperture")
+            }
+            .onChange(of: order) {
+                sort.order = order
+            }
+            .environment(\.isLoading, isLoading)
+            .environment(\.isFirstLoad, isFirstLoad)
+            .overlay(alignment: .bottom) {
+                CapturesSyncStatusView()
+            }
+            .refreshable(action: load)
+            .searchable(text: $query)
+            .navigationTitle("Captures")
+            .toolbar {
+                ToolbarItemGroup(placement: .primaryAction) {
+                    Button("Select") {
+                        
                     }
-                    ToolbarItemGroup(placement: .secondaryAction) {
+                    .disabled(true)
+                }
+                ToolbarItemGroup(placement: .secondaryAction) {
+                    if imageContentMode == .fill {
                         Button("Aspect Ratio Grid", systemImage: "rectangle.arrowtriangle.2.inward") {
-                            
+                            withAnimation(.snappy) {
+                                imageContentMode = .fit
+                            }
                         }
-                        .disabled(true)
-                        Menu("Filter", systemImage: "line.3.horizontal.decrease.circle") {
-                            Toggle("All Items", systemImage: "photo.on.rectangle", isOn: .constant(true))
-                            Section {
-                                Button("Favorites", systemImage: "heart") {
-                                    
-                                }
-                                Button("Photos", systemImage: "photo") {
-                                    
-                                }
-                                Button("Videos", systemImage: "video") {
-                                    
+                    } else {
+                        Button("Square Photo Grid", systemImage: "rectangle.arrowtriangle.2.outward") {
+                            withAnimation(.snappy) {
+                                imageContentMode = .fill
+                            }
+                        }
+                    }
+                    Menu("Filter", systemImage: "line.3.horizontal.decrease.circle") {
+                        Toggle("All Items", systemImage: "photo.on.rectangle", isOn: Binding(
+                            get: { filter == .all },
+                            set: {
+                                if $0 {
+                                    withAnimation(.snappy) {
+                                        self.filter = .all
+                                    }
                                 }
                             }
-                            .disabled(true)
+                        ))
+                        Section {
+                            Toggle("Favorites", systemImage: "heart", isOn: Binding(
+                                get: { filter == .favorites },
+                                set: {
+                                    if $0 {
+                                        withAnimation(.snappy) {
+                                            self.filter = .favorites
+                                        }
+                                    }
+                                }
+                            ))
+                            Toggle("Photos", systemImage: "photo", isOn: Binding(
+                                get: { filter == .photo },
+                                set: {
+                                    if $0 {
+                                        withAnimation(.snappy) {
+                                            self.filter = .photo
+                                        }
+                                    }
+                                }
+                            ))
+                            Toggle("Videos", systemImage: "video", isOn: Binding(
+                                get: { filter == .video },
+                                set: {
+                                    if $0 {
+                                        withAnimation(.snappy) {
+                                            self.filter = .video
+                                        }
+                                    }
+                                }
+                            ))
+                        }
+                    }
+                    .symbolVariant(filter == .all ? .none : .fill)
+                    Menu("Sort", systemImage: "arrow.up.arrow.down") {
+                        Toggle("Created At", isOn: Binding(
+                            get: { sort.keyPath == \Capture.createdAt  },
+                            set: {
+                                if $0 {
+                                    withAnimation(.snappy) {
+                                        sort = SortDescriptor<Capture>(\.createdAt, order: order)
+                                    }
+                                }
+                            }
+                        ))
+                        Toggle("Modified At", isOn: Binding(
+                            get: { sort.keyPath == \Capture.modifiedAt  },
+                            set: {
+                                if $0 {
+                                    withAnimation(.snappy) {
+                                        sort = SortDescriptor<Capture>(\.modifiedAt, order: order)
+                                    }
+                                }
+                            }
+                        ))
+                        Section("Order") {
+                            Picker("Order", selection: $order) {
+                                Label("Ascending", systemImage: "arrow.up").tag(SortOrder.forward)
+                                Label("Descending", systemImage: "arrow.down").tag(SortOrder.reverse)
+                            }
+                            .onChange(of: order) {
+                                withAnimation(.snappy) {
+                                    sort.order = order
+                                }
+                            }
                         }
                     }
                 }
+            }
         }
-        .task(repository.initial)
+        .task(initial)
+    }
+    
+    func initial() async {
+        guard !isLoading, isFirstLoad else { return }
+        Task.detached {
+            await load()
+        }
+    }
+    
+    func load() async {
+        isLoading = true
+        do {
+            let intent = SyncCapturesIntent()
+            intent.database = database
+            intent.service = service
+            intent.app = app
+            try await intent.perform()
+        } catch {
+            print(error)
+        }
+        isLoading = false
+        isFirstLoad = false
     }
 }
 
-#Preview {
-    CapturesView()
-        .environment(HumaneCenterService.live())
+struct CapturesSyncStatusView: View {
+    
+    @Environment(AppState.self)
+    private var app
+    
+    var body: some View {
+        if app.totalCapturesToSync > 0, app.numberOfCapturesSynced > 0 {
+            let current = Double(app.numberOfCapturesSynced)
+            let total = Double(app.totalCapturesToSync)
+            ProgressView(value:  current / total)
+                .padding(.horizontal, -5)
+        }
+    }
 }
