@@ -38,6 +38,7 @@ struct AiMicCellView: View {
                             Image(systemName: "hammer")
                         }
                         .imageScale(.small)
+                        .foregroundStyle(.secondary)
                         .foregroundStyle(.orange)
                     case .positive:
                         HStack(spacing: 5) {
@@ -45,7 +46,8 @@ struct AiMicCellView: View {
                             Image(systemName: "hand.thumbsup")
                         }
                         .imageScale(.small)
-                        .foregroundStyle(.green)                        
+                        .foregroundStyle(.secondary)
+                        .foregroundStyle(.green)
                     }
                 }
                 .font(.footnote)
