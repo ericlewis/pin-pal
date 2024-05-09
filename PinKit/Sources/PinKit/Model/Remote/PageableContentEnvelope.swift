@@ -206,12 +206,12 @@ public struct CaptureEnvelope: Codable, Hashable {
 public struct ContentEnvelope: Codable, Identifiable, Hashable {
     enum DataClass: Codable, Hashable {
         case capture(CaptureEnvelope)
-        case note(Note)
+        case note(NoteEnvelope)
         case unknown
         
         init(from decoder: any Decoder) throws {
             let container = try decoder.container(keyedBy: CodingKeys.self)
-            if let note = try? container.decodeIfPresent(Note.self, forKey: .note) {
+            if let note = try? container.decodeIfPresent(NoteEnvelope.self, forKey: .note) {
                 self = .note(note)
             } else if let s = try? decoder.singleValueContainer(), let capture = try? s.decode(CaptureEnvelope.self) {
                 self = .capture(capture)
@@ -292,7 +292,7 @@ public struct ContentEnvelope: Codable, Identifiable, Hashable {
 }
 
 extension ContentEnvelope {
-    public func get() -> Note? {
+    public func get() -> NoteEnvelope? {
         switch data {
         case let .note(note): note
         default: nil

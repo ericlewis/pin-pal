@@ -9,7 +9,7 @@ import AppIntents
     public var capturesNavigationPath = NavigationPath()
     
     public var authenticationPresented = false
-    public var activeNote: Note?
+    public var activeNote: NoteEnvelope?
     public var isWifiCodeGeneratorPresented = false
     public var fileImporterPresented = false
 

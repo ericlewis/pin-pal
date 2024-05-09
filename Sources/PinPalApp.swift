@@ -56,7 +56,7 @@ struct PinPalApp: App {
         
         let modelContainerConfig = ModelConfiguration("fdas", isStoredInMemoryOnly: false)
         let modelContainer = try! ModelContainer(
-            for: _Note.self,
+            for: Note.self,
             configurations: modelContainerConfig
         )
         sceneModelContainer = modelContainer

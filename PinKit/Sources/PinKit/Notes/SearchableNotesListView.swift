@@ -20,9 +20,9 @@ struct SearchableNotesListView: View {
     var isFirstLoad: Bool
     
     @Query
-    var notes: [_Note]
+    var notes: [Note]
     
-    init(filter: FetchDescriptor<_Note>, isLoading: Bool, isFirstLoad: Bool) {
+    init(filter: FetchDescriptor<Note>, isLoading: Bool, isFirstLoad: Bool) {
         self._notes = .init(filter)
         self.isLoading = isLoading
         self.isFirstLoad = isFirstLoad
@@ -82,7 +82,7 @@ struct SearchableNotesListView: View {
 
 struct FavoriteNoteButton: View {
     
-    var note: _Note
+    var note: Note
     var favorite: Bool
     
     var body: some View {
@@ -98,7 +98,7 @@ struct FavoriteNoteButton: View {
 
 struct DeleteNoteButton: View {
     
-    let note: _Note
+    let note: Note
     
     var body: some View {
         Button(

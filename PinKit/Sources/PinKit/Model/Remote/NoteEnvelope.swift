@@ -1,6 +1,6 @@
 import Foundation
 
-public struct Note: Codable, Hashable, Equatable {
+public struct NoteEnvelope: Codable, Hashable, Equatable {
     
     public var uuid: UUID? = nil
     public var text: String
@@ -10,8 +10,8 @@ public struct Note: Codable, Hashable, Equatable {
     public var createdAt: Date? = nil
     public var modifiedAt: Date? = nil
 
-    public static func create() -> Note {
-        Note(text: "", title: "")
+    public static func create() -> NoteEnvelope {
+        NoteEnvelope(text: "", title: "")
     }
     
     public init(uuid: UUID? = nil, memoryId: UUID? = nil, text: String, title: String, createdAt: Date = .now, modifedAt: Date = .now) {
@@ -46,6 +46,6 @@ public struct Note: Codable, Hashable, Equatable {
     }
 }
 
-extension Note: Identifiable {
+extension NoteEnvelope: Identifiable {
     public var id: UUID? { uuid }
 }

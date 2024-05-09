@@ -22,9 +22,9 @@ public struct NoteComposerView: View {
     @State
     private var text = ""
     
-    let note: Note?
+    let note: NoteEnvelope?
     
-    public init(note: Note?) {
+    public init(note: NoteEnvelope?) {
         self.note = note
     }
     

@@ -19,7 +19,7 @@ public struct NoteEntity: Identifiable {
     public var modifiedAt: Date
 
     public init(from content: ContentEnvelope) {
-        let note: Note = content.get()!
+        let note: NoteEnvelope = content.get()!
         self.id = note.memoryId!
         self.createdAt = note.createdAt!
         self.modifiedAt = note.modifiedAt!
@@ -27,7 +27,7 @@ public struct NoteEntity: Identifiable {
         self.text = note.text
     }
     
-    public init(from note: _Note) {
+    public init(from note: Note) {
         self.id = note.parentUUID
         self.createdAt = note.createdAt
         self.modifiedAt = note.modifiedAt
@@ -48,7 +48,7 @@ extension NoteEntity: AppEntity {
 public struct NoteEntityQuery: EntityQuery, EntityStringQuery, EnumerableEntityQuery {
     
     public func allEntities() async throws -> [NoteEntity] {
-        try await database.fetch(_Note.all())
+        try await database.fetch(Note.all())
             .map(NoteEntity.init(from:))
     }
     
@@ -75,7 +75,7 @@ public struct NoteEntityQuery: EntityQuery, EntityStringQuery, EnumerableEntityQ
     }
   
     public func suggestedEntities() async throws -> [NoteEntity] {
-        var descriptor = _Note.all()
+        var descriptor = Note.all()
         descriptor.fetchLimit = 30
         return try await database.fetch(descriptor)
             .map(NoteEntity.init(from:))
@@ -98,7 +98,7 @@ public struct OpenNoteIntent: OpenIntent {
         self.target = note
     }
     
-    public init(note: _Note) {
+    public init(note: Note) {
         self.target = .init(from: note)
     }
     
@@ -161,9 +161,9 @@ public struct CreateNoteIntent: AppIntent {
     public func perform() async throws -> some IntentResult {
         navigationStore.savingNote = true
         let content = try await service.create(.init(text: text, title: title))
-        let note: Note = content.get()!
+        let note: NoteEnvelope = content.get()!
         await database.insert(
-            _Note(
+            Note(
                 uuid: note.id ?? .init(),
                 parentUUID: content.id,
                 name: note.title,
@@ -209,12 +209,12 @@ public struct FavoriteNotesIntent: AppIntent {
         self.notes = notes
     }
     
-    public init(action: FavoriteAction, notes: [_Note]) {
+    public init(action: FavoriteAction, notes: [Note]) {
         self.action = action
         self.notes = notes.map(NoteEntity.init(from:))
     }
     
-    public init(action: FavoriteAction, note: _Note) {
+    public init(action: FavoriteAction, note: Note) {
         self.init(action: action, notes: [note])
     }
     
@@ -239,10 +239,10 @@ public struct FavoriteNotesIntent: AppIntent {
         await ids.concurrentForEach { id in
             do {
                 let content = try await service.memory(id)
-                guard let note: Note = content.get() else {
+                guard let note: NoteEnvelope = content.get() else {
                     return
                 }
-                await self.database.insert(_Note(
+                await self.database.insert(Note(
                     uuid: note.uuid ?? .init(),
                     parentUUID: content.id,
                     name: note.title,
@@ -295,9 +295,9 @@ public struct AppendToNoteIntent: AppIntent {
     \(text)
     """
         let content = try await service.update(note.id.uuidString, .init(text: newBody, title: note.title))
-        let note: Note = content.get()!
+        let note: NoteEnvelope = content.get()!
         await database.insert(
-            _Note(
+            Note(
                 uuid: note.id ?? .init(),
                 parentUUID: content.id,
                 name: note.title,
@@ -338,7 +338,7 @@ public struct DeleteNotesIntent: DeleteIntent {
         self.confirmBeforeDeleting = confirmBeforeDeleting
     }
     
-    public init(entities: [_Note], confirmBeforeDeleting: Bool) {
+    public init(entities: [Note], confirmBeforeDeleting: Bool) {
         self.entities = entities.map(NoteEntity.init(from:))
         self.confirmBeforeDeleting = confirmBeforeDeleting
     }
@@ -365,7 +365,7 @@ public struct DeleteNotesIntent: DeleteIntent {
             let _ = try await service.bulkRemove(ids)
         }
         
-        try await database.delete(where: #Predicate<_Note> {
+        try await database.delete(where: #Predicate<Note> {
             ids.contains($0.parentUUID)
         })
         try await database.save()
@@ -538,9 +538,9 @@ public struct UpdateNoteIntent: AppIntent {
         }
         navigationStore.savingNote = true
         let content = try await service.update(identifier, .init(text: text, title: title))
-        let note: Note = content.get()!
+        let note: NoteEnvelope = content.get()!
         await database.insert(
-            _Note(
+            Note(
                 uuid: note.id ?? .init(),
                 parentUUID: content.id,
                 name: note.title,
@@ -603,7 +603,7 @@ struct SyncNotesIntent: AppIntent {
                         
         try await self.database.save()
 
-        let predicate = #Predicate<_Note> {
+        let predicate = #Predicate<Note> {
             !ids.contains($0.parentUUID)
         }
         try await self.database.delete(where: predicate)
@@ -619,10 +619,10 @@ struct SyncNotesIntent: AppIntent {
     }
     
     private func process(_ content: ContentEnvelope) async throws -> UUID {
-        guard let note: Note = content.get() else {
+        guard let note: NoteEnvelope = content.get() else {
             throw Error.invalidContentType
         }
-        let newNote = _Note(
+        let newNote = Note(
             uuid: note.uuid ?? .init(),
             parentUUID: content.id,
             name: note.title,

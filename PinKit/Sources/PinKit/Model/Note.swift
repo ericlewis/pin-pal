@@ -2,7 +2,7 @@ import SwiftData
 import Foundation
 
 @Model
-public class _Note {
+public class Note {
     
     @Attribute(.unique)
     public let uuid: UUID
@@ -27,9 +27,9 @@ public class _Note {
     }
 }
 
-extension _Note {
-    public static func all(order: SortOrder = .reverse) -> FetchDescriptor<_Note> {
-        FetchDescriptor<_Note>(sortBy: [.init(\.createdAt, order: order)])
+extension Note {
+    public static func all(order: SortOrder = .reverse) -> FetchDescriptor<Note> {
+        FetchDescriptor<Note>(sortBy: [.init(\.createdAt, order: order)])
     }
 }
 

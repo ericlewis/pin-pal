@@ -30,24 +30,24 @@ struct NotesView: View {
     private var query = ""
     
     @State
-    private var filter = _Note.all()
+    private var filter = Note.all()
     
     @State
     private var filterType = FilterType.all
     
     @State
-    private var sort = SortDescriptor<_Note>(\.createdAt, order: .reverse)
+    private var sort = SortDescriptor<Note>(\.createdAt, order: .reverse)
     
     @State
     private var order = SortOrder.reverse
     
-    var predicate: Predicate<_Note> {
+    var predicate: Predicate<Note> {
         if filterType == .all {
-            return #Predicate<_Note> { _ in
+            return #Predicate<Note> { _ in
                 true
             }
         } else {
-            return #Predicate<_Note> {
+            return #Predicate<Note> {
                 $0.isFavorite
             }
         }
@@ -111,41 +111,41 @@ struct NotesView: View {
                     .symbolVariant(filterType == .all ? .none : .fill)
                     Menu("Sort", systemImage: "arrow.up.arrow.down") {
                         Toggle("Name", isOn: Binding(
-                            get: { sort.keyPath == \_Note.name  },
+                            get: { sort.keyPath == \Note.name  },
                             set: {
                                 if $0 {
                                     withAnimation(.snappy) {
-                                        sort = SortDescriptor<_Note>(\.name, order: order)
+                                        sort = SortDescriptor<Note>(\.name, order: order)
                                     }
                                 }
                             }
                         ))
                         Toggle("Body", isOn: Binding(
-                            get: { sort.keyPath == \_Note.body  },
+                            get: { sort.keyPath == \Note.body  },
                             set: {
                                 if $0 {
                                     withAnimation(.snappy) {
-                                        sort = SortDescriptor<_Note>(\.body, order: order)
+                                        sort = SortDescriptor<Note>(\.body, order: order)
                                     }
                                 }
                             }
                         ))
                         Toggle("Created At", isOn: Binding(
-                            get: { sort.keyPath == \_Note.createdAt  },
+                            get: { sort.keyPath == \Note.createdAt  },
                             set: {
                                 if $0 {
                                     withAnimation(.snappy) {
-                                        sort = SortDescriptor<_Note>(\.createdAt, order: order)
+                                        sort = SortDescriptor<Note>(\.createdAt, order: order)
                                     }
                                 }
                             }
                         ))
                         Toggle("Modified At", isOn: Binding(
-                            get: { sort.keyPath == \_Note.modifiedAt  },
+                            get: { sort.keyPath == \Note.modifiedAt  },
                             set: {
                                 if $0 {
                                     withAnimation(.snappy) {
-                                        sort = SortDescriptor<_Note>(\.modifiedAt, order: order)
+                                        sort = SortDescriptor<Note>(\.modifiedAt, order: order)
                                     }
                                 }
                             }
@@ -195,18 +195,18 @@ struct NotesView: View {
                 intent.query = query
                 intent.service = service
                 guard !query.isEmpty, let result = try await intent.perform().value else {
-                    filter = _Note.all()
+                    filter = Note.all()
                     return
                 }
                 let ids = result.map(\.id)
-                let predicate = #Predicate<_Note> {
+                let predicate = #Predicate<Note> {
                     ids.contains($0.parentUUID)
                 }
                 filter = FetchDescriptor(predicate: predicate)
             } catch is CancellationError {
                 
             } catch {
-                filter = _Note.all()
+                filter = Note.all()
                 print(error)
             }
         }
