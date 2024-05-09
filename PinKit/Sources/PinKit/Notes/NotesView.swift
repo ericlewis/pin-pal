@@ -35,19 +35,8 @@ struct NotesView: View {
             .refreshable(action: initial)
             .searchable(text: $query)
             .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
-                    Menu("Options", systemImage: "ellipsis") {
-                        Toggle("Testing", isOn: .constant(true))
-                        Picker("Sort", systemImage: "arrow.up.arrow.down", selection: .constant("Created At")) {
-                            Text("Created At").tag("Created At")
-                            Text("Last Modified At").tag("Last Modified At")
-                        }
-                        .pickerStyle(.menu)
-                    }
-                    .symbolVariant(.circle)
-                }
                 ToolbarItem(placement: .primaryAction) {
-                    Menu("Create note", systemImage: "plus") {
+                    Menu("New Note", systemImage: "plus") {
                         Button("Create", systemImage: "note.text.badge.plus", intent: OpenNewNoteIntent())
                         Button("Import", systemImage: "square.and.arrow.down", intent: OpenFileImportIntent())
                     } primaryAction: {
