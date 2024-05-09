@@ -2,7 +2,7 @@ import SwiftUI
 
 public struct AuthHandlerViewModifier: ViewModifier {
     
-    @Environment(NavigationStore.self)
+    @Environment(Navigation.self)
     private var navigationStore
     
     @Environment(HumaneCenterService.self)

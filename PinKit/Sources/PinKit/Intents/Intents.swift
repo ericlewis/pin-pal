@@ -255,7 +255,7 @@ public struct ShowSettingsIntent: AppIntent {
     public static var isDiscoverable: Bool = true
 
     @Dependency
-    public var navigationStore: NavigationStore
+    public var navigationStore: Navigation
     
     public func perform() async throws -> some IntentResult {
         navigationStore.selectedTab = .settings
@@ -361,7 +361,7 @@ public struct _ToggleDeviceBlockIntent: AppIntent {
     public var service: HumaneCenterService
     
     @Dependency
-    public var navigation: NavigationStore
+    public var navigation: Navigation
     
     @Dependency
     public var database: any Database

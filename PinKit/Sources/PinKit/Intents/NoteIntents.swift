@@ -108,7 +108,7 @@ public struct OpenNoteIntent: OpenIntent {
     public static var isDiscoverable: Bool = true
     
     @Dependency
-    public var navigationStore: NavigationStore
+    public var navigationStore: Navigation
 
     public func perform() async throws -> some IntentResult {
         navigationStore.activeNote = .init(
@@ -150,7 +150,7 @@ public struct CreateNoteIntent: AppIntent {
     public static var isDiscoverable: Bool = true
     
     @Dependency
-    public var navigationStore: NavigationStore
+    public var navigationStore: Navigation
 
     @Dependency
     public var database: any Database
@@ -438,7 +438,7 @@ public struct _DeleteAllNotesIntent: AppIntent {
     public var service: HumaneCenterService
     
     @Dependency
-    public var navigation: NavigationStore
+    public var navigation: Navigation
 
     public func perform() async throws -> some IntentResult {
         navigation.deleteAllNotesConfirmationPresented = true
@@ -516,7 +516,7 @@ public struct ShowNotesIntent: AppIntent {
     public static var isDiscoverable: Bool = true
 
     @Dependency
-    public var navigationStore: NavigationStore
+    public var navigationStore: Navigation
     
     public func perform() async throws -> some IntentResult {
         navigationStore.selectedTab = .notes
@@ -534,7 +534,7 @@ public struct OpenNewNoteIntent: AppIntent {
     public static var isDiscoverable: Bool = true
 
     @Dependency
-    public var navigationStore: NavigationStore
+    public var navigationStore: Navigation
     
     public func perform() async throws -> some IntentResult {
         if navigationStore.activeNote == nil {
@@ -554,7 +554,7 @@ public struct OpenFileImportIntent: AppIntent {
     public static var isDiscoverable: Bool = true
 
     @Dependency
-    public var navigationStore: NavigationStore
+    public var navigationStore: Navigation
     
     public func perform() async throws -> some IntentResult {
         if navigationStore.activeNote == nil {
@@ -590,7 +590,7 @@ public struct UpdateNoteIntent: AppIntent {
     public static var isDiscoverable: Bool = false
     
     @Dependency
-    public var navigationStore: NavigationStore
+    public var navigationStore: Navigation
 
     @Dependency
     public var service: HumaneCenterService

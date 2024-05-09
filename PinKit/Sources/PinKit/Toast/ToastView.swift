@@ -9,7 +9,7 @@ public enum Toast {
 
 struct ToastView: View {
     
-    @Environment(NavigationStore.self)
+    @Environment(Navigation.self)
     private var navigationStore
     
     let title: LocalizedStringKey

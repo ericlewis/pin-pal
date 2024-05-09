@@ -2,7 +2,7 @@ import SwiftUI
 
 struct ToastViewModifier: ViewModifier {
     
-    @Environment(NavigationStore.self)
+    @Environment(Navigation.self)
     private var navigationStore
     
     func body(content: Content) -> some View {

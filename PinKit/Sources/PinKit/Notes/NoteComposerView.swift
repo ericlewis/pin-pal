@@ -10,7 +10,7 @@ public struct NoteComposerView: View {
     @Environment(\.dismiss)
     private var dismiss
     
-    @Environment(NavigationStore.self)
+    @Environment(Navigation.self)
     private var navigation
 
     @FocusState

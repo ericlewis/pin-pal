@@ -3,7 +3,7 @@ import SDWebImage
 
 public struct ContentView: View {
     
-    @Environment(NavigationStore.self)
+    @Environment(Navigation.self)
     private var navigationStore
     
     @AccentColor

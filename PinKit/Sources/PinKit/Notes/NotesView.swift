@@ -11,7 +11,7 @@ struct NotesView: View {
     @Environment(AppState.self)
     private var app
     
-    @Environment(NavigationStore.self)
+    @Environment(Navigation.self)
     private var navigation
 
     @Environment(\.database)

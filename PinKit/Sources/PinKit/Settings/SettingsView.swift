@@ -20,7 +20,10 @@ struct SettingsView: View {
                 if let device = devices.first {
                     Group {
                         DeviceSection()
-                        FeatureSection(isVisionEnabled: device.isVisionEnabled, isLost: device.isLost)
+                        FeatureSection(
+                            isVisionEnabled: device.isVisionEnabled,
+                            isLost: device.isLost
+                        )
                         LinkSection()
                         MiscSection()
                         AppearanceSections()
@@ -99,7 +102,7 @@ struct FeatureSection: View {
     var isVisionEnabled: Bool
     var isLost: Bool
 
-    @Environment(NavigationStore.self)
+    @Environment(Navigation.self)
     private var navigation
 
     var body: some View {
@@ -234,7 +237,7 @@ struct AppearanceSections: View {
 
 struct DangerZoneSection: View {
      
-    @Environment(NavigationStore.self)
+    @Environment(Navigation.self)
     private var navigation
     
     var body: some View {

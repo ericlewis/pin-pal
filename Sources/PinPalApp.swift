@@ -16,7 +16,7 @@ struct PinPalApp: App {
     private var sceneAppState: AppState
 
     @State
-    private var sceneNavigationStore: NavigationStore
+    private var sceneNavigationStore: Navigation
     
     @State
     private var sceneService: HumaneCenterService
@@ -36,7 +36,7 @@ struct PinPalApp: App {
     let sceneDatabase: any Database
 
     init() {
-        let navigationStore = NavigationStore.shared
+        let navigationStore = Navigation.shared
         sceneNavigationStore = navigationStore
         
         let service = HumaneCenterService.live()
@@ -126,8 +126,8 @@ class AppDelegate: NSObject, UIApplicationDelegate {
     
     class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         func windowScene(_ windowScene: UIWindowScene, performActionFor shortcutItem: UIApplicationShortcutItem, completionHandler: @escaping (Bool) -> Void) {
-            if NavigationStore.shared.activeNote == nil {
-                NavigationStore.shared.activeNote = .create()
+            if Navigation.shared.activeNote == nil {
+                Navigation.shared.activeNote = .create()
             }
         }
     }

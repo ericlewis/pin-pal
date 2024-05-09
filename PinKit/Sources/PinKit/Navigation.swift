@@ -1,8 +1,8 @@
 import SwiftUI
 import AppIntents
 
-@Observable public class NavigationStore: @unchecked Sendable {
-    public static let shared = NavigationStore()
+@Observable public class Navigation: @unchecked Sendable {
+    public static let shared = Navigation()
     public var selectedTab: Tab = .notes
 
     public var authenticationPresented = false

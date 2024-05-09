@@ -5,7 +5,7 @@ struct CaptureMenuContents: View {
     @Environment(CapturesRepository.self)
     private var repository
     
-    @Environment(NavigationStore.self)
+    @Environment(Navigation.self)
     private var navigation
     
     @Environment(\.dismiss)
