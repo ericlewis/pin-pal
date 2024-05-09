@@ -1,6 +1,6 @@
 import Foundation
 
-@Observable public class Note: Codable, Hashable, Equatable {
+public struct Note: Codable, Hashable, Equatable {
     
     public var uuid: UUID? = nil
     public var text: String
@@ -23,7 +23,7 @@ import Foundation
         self.modifiedAt = modifedAt
     }
     
-    public required init(from decoder: any Decoder) throws {
+    public init(from decoder: any Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         self.uuid = try container.decodeIfPresent(UUID.self, forKey: .uuid)
         self.text = try container.decode(String.self, forKey: .text)

@@ -16,15 +16,20 @@ public struct NoteComposerView: View {
     @FocusState
     private var focus: Field?
     
-    @Bindable
-    var note: Note
+    @State
+    private var title = ""
     
-    public init(note: Note) {
+    @State
+    private var text = ""
+    
+    let note: Note?
+    
+    public init(note: Note?) {
         self.note = note
     }
     
     var isEditing: Bool {
-        note.uuid != nil
+        note != nil
     }
     
     @Environment(\.horizontalSizeClass)
@@ -36,7 +41,7 @@ public struct NoteComposerView: View {
     public var body: some View {
         NavigationStack {
             Form {
-                TextField("Note Title", text: $note.title)
+                TextField("Note Title", text: $title)
                     .font(.headline)
                     .submitLabel(.next)
                     .focused($focus, equals: .title)
@@ -44,13 +49,13 @@ public struct NoteComposerView: View {
                         self.focus = .text
                     }
                 if horizontalSizeClass == .regular, verticalSizeClass == .regular {
-                    TextEditor(text: $note.text)
+                    TextEditor(text: $text)
                         .focused($focus, equals: .text)
                         .submitLabel(.return)
                         .padding(.bottom, -5)
                         .padding(.leading, -5)
                 } else {
-                    TextField("Note Text", text: $note.text, axis: .vertical)
+                    TextField("Note Text", text: $text, axis: .vertical)
                         .focused($focus, equals: .text)
                         .submitLabel(.return)
                 }
@@ -67,13 +72,13 @@ public struct NoteComposerView: View {
                     Group {
                         if navigation.savingNote {
                             ProgressView()
-                        } else if let id = note.memoryId {
-                            Button("Save", intent: UpdateNoteIntent(identifier: id.uuidString, title: note.title, text: note.text))
+                        } else if let id = note?.memoryId {
+                            Button("Save", intent: UpdateNoteIntent(identifier: id.uuidString, title: title, text: text))
                         } else {
-                            Button("Save", intent: CreateNoteIntent(title: note.title, text: note.text))
+                            Button("Save", intent: CreateNoteIntent(title: title, text: text))
                         }
                     }
-                    .disabled(note.title.isEmpty || note.text.isEmpty)
+                    .disabled(title.isEmpty || text.isEmpty)
                 }
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") {
@@ -85,6 +90,10 @@ public struct NoteComposerView: View {
         }
         .disabled(navigation.savingNote)
         .interactiveDismissDisabled(navigation.savingNote)
+        .onAppear {
+            self.title = note?.title ?? ""
+            self.text = note?.text ?? ""
+        }
     }
 }
 
