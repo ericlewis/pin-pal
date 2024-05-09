@@ -265,12 +265,6 @@ extension HumaneCenterService {
             try await delete(url: noteUrl)
         }
         
-        func capturesList(uuids: [UUID]) async throws -> [ContentEnvelope] {
-            try await get(url: captureUrl.appending(path: "captures").appending(path: "list").appending(queryItems: [
-                .init(name: "uuids", value: uuids.map(\.uuidString).joined(separator: ","))
-            ]))
-        }
-        
         func remove(uuids: [UUID]) async throws -> BulkResponse {
             try await post(url: memoryUrl.appending(path: "bulk-delete"), body: ["memoryUUIDs": uuids])
         }
@@ -301,10 +295,7 @@ extension HumaneCenterService {
             search: { try await service.search(query: $0, domain: $1) },
             favorite: { try await service.favorite(memory: $0) },
             unfavorite: { try await service.unfavorite(memory: $0) },
-            favoriteById: { try await service.favorite(uuid: $0) },
-            unfavoriteById: { try await service.unfavorite(uuid: $0) },
             delete: { try await service.delete(memory: $0) },
-            deleteById: { try await service.delete(memoryId: $0) },
             deleteEvent: { try await service.delete(event: $0) },
             memory: { try await service.memory(uuid: $0) },
             toggleFeatureFlag: { try await service.toggleFeatureFlag($0, isEnabled: $1) },
@@ -312,7 +303,6 @@ extension HumaneCenterService {
             toggleLostDeviceStatus: { try await service.toggleLostDeviceStatus(deviceId: $0, isLost: $1) },
             deviceIdentifiers: { try await service.deviceIdentifiers() },
             deleteAllNotes: { try await service.deleteAllNotes() },
-            capturesList: { try await service.capturesList(uuids: $0) },
             bulkFavorite: { try await service.favorite(uuids: $0) },
             bulkUnfavorite: { try await service.unfavorite(uuids: $0) },
             bulkRemove: { try await service.remove(uuids: $0) }
@@ -368,10 +358,7 @@ extension HumaneCenterService {
     public var search: (String, SearchDomain) async throws -> SearchResults
     public var favorite: (ContentEnvelope) async throws -> Void
     public var unfavorite: (ContentEnvelope) async throws -> Void
-    public var favoriteById: (UUID) async throws -> Void
-    public var unfavoriteById: (UUID) async throws -> Void
     public var delete: (ContentEnvelope) async throws -> Void
-    public var deleteById: (UUID) async throws -> Void
     public var deleteEvent: (EventContentEnvelope) async throws -> Void
     public var memory: (UUID) async throws -> ContentEnvelope
     public var toggleFeatureFlag: (FeatureFlag, Bool) async throws -> FeatureFlagEnvelope
@@ -379,7 +366,6 @@ extension HumaneCenterService {
     public var toggleLostDeviceStatus: (String, Bool) async throws -> LostDeviceEnvelope
     public var deviceIdentifiers: () async throws -> [String]
     public var deleteAllNotes: () async throws -> Void
-    public var capturesList: ([UUID]) async throws -> [ContentEnvelope]
     public var bulkFavorite: ([UUID]) async throws -> BulkResponse
     public var bulkUnfavorite: ([UUID]) async throws -> BulkResponse
     public var bulkRemove: ([UUID]) async throws -> BulkResponse
@@ -400,10 +386,7 @@ extension HumaneCenterService {
         search: @escaping (String, SearchDomain) async throws -> SearchResults,
         favorite: @escaping (ContentEnvelope) async throws -> Void,
         unfavorite: @escaping (ContentEnvelope) async throws -> Void,
-        favoriteById: @escaping (UUID) async throws -> Void,
-        unfavoriteById: @escaping (UUID) async throws -> Void,
         delete: @escaping (ContentEnvelope) async throws -> Void,
-        deleteById: @escaping (UUID) async throws -> Void,
         deleteEvent: @escaping (EventContentEnvelope) async throws -> Void,
         memory: @escaping (UUID) async throws -> ContentEnvelope,
         toggleFeatureFlag: @escaping (FeatureFlag, Bool) async throws -> FeatureFlagEnvelope,
@@ -411,7 +394,6 @@ extension HumaneCenterService {
         toggleLostDeviceStatus: @escaping (String, Bool) async throws -> LostDeviceEnvelope,
         deviceIdentifiers: @escaping () async throws -> [String],
         deleteAllNotes: @escaping () async throws -> Void,
-        capturesList: @escaping ([UUID]) async throws -> [ContentEnvelope],
         bulkFavorite: @escaping ([UUID]) async throws -> BulkResponse,
         bulkUnfavorite: @escaping ([UUID]) async throws -> BulkResponse,
         bulkRemove: @escaping ([UUID]) async throws -> BulkResponse
@@ -438,7 +420,6 @@ extension HumaneCenterService {
         self.favorite = favorite
         self.unfavorite = unfavorite
         self.delete = delete
-        self.deleteById = deleteById
         self.deleteEvent = deleteEvent
         self.memory = memory
         self.toggleFeatureFlag = toggleFeatureFlag
@@ -446,9 +427,6 @@ extension HumaneCenterService {
         self.toggleLostDeviceStatus = toggleLostDeviceStatus
         self.deviceIdentifiers = deviceIdentifiers
         self.deleteAllNotes = deleteAllNotes
-        self.favoriteById = favoriteById
-        self.unfavoriteById = unfavoriteById
-        self.capturesList = capturesList
         self.bulkFavorite = bulkFavorite
         self.bulkUnfavorite = bulkUnfavorite
         self.bulkRemove = bulkRemove
