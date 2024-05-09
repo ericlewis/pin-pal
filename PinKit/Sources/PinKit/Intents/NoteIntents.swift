@@ -469,6 +469,26 @@ public struct OpenNewNoteIntent: AppIntent {
     }
 }
 
+public struct OpenFileImportIntent: AppIntent {
+    public static var title: LocalizedStringResource = "Open Import Note"
+    public static var description: IntentDescription? = .init("Get quick access to import a note in Pin Pal", categoryName: "Notes")
+    
+    public init() {}
+    
+    public static var openAppWhenRun: Bool = true
+    public static var isDiscoverable: Bool = true
+
+    @Dependency
+    public var navigationStore: NavigationStore
+    
+    public func perform() async throws -> some IntentResult {
+        if navigationStore.activeNote == nil {
+            navigationStore.fileImporterPresented = true
+        }
+        return .result()
+    }
+}
+
 // TODO: used by composer internally
 
 public struct UpdateNoteIntent: AppIntent {
