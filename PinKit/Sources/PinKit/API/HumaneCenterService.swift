@@ -321,7 +321,7 @@ extension HumaneCenterService {
     private static let deviceAssignmentUrl = rootUrl.appending(path: "device-assignments")
     private static let eventsUrl = rootUrl.appending(path: "notable-events")
     private static let subscriptionUrl = rootUrl.appending(path: "subscription")
-    private static let subscriptionV3Url = rootUrl.appending(path: "subscription/v3/subscription")
+    private static let subscriptionV3Url = subscriptionUrl.appending(path: "v3/subscription")
     private static let featureFlagsUrl = rootUrl.appending(path: "feature-flags/v0/feature-flag/flags")
     
     static let sessionUrl = URL(string: "https://humane.center/api/auth/session")!
