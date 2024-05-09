@@ -312,7 +312,7 @@ public struct PageableContentEnvelope<C: Codable>: Codable {
     let size: Int
     let last: Bool
     let empty: Bool
-    let totalElements: Int
+    public let totalElements: Int
     let first: Bool
 }
 

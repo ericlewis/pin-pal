@@ -16,10 +16,7 @@ struct Ai_PinApp: App {
     
     @State
     private var sceneService: HumaneCenterService
-    
-    @State
-    private var sceneNotesRepository: NotesRepository
-    
+
     @State
     private var sceneCapturesRepository: CapturesRepository
     
@@ -65,12 +62,8 @@ struct Ai_PinApp: App {
         
         let database = SharedDatabase(modelContainer: modelContainer).database
         sceneDatabase = database
-        
-        let notesRepository = NotesRepository(api: service, database: database)
-        sceneNotesRepository = notesRepository
 
         AppDependencyManager.shared.add(dependency: navigationStore)
-        AppDependencyManager.shared.add(dependency: notesRepository)
         AppDependencyManager.shared.add(dependency: capturesRepository)
         AppDependencyManager.shared.add(dependency: myDataRepository)
         AppDependencyManager.shared.add(dependency: settingsRepository)
@@ -81,7 +74,6 @@ struct Ai_PinApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()
-                .environment(sceneNotesRepository)
                 .environment(sceneCapturesRepository)
                 .environment(sceneNavigationStore)
                 .environment(sceneMyDataRepository)

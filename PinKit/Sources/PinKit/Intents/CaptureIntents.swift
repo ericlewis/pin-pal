@@ -22,8 +22,8 @@ extension FileAsset {
 }
 
 public enum CaptureType: String, AppEnum, Codable {
-    case photo
-    case video
+    case photo = "PHOTO"
+    case video = "VIDEO"
     
     public static var typeDisplayRepresentation: TypeDisplayRepresentation = .init(name: "Capture Type")
     public static var caseDisplayRepresentations: [CaptureType: DisplayRepresentation] = [

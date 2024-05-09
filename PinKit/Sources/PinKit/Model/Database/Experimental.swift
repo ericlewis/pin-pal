@@ -154,7 +154,7 @@ public class _Note {
 }
 
 extension _Note {
-    static func all(order: SortOrder = .reverse) -> FetchDescriptor<_Note> {
+    public static func all(order: SortOrder = .reverse) -> FetchDescriptor<_Note> {
         FetchDescriptor<_Note>(sortBy: [.init(\.createdAt, order: order)])
     }
 }

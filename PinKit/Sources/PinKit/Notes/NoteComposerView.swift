@@ -19,10 +19,7 @@ public struct NoteComposerView: View {
     
     @Environment(NavigationStore.self)
     private var navigationStore
-    
-    @Environment(NotesRepository.self)
-    private var notesRepository
-    
+
     @FocusState
     private var focus: Field?
     

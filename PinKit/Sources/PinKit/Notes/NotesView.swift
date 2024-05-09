@@ -1,41 +1,55 @@
 import SwiftUI
+import SwiftData
 
 struct NotesView: View {
     
     @Environment(NavigationStore.self)
     private var navigationStore
+
+    @Environment(\.database)
+    private var database
     
-    @Environment(NotesRepository.self)
-    private var repository
+    @Environment(HumaneCenterService.self)
+    private var service
     
     @State
     private var fileImporterPresented = false
     
     @State
+    private var isLoading = false
+    
+    @State
+    private var isFirstLoad = true
+    
+    @State
     private var query = ""
+    
+    @State
+    private var filter = _Note.all()
     
     var body: some View {
         @Bindable var navigationStore = navigationStore
         NavigationStack(path: $navigationStore.notesNavigationPath) {
-            SearchableNotesListView(query: $query)
-                .refreshable(action: repository.reload)
-                .searchable(text: $query)
-                .toolbar {
-                    ToolbarItem(placement: .navigation) {
-                        EditButton()
-                    }
-                    ToolbarItem(placement: .primaryAction) {
-                        Menu("Create note", systemImage: "plus") {
-                            Button("Create", systemImage: "note.text.badge.plus", intent: OpenNewNoteIntent())
-                            Button("Import", systemImage: "square.and.arrow.down") {
-                                self.fileImporterPresented = true
-                            }
-                        } primaryAction: {
-                            self.navigationStore.activeNote = .create()
+            SearchableNotesListView(
+                filter: filter,
+                isLoading: isLoading,
+                isFirstLoad: isFirstLoad
+            )
+            .refreshable(action: initial)
+            .searchable(text: $query)
+            .toolbar {
+                ToolbarItem(placement: .primaryAction) {
+                    Menu("Create note", systemImage: "plus") {
+                        Button("Create", systemImage: "note.text.badge.plus", intent: OpenNewNoteIntent())
+                        Button("Import", systemImage: "square.and.arrow.down") {
+                            self.fileImporterPresented = true
                         }
+                    } primaryAction: {
+                        self.navigationStore.activeNote = .create()
                     }
                 }
-                .navigationTitle("Notes")
+            }
+            .navigationTitle("Notes")
         }
         .sheet(item: $navigationStore.activeNote) { note in
             NoteComposerView(note: note)
@@ -58,6 +72,39 @@ struct NotesView: View {
                 }
             }
         }
-        .task(repository.initial)
+        .task(initial)
+        .task(id: query) {
+            do {
+                try await Task.sleep(for: .milliseconds(300))
+                let intent = SearchNotesIntent()
+                intent.query = query
+                intent.service = service
+                guard !query.isEmpty, let result = try await intent.perform().value else {
+                    filter = _Note.all()
+                    return
+                }
+                let ids = result.map(\.id)
+                let predicate = #Predicate<_Note> {
+                    ids.contains($0.parentUUID)
+                }
+                filter = FetchDescriptor(predicate: predicate)
+            } catch {
+                print(error)
+            }
+        }
+    }
+    
+    func initial() async {
+        isLoading = true
+        do {
+            let intent = LoadNotesIntent(page: 0)
+            intent.database = database
+            intent.service = service
+            try await intent.perform()
+        } catch {
+            print(error)
+        }
+        isLoading = false
+        isFirstLoad = false
     }
 }

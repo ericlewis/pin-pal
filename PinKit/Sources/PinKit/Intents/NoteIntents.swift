@@ -47,16 +47,19 @@ extension NoteEntity: AppEntity {
 public struct NoteEntityQuery: EntityQuery, EntityStringQuery, EnumerableEntityQuery {
     
     public func allEntities() async throws -> [NoteEntity] {
-        try await service.notes(0, 1000)
-            .content
-            .concurrentMap(NoteEntity.init(from:))
+        try await database.fetch(_Note.all())
+            .map(NoteEntity.init(from:))
     }
+    
     public static var findIntentDescription: IntentDescription? {
         .init("", categoryName: "Notes")
     }
     
     @Dependency
     var service: HumaneCenterService
+    
+    @Dependency
+    var database: any Database
     
     public init() {}
     
@@ -71,8 +74,9 @@ public struct NoteEntityQuery: EntityQuery, EntityStringQuery, EnumerableEntityQ
     }
   
     public func suggestedEntities() async throws -> [NoteEntity] {
-        try await service.notes(0, 30)
-            .content
+        var descriptor = _Note.all()
+        descriptor.fetchLimit = 30
+        return try await database.fetch(descriptor)
             .map(NoteEntity.init(from:))
     }
 }
@@ -91,6 +95,10 @@ public struct OpenNoteIntent: OpenIntent {
 
     public init(note: NoteEntity) {
         self.target = note
+    }
+    
+    public init(note: _Note) {
+        self.target = .init(from: note)
     }
     
     public init() {}
@@ -142,10 +150,7 @@ public struct CreateNoteIntent: AppIntent {
     
     @Dependency
     public var navigationStore: NavigationStore
-    
-    @Dependency
-    public var notesRepository: NotesRepository
-    
+
     @Dependency
     public var database: any Database
     
@@ -155,7 +160,7 @@ public struct CreateNoteIntent: AppIntent {
     public func perform() async throws -> some IntentResult {
         let content = try await service.create(.init(text: text, title: title))
         let note: Note = content.get()!
-        try await database.insert(
+        await database.insert(
             _Note(
                 uuid: note.id ?? .init(),
                 parentUUID: content.id,
@@ -199,6 +204,15 @@ public struct FavoriteNotesIntent: AppIntent {
     public init(action: FavoriteAction, notes: [NoteEntity]) {
         self.action = action
         self.notes = notes
+    }
+    
+    public init(action: FavoriteAction, notes: [_Note]) {
+        self.action = action
+        self.notes = notes.map(NoteEntity.init(from:))
+    }
+    
+    public init(action: FavoriteAction, note: _Note) {
+        self.init(action: action, notes: [note])
     }
     
     public init() {}
@@ -268,13 +282,30 @@ public struct AppendToNoteIntent: AppIntent {
     
     @Dependency
     public var service: HumaneCenterService
+    
+    @Dependency
+    public var database: any Database
 
     public func perform() async throws -> some IntentResult & ReturnsValue<NoteEntity> {
         let newBody = """
     \(note.text)
     \(text)
     """
-        return try await .result(value: .init(from: service.update(note.id.uuidString, .init(text: newBody, title: note.title))))
+        let content = try await service.update(note.id.uuidString, .init(text: newBody, title: note.title))
+        let note: Note = content.get()!
+        await database.insert(
+            _Note(
+                uuid: note.id ?? .init(),
+                parentUUID: content.id,
+                name: note.title,
+                body: note.text,
+                isFavorite: content.favorite,
+                createdAt: content.userCreatedAt,
+                modifedAt: content.userLastModified
+            )
+        )
+        try await database.save()
+        return .result(value: .init(from: content))
     }
 }
 
@@ -299,8 +330,14 @@ public struct DeleteNotesIntent: DeleteIntent {
     @Parameter(title: "Confirm Before Deleting", description: "If toggled, you will need to confirm the notes will be deleted", default: true)
     var confirmBeforeDeleting: Bool
     
-    public init(notes: [NoteEntity]) {
-        self.entities = notes
+    public init(entities: [NoteEntity], confirmBeforeDeleting: Bool) {
+        self.entities = entities
+        self.confirmBeforeDeleting = confirmBeforeDeleting
+    }
+    
+    public init(entities: [_Note], confirmBeforeDeleting: Bool) {
+        self.entities = entities.map(NoteEntity.init(from:))
+        self.confirmBeforeDeleting = confirmBeforeDeleting
     }
     
     public init() {}
@@ -310,6 +347,9 @@ public struct DeleteNotesIntent: DeleteIntent {
     
     @Dependency
     public var service: HumaneCenterService
+    
+    @Dependency
+    public var database: any Database
 
     public func perform() async throws -> some IntentResult {
         let ids = entities.map(\.id)
@@ -321,6 +361,12 @@ public struct DeleteNotesIntent: DeleteIntent {
         } else {
             let _ = try await service.bulkRemove(ids)
         }
+        
+        try await database.delete(where: #Predicate<_Note> {
+            ids.contains($0.parentUUID)
+        })
+        try await database.save()
+        
         return .result()
     }
 }
@@ -423,6 +469,8 @@ public struct OpenNewNoteIntent: AppIntent {
     }
 }
 
+// TODO: used by composer internally
+
 public struct UpdateNoteIntent: AppIntent {
     public static var title: LocalizedStringResource = "Update Note"
     
@@ -444,14 +492,11 @@ public struct UpdateNoteIntent: AppIntent {
     public init() {}
     
     public static var openAppWhenRun: Bool = false
-    public static var isDiscoverable: Bool = true
+    public static var isDiscoverable: Bool = false
     
     @Dependency
     public var navigationStore: NavigationStore
-    
-    @Dependency
-    public var notesRepository: NotesRepository
-    
+
     @Dependency
     public var service: HumaneCenterService
     
@@ -471,7 +516,7 @@ public struct UpdateNoteIntent: AppIntent {
         
         let content = try await service.update(identifier, .init(text: text, title: title))
         let note: Note = content.get()!
-        try await database.insert(
+        await database.insert(
             _Note(
                 uuid: note.id ?? .init(),
                 parentUUID: content.id,
@@ -485,5 +530,52 @@ public struct UpdateNoteIntent: AppIntent {
         try await database.save()
         navigationStore.activeNote = nil
         return .result(value: memoryId.uuidString)
+    }
+}
+
+struct LoadNotesIntent: AppIntent {
+    public static var title: LocalizedStringResource = "Load Notes"
+    
+    @Parameter(title: "Page")
+    public var page: Int
+    
+    @Parameter(title: "Page Size")
+    public var pageSize: Int
+    
+    public init(page: Int, pageSize: Int = 15) {
+        self.page = page
+        self.pageSize = pageSize
+    }
+    
+    public init() {}
+    
+    public static var openAppWhenRun: Bool = false
+    public static var isDiscoverable: Bool = false
+    
+    @Dependency
+    public var service: HumaneCenterService
+    
+    @Dependency
+    public var database: any Database
+    
+    public func perform() async throws -> some IntentResult {
+        let total = try await service.notes(page, 1).totalElements
+        let data = try await service.notes(0, total)
+        await data.content.concurrentForEach { content in
+            guard let note: Note = content.get() else {
+                return
+            }
+            await self.database.insert(_Note(
+                uuid: note.uuid ?? .init(),
+                parentUUID: content.id,
+                name: note.title,
+                body: note.text,
+                isFavorite: content.favorite,
+                createdAt: content.userCreatedAt,
+                modifedAt: content.userLastModified)
+            )
+        }
+        try await self.database.save()
+        return .result()
     }
 }
