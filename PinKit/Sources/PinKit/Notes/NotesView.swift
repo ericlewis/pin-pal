@@ -3,6 +3,11 @@ import SwiftData
 
 struct NotesView: View {
     
+    enum FilterType {
+        case all
+        case favorites
+    }
+    
     @Environment(NavigationStore.self)
     private var navigation
 
@@ -23,9 +28,33 @@ struct NotesView: View {
     
     @State
     private var filter = _Note.all()
+    
+    @State
+    private var filterType = FilterType.all
+    
+    @State
+    private var sort = SortDescriptor<_Note>(\.createdAt, order: .reverse)
+    
+    @State
+    private var order = SortOrder.reverse
+    
+    var predicate: Predicate<_Note> {
+        if filterType == .all {
+            return #Predicate<_Note> { _ in
+                true
+            }
+        } else {
+            return #Predicate<_Note> {
+                $0.isFavorite
+            }
+        }
+    }
 
     var body: some View {
         @Bindable var navigationStore = navigation
+        var filter = filter
+        let _ = filter.sortBy = [sort]
+        let _ = filter.predicate = predicate
         NavigationStack(path: $navigationStore.notesNavigationPath) {
             SearchableNotesListView(
                 filter: filter,
@@ -45,20 +74,82 @@ struct NotesView: View {
                 }
                 ToolbarItemGroup(placement: .secondaryAction) {
                     Menu("Filter", systemImage: "line.3.horizontal.decrease.circle") {
-                        Toggle("All Items", systemImage: "note.text", isOn: .constant(true))
+                        Toggle("All Items", systemImage: "note.text", isOn: Binding(
+                            get: {
+                                filterType == .all
+                            },
+                            set: {
+                                if $0 {
+                                    self.filterType = .all
+                                }
+                            }
+                        ))
                         Section {
-                            Button("Favorites", systemImage: "heart") {
-                                
+                            Toggle("Favorites", systemImage: "heart", isOn: Binding(
+                                get: {
+                                    filterType == .favorites
+                                },
+                                set: {
+                                    if $0 {
+                                        self.filterType = .favorites
+                                    }
+                                }
+                            ))
+                        }
+                    }
+                    .symbolVariant(filterType == .all ? .none : .fill)
+                    Menu("Sort", systemImage: "arrow.up.arrow.down") {
+                        Toggle("Name", isOn: Binding(
+                            get: { sort.keyPath == \_Note.name  },
+                            set: {
+                                if $0 {
+                                    withAnimation(.snappy) {
+                                        sort = SortDescriptor<_Note>(\.name, order: order)
+                                    }
+                                }
+                            }
+                        ))
+                        Toggle("Body", isOn: Binding(
+                            get: { sort.keyPath == \_Note.body  },
+                            set: {
+                                if $0 {
+                                    withAnimation(.snappy) {
+                                        sort = SortDescriptor<_Note>(\.body, order: order)
+                                    }
+                                }
+                            }
+                        ))
+                        Toggle("Created At", isOn: Binding(
+                            get: { sort.keyPath == \_Note.createdAt  },
+                            set: {
+                                if $0 {
+                                    withAnimation(.snappy) {
+                                        sort = SortDescriptor<_Note>(\.createdAt, order: order)
+                                    }
+                                }
+                            }
+                        ))
+                        Toggle("Modified At", isOn: Binding(
+                            get: { sort.keyPath == \_Note.modifiedAt  },
+                            set: {
+                                if $0 {
+                                    withAnimation(.snappy) {
+                                        sort = SortDescriptor<_Note>(\.modifiedAt, order: order)
+                                    }
+                                }
+                            }
+                        ))
+                        Section("Order") {
+                            Picker("Order", selection: $order) {
+                                Label("Ascending", systemImage: "arrow.up").tag(SortOrder.forward)
+                                Label("Descending", systemImage: "arrow.down").tag(SortOrder.reverse)
+                            }
+                            .onChange(of: order) {
+                                withAnimation(.snappy) {
+                                    sort.order = order
+                                }
                             }
                         }
-                        .disabled(true)
-                    }
-                    Menu("Sort", systemImage: "arrow.up.arrow.down") {
-                        Toggle("Created At", isOn: .constant(true))
-                        Button("Last Modified At") {
-                            
-                        }
-                        .disabled(true)
                     }
                 }
             }

@@ -15,9 +15,13 @@ struct CallCellView: View {
             if let duration = event.duration {
                 Text(duration.formatted())
             }
-            DateTextView(date: createdAt)
-                .font(.caption)
-                .foregroundStyle(.secondary)
+            LabeledContent {
+                
+            } label: {
+                DateTextView(date: createdAt)
+                    .foregroundStyle(.tertiary)
+                    .font(.caption)
+            }
         }
         .textSelection(.enabled)
     }

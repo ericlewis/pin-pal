@@ -20,9 +20,13 @@ struct TranslationCellView: View {
                 Image(systemName: "arrow.forward")
             }
             .foregroundStyle(accentColor)
-            DateTextView(date: createdAt)
-                .font(.caption)
-                .foregroundStyle(.secondary)
+            LabeledContent {
+                
+            } label: {
+                DateTextView(date: createdAt)
+                    .foregroundStyle(.tertiary)
+                    .font(.caption)
+            }
         }
         .textSelection(.enabled)
     }

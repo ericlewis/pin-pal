@@ -45,8 +45,13 @@ struct MusicCellContent: View {
             if let albumName = event.albumName {
                 Text(albumName)
             }
-            Text(createdAt, format: .dateTime)
-                .font(.caption)
+            LabeledContent {
+                
+            } label: {
+                DateTextView(date: createdAt)
+                    .foregroundStyle(.tertiary)
+                    .font(.caption)
+            }
         }
         .tint(.primary)
     }
@@ -80,9 +85,13 @@ struct MusicCellView: View {
                     if let length = event.length, let lengthCount = Int(length) {
                         Text("^[\(lengthCount) track](inflect: true)")
                     }
-                    DateTextView(date: createdAt)
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
+                    LabeledContent {
+                        
+                    } label: {
+                        DateTextView(date: createdAt)
+                            .foregroundStyle(.tertiary)
+                            .font(.caption)
+                    }
                 }
             }
         } else if let trackId = event.trackID, event.sourceService == "TIDAL" {
