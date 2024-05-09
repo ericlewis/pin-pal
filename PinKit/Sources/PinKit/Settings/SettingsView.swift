@@ -41,18 +41,17 @@ struct SettingsView: View {
         @Bindable var repository = repository
         NavigationStack {
             Form {
-                Section("Device") {
+                Section() {
                     LabeledContent("Account Number", value: repository.subscription?.accountNumber ?? "AAAAAAAAAAAAAAA")
                     LabeledContent("Phone Number", value: repository.subscription?.phoneNumber ?? "1111111111")
                     LabeledContent("Status", value: repository.subscription?.status ?? "ACTIVE")
-                    LabeledContent("Plan", value: repository.subscription?.planType ?? "DEFAULT_PLAN")
-                    LabeledContent("Monthly Price") {
-                        if let subscription = repository.subscription {
-                            Text("$\(subscription.planPrice / 100)")
-                        } else {
-                            Text(repository.subscription?.planType ?? "$24")
-                        }
+                } header: {
+                    Text("Device")
+                } footer: {
+                    Link(destination: .init(string: "https://humane.center/account/subscription")!) {
+                        Text("Subscription Details \(Image(systemName: "arrow.up.right.square"))")
                     }
+                    .font(.footnote.bold())
                 }
                 .labeledContentStyle(AsyncValueLabelContentStyle(isLoading: repository.subscription == nil))
                 Section {
