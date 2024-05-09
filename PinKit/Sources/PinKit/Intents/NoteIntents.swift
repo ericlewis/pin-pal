@@ -658,9 +658,7 @@ struct SyncNotesIntent: AppIntent {
         }
         
         let ids = try await (0..<totalPages).concurrentMap { page in
-            let offset = page * chunkSize
-            let limit = min(chunkSize, total - offset)
-            let data = try await service.notes(offset, limit)
+            let data = try await service.notes(page, chunkSize)
             let result = try await data.content.concurrentMap(process)
                         
             await MainActor.run {

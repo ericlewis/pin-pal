@@ -5,5 +5,8 @@ import SwiftUI
     public var totalNotesToSync = 0
     public var numberOfNotesSynced = 0
     
+    public var totalAiMicEventsToSync = 0
+    public var numberOfAiMicEventsSynced = 0
+    
     public init() {}
 }

@@ -1,12 +1,11 @@
 import SwiftUI
 
 struct AiMicCellView: View {
-    let event: AiMicEvent
-    let feedbackCategory: FeedbackCategory?
-    let createdAt: Date
     
     @AccentColor
     private var accentColor: Color
+
+    var event: AiMicEvent
 
     var body: some View {
         LabeledContent {} label: {
@@ -15,15 +14,18 @@ struct AiMicCellView: View {
                 .foregroundStyle(accentColor)
             Text(event.response)
             LabeledContent {
-                AiMicFeedbackButton(category: feedbackCategory)
+                AiMicFeedbackButton(category: event.feedbackCategory)
             } label: {
-                DateTextView(date: createdAt)
+                DateTextView(date: event.createdAt)
             }
             .font(.caption)
             .foregroundStyle(.secondary)
         }
         .foregroundStyle(.primary)
         .textSelection(.enabled)
+        .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+            DeleteAiMicEventButton(event: event)
+        }
     }
 }
 
@@ -57,7 +59,7 @@ struct AiMicFeedbackButton: View {
                         Image(systemName: "hammer")
                     }
                     .imageScale(.small)
-                    .foregroundStyle(.tertiary)
+                    .foregroundStyle(.secondary)
                     .foregroundStyle(.orange)
                 case .positive:
                     HStack(spacing: 5) {
@@ -65,7 +67,7 @@ struct AiMicFeedbackButton: View {
                         Image(systemName: "hand.thumbsup")
                     }
                     .imageScale(.small)
-                    .foregroundStyle(.tertiary)
+                    .foregroundStyle(.secondary)
                     .foregroundStyle(.green)
                 }
             }
@@ -73,5 +75,20 @@ struct AiMicFeedbackButton: View {
         }
         .font(.caption)
         .foregroundStyle(.tertiary)
+    }
+}
+
+struct DeleteAiMicEventButton: View {
+    
+    let event: AiMicEvent
+    
+    var body: some View {
+        Button(
+            "Delete",
+            systemImage: "trash",
+            role: .destructive,
+            intent: DeleteAiMicEventsIntent(entities: [event], confirmBeforeDeleting: false)
+        )
+        .tint(.red)
     }
 }

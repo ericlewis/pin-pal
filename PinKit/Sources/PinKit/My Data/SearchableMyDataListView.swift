@@ -45,7 +45,7 @@ struct SearchableMyDataListView: View {
                 let createdAt = event.eventCreationTime
                 switch event.eventData {
                 case let .aiMic(micEvent):
-                    AiMicCellView(event: micEvent, feedbackCategory: event.feedbackCategory, createdAt: createdAt)
+                    EmptyView()
                 case let .music(event):
                     MusicCellView(event: event, createdAt: createdAt)
                 case let .call(event):

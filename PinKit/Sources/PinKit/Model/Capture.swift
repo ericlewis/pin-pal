@@ -1,6 +1,8 @@
 import SwiftData
 import Foundation
 
+public typealias Capture = SchemaV1.Capture
+
 extension SchemaV1 {
     
     @Model

@@ -79,7 +79,7 @@ extension MyDataRepository {
                     content[selectedFilter]?.remove(at: i)
                 }
                 guard let event else { return }
-                try await api.deleteEvent(event)
+                try await api.deleteEvent(event.id)
             }
         } catch {
             logger.debug("\(error)")

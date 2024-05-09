@@ -230,6 +230,10 @@ extension HumaneCenterService {
             try await delete(url: eventsUrl.appending(path: "event").appending(path: event.id.uuidString))
         }
         
+        public func delete(eventUUID: UUID) async throws -> Bool {
+            try await delete(url: eventsUrl.appending(path: "event").appending(path: eventUUID.uuidString))
+        }
+        
         public func search(query: String, domain: SearchDomain) async throws -> SearchResults {
             try await get(url: aiBusUrl.appending(path: "search").appending(queryItems: [
                 .init(name: "query", value: query),
@@ -296,7 +300,7 @@ extension HumaneCenterService {
             favorite: { try await service.favorite(memory: $0) },
             unfavorite: { try await service.unfavorite(memory: $0) },
             delete: { try await service.delete(memory: $0) },
-            deleteEvent: { try await service.delete(event: $0) },
+            deleteEvent: { try await service.delete(eventUUID: $0) },
             memory: { try await service.memory(uuid: $0) },
             toggleFeatureFlag: { try await service.toggleFeatureFlag($0, isEnabled: $1) },
             lostDeviceStatus: { try await service.lostDeviceStatus(deviceId: $0) },
@@ -359,7 +363,7 @@ extension HumaneCenterService {
     public var favorite: (ContentEnvelope) async throws -> Void
     public var unfavorite: (ContentEnvelope) async throws -> Void
     public var delete: (ContentEnvelope) async throws -> Void
-    public var deleteEvent: (EventContentEnvelope) async throws -> Void
+    public var deleteEvent: (UUID) async throws -> Void
     public var memory: (UUID) async throws -> ContentEnvelope
     public var toggleFeatureFlag: (FeatureFlag, Bool) async throws -> FeatureFlagEnvelope
     public var lostDeviceStatus: (String) async throws -> LostDeviceEnvelope
@@ -387,7 +391,7 @@ extension HumaneCenterService {
         favorite: @escaping (ContentEnvelope) async throws -> Void,
         unfavorite: @escaping (ContentEnvelope) async throws -> Void,
         delete: @escaping (ContentEnvelope) async throws -> Void,
-        deleteEvent: @escaping (EventContentEnvelope) async throws -> Void,
+        deleteEvent: @escaping (UUID) async throws -> Void,
         memory: @escaping (UUID) async throws -> ContentEnvelope,
         toggleFeatureFlag: @escaping (FeatureFlag, Bool) async throws -> FeatureFlagEnvelope,
         lostDeviceStatus: @escaping (String) async throws -> LostDeviceEnvelope,

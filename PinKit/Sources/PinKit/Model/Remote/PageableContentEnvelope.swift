@@ -61,7 +61,7 @@ public struct MusicEvent: Codable {
     }
 }
 
-public struct AiMicEvent: Codable {
+public struct RemoteAiMicEvent: Codable {
     public let request: String
     public let response: String
 }
@@ -103,7 +103,7 @@ public struct CallEvent: Codable {
 }
 
 public enum EventDataEnvelope: Codable {
-    case aiMic(AiMicEvent)
+    case aiMic(RemoteAiMicEvent)
     case music(MusicEvent)
     case call(CallEvent)
     case translation(TranslationEvent)
@@ -111,7 +111,7 @@ public enum EventDataEnvelope: Codable {
     
     public init(from decoder: any Decoder) throws {
         let container = try decoder.singleValueContainer()
-        if let aiMicEvent = try? container.decode(AiMicEvent.self) {
+        if let aiMicEvent = try? container.decode(RemoteAiMicEvent.self) {
             self = .aiMic(aiMicEvent)
         } else if let musicEvent = try? container.decode(MusicEvent.self) {
             self = .music(musicEvent)
@@ -125,7 +125,7 @@ public enum EventDataEnvelope: Codable {
     }
 }
 
-enum FeedbackCategory: String, Codable {
+public enum FeedbackCategory: String, Codable {
     case positive = "EVENT_FEEDBACK_CATEGORY_POSITIVE"
     case negative = "EVENT_FEEDBACK_CATEGORY_NEGATIVE"
 }

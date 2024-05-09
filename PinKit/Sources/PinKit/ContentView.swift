@@ -26,11 +26,6 @@ public struct ContentView: View {
     public var body: some View {
         @Bindable var navigation = navigation
         TabView(selection: $navigation.selectedTab) {
-            DashboardView()
-                .tabItem {
-                    Label("Memories", systemImage: "memories")
-                }
-                .tag(Tab.dashboard)
             NotesView()
                 .tabItem {
                     Label("Notes", systemImage: "note.text")

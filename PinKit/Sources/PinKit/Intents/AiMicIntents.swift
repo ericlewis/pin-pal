@@ -16,7 +16,7 @@ public struct AiMicEntity: Identifiable {
     @Property(title: "Request Date")
     public var createdAt: Date
 
-    public init(from content: EventContentEnvelope) async {
+    public init(from content: EventContentEnvelope) {
         id = content.eventIdentifier
         createdAt = content.eventCreationTime
         switch content.eventData {
@@ -26,6 +26,13 @@ public struct AiMicEntity: Identifiable {
         default:
             fatalError()
         }
+    }
+    
+    public init(from event: AiMicEvent) {
+        self.id = event.uuid
+        self.request = event.request
+        self.response = event.response
+        self.createdAt = event.createdAt
     }
 }
 
@@ -77,5 +84,132 @@ public struct AiMicEntityQuery: EntityQuery, EntityStringQuery, EnumerableEntity
         try await service.events(.aiMic, 0, 10)
             .content
             .concurrentMap(AiMicEntity.init(from:))
+    }
+}
+
+public struct DeleteAiMicEventsIntent: DeleteIntent {
+    public static var title: LocalizedStringResource = "Delete Ai Mic Events"
+    public static var description: IntentDescription? = .init("Deletes the specified event.", categoryName: "My Data")
+    public static var parameterSummary: some ParameterSummary {
+        When(\.$confirmBeforeDeleting, .equalTo, true, {
+            Summary("Delete \(\.$entities)") {
+                \.$confirmBeforeDeleting
+            }
+        }, otherwise: {
+            Summary("Immediately delete \(\.$entities)") {
+                \.$confirmBeforeDeleting
+            }
+        })
+    }
+    
+    @Parameter(title: "Events")
+    public var entities: [AiMicEntity]
+
+    @Parameter(title: "Confirm Before Deleting", description: "If toggled, you will need to confirm the requests will be deleted", default: true)
+    var confirmBeforeDeleting: Bool
+    
+    public init(entities: [AiMicEntity], confirmBeforeDeleting: Bool) {
+        self.entities = entities
+        self.confirmBeforeDeleting = confirmBeforeDeleting
+    }
+    
+    public init(entities: [AiMicEvent], confirmBeforeDeleting: Bool) {
+        self.entities = entities.map(AiMicEntity.init(from:))
+        self.confirmBeforeDeleting = confirmBeforeDeleting
+    }
+    
+    public init() {}
+    
+    public static var openAppWhenRun: Bool = false
+    public static var isDiscoverable: Bool = true
+    
+    @Dependency
+    public var service: HumaneCenterService
+    
+    @Dependency
+    public var database: any Database
+
+    public func perform() async throws -> some IntentResult {
+        let ids = entities.map(\.id)
+        
+        func delete() async throws {
+            await ids.concurrentForEach { id in
+                try? await service.deleteEvent(id)
+            }
+            try await database.delete(where: #Predicate<AiMicEvent> { ids.contains($0.uuid) })
+            try await database.save()
+        }
+        
+        if confirmBeforeDeleting {
+            try await requestConfirmation(result: .result(dialog: "Are you sure you want to delete?"))
+            try await delete()
+        } else {
+            try await delete()
+        }
+        
+        return .result()
+    }
+}
+
+struct SyncAiMicIntent: AppIntent {
+    public static var title: LocalizedStringResource = "Full Sync Ai Mic Requests"
+
+    public init() {}
+    
+    public static var openAppWhenRun: Bool = false
+    public static var isDiscoverable: Bool = false
+    
+    @Dependency
+    public var service: HumaneCenterService
+    
+    @Dependency
+    public var database: any Database
+    
+    @Dependency
+    public var app: AppState
+    
+    public func perform() async throws -> some IntentResult {
+        let chunkSize = 100
+        let total = try await service.events(.aiMic, 0, 1).totalElements
+        let totalPages = (total + chunkSize - 1) / chunkSize
+        
+        await MainActor.run {
+            withAnimation {
+                app.totalAiMicEventsToSync = total
+            }
+        }
+        
+        let ids = try await (0..<totalPages).concurrentMap { page in
+            let data = try await service.events(.aiMic, page, chunkSize)
+            let result = try await data.content.concurrentMap(process)
+                        
+            await MainActor.run {
+                withAnimation {
+                    app.numberOfAiMicEventsSynced += result.count
+                }
+            }
+                        
+            return result
+        }
+        .flatMap({ $0 })
+                        
+        try await self.database.save()
+
+        await MainActor.run {
+            app.totalAiMicEventsToSync = 0
+            app.numberOfAiMicEventsSynced = 0
+        }
+
+        return .result()
+    }
+    
+    private func process(_ content: EventContentEnvelope) async throws -> UUID {
+        let event = AiMicEvent(from: content)
+        await self.database.insert(event)
+        return event.uuid
+    }
+    
+    enum Error: Swift.Error {
+        case invalidContentType
     }
 }
