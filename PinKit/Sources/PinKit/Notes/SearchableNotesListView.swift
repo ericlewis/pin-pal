@@ -1,72 +1,108 @@
 import SwiftUI
 import AppIntents
+import SwiftData
 
 struct SearchableNotesListView: View {
-    
-    @Environment(NotesRepository.self)
-    private var repository
-    
-    @Environment(NavigationStore.self)
-    private var navigationStore
-    
+
     @Environment(\.isSearching)
     private var isSearching
+    
+    @Environment(HumaneCenterService.self)
+    private var service
 
-    @Binding
-    var query: String
+    @Environment(\.database)
+    private var database
+    
+    @AccentColor
+    private var accentColor
+
+    var isLoading: Bool
+    var isFirstLoad: Bool
+    
+    @Query
+    var notes: [_Note]
+    
+    init(filter: FetchDescriptor<_Note>, isLoading: Bool, isFirstLoad: Bool) {
+        self._notes = .init(filter)
+        self.isLoading = isLoading
+        self.isFirstLoad = isFirstLoad
+    }
     
     var body: some View {
         List {
-            ForEach(repository.content) { memory in
-                Button {
-                    self.navigationStore.activeNote = memory.get()
-                } label: {
-                    ContentCellView(content: memory)
-                }
-                .foregroundStyle(.primary)
-                .swipeActions(edge: .leading, allowsFullSwipe: true) {
-                    Button(memory.favorite ? "Unfavorite" : "Favorite", systemImage: "heart") {
-                        Task {
-                            await repository.toggleFavorite(content: memory)
+            ForEach(notes) { note in
+                Button(intent: OpenNoteIntent(note: note)) {
+                    LabeledContent {} label: {
+                        Text(note.name)
+                            .font(.headline)
+                            .foregroundStyle(accentColor)
+                        Text(note.body)
+                            .foregroundStyle(.primary)
+                        DateTextView(date: note.modifiedAt)
+                            .font(.caption)
+                            .foregroundStyle(.tertiary)
+                    }
+                    .textSelection(.enabled)
+                    .tint(.primary)
+                    .task {
+                        do {
+                            try await service.memory(note.parentUUID)
+                        } catch {
+                            await database.delete(note)
+                            try? await database.save()
+                            
+                            // the merge doesn't happen correctly so we manually clean it up
+                            note.modelContext?.delete(note)
                         }
                     }
-                    .tint(.pink)
-                    .symbolVariant(memory.favorite ? .slash : .none)
                 }
-            }
-            .onDelete { indexSet in
-                Task {
-                    await repository.remove(offsets: indexSet)
+                .swipeActions(edge: .leading, allowsFullSwipe: true) {
+                    FavoriteNoteButton(note: note)
                 }
-            }
-            if !isSearching, repository.isFinished, repository.hasContent, repository.hasMoreData {
-                HStack {
-                    Spacer()
-                    ProgressView()
-                    Spacer()
+                .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                    DeleteNoteButton(note: note)
                 }
-                .task {
-                    await repository.loadMore()
-                }
-                .deleteDisabled(true)
             }
         }
         .overlay {
-            if isSearching, !repository.isLoading, !repository.hasContent {
+            if notes.isEmpty, isSearching, !isLoading {
                 ContentUnavailableView.search
-            } else if !repository.hasContent, repository.isLoading {
-                ProgressView()
-            } else if !repository.hasContent, !isSearching, repository.isFinished {
+            } else if notes.isEmpty, isLoading {
+                ProgressView("This may take a little while.")
+            } else if notes.isEmpty, !isSearching, !isFirstLoad {
                 ContentUnavailableView("No notes yet", systemImage: "note.text")
-            }
-        }
-        .task(id: query + (isSearching ? "true" : "false")) {
-            if isSearching, !query.isEmpty {
-                await repository.search(query: query)
-            } else if query.isEmpty {
-                await repository.reload()
             }
         }
     }
 }
 
+struct FavoriteNoteButton: View {
+    
+    let note: _Note
+    
+    var body: some View {
+        let favorite = note.isFavorite
+        Button(
+            favorite ? "Unfavorite" : "Favorite",
+            systemImage: "heart",
+            intent: FavoriteNotesIntent(action: favorite ? .remove : .add, notes: [note])
+        )
+        .symbolVariant(favorite ? .slash : .none)
+        .tint(.pink)
+    }
+}
+
+struct DeleteNoteButton: View {
+    
+    let note: _Note
+    
+    var body: some View {
+        Button(
+            "Delete",
+            systemImage: "trash",
+            role: .destructive,
+            intent: DeleteNotesIntent(entities: [note], confirmBeforeDeleting: false)
+        )
+        .tint(.red)
+    }
+}

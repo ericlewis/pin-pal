@@ -55,10 +55,10 @@ public struct ToggleVisionAccessIntent: AppIntent {
 }
 
 public struct ToggleDeviceBlockIntent: AppIntent {
-    public static var title: LocalizedStringResource = "Toggle Blocked"
-    public static var description: IntentDescription? = .init("Turns on or off the device block feature.", categoryName: "Device")
+    public static var title: LocalizedStringResource = "Toggle Device Lost or Stolen"
+    public static var description: IntentDescription? = .init("Marks the device as lost or stolen.", categoryName: "Device")
     public static var parameterSummary: some ParameterSummary {
-        Summary("Device block is \(\.$enabled)")
+        Summary("Device is Lost or Stolen \(\.$enabled)")
     }
     
     @Parameter(title: "Enabled")
@@ -199,17 +199,6 @@ public struct ShowSettingsIntent: AppIntent {
         navigationStore.selectedTab = .settings
         return .result()
     }
-}
-
-public enum FavoriteAction: String, AppEnum {
-    case add
-    case remove
-    
-    public static var typeDisplayRepresentation: TypeDisplayRepresentation = .init(name: "Favorite Action")
-    public static var caseDisplayRepresentations: [FavoriteAction: DisplayRepresentation] = [
-        .add: "Add",
-        .remove: "Remove"
-    ]
 }
 
 // MARK: Util

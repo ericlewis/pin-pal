@@ -64,6 +64,7 @@ struct ContentCellView: View {
                     .font(.caption)
                     .foregroundStyle(.tertiary)
             }
+            .textSelection(.enabled)
         case .unknown:
             LabeledContent {} label: {
                 Text("Unknown")

@@ -25,7 +25,7 @@ let package = Package(
             dependencies: [
                 "SDWebImageSwiftUI",
                 "CollectionConcurrencyKit",
-                .product(name: "Collections", package: "swift-collections"),
+                .product(name: "Collections", package: "swift-collections")
             ]),
         .testTarget(
             name: "PinKitTests",

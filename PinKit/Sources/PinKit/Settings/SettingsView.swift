@@ -41,18 +41,16 @@ struct SettingsView: View {
         @Bindable var repository = repository
         NavigationStack {
             Form {
-                Section("Device") {
+                Section() {
                     LabeledContent("Account Number", value: repository.subscription?.accountNumber ?? "AAAAAAAAAAAAAAA")
                     LabeledContent("Phone Number", value: repository.subscription?.phoneNumber ?? "1111111111")
                     LabeledContent("Status", value: repository.subscription?.status ?? "ACTIVE")
-                    LabeledContent("Plan", value: repository.subscription?.planType ?? "DEFAULT_PLAN")
-                    LabeledContent("Monthly Price") {
-                        if let subscription = repository.subscription {
-                            Text("$\(subscription.planPrice / 100)")
-                        } else {
-                            Text(repository.subscription?.planType ?? "$24")
-                        }
-                    }
+                } header: {
+                    Text("Device")
+                } footer: {
+                    Link("Subscription Details \(Image(systemName: "arrow.up.right.square"))", destination: .init(string: "https://humane.center/account/subscription")!)
+                        .font(.footnote.bold())
+                        .imageScale(.small)
                 }
                 .labeledContentStyle(AsyncValueLabelContentStyle(isLoading: repository.subscription == nil))
                 Section {
@@ -98,6 +96,23 @@ struct SettingsView: View {
                     Text("Features")
                 } footer: {
                     Text("Marking your Ai Pin as lost or stolen keeps your .Center data safe and remotely locks your Pin. If your Pin is successfully unlocked while in this state, access to any of your .Center data will still be blocked. Once you recover your Pin, remember to disable this setting.")
+                }
+                Section(".Center") {
+                    Link(destination: .init(string: "https://humane.center/account/services")!) {
+                        LabeledContent("Services") {
+                            Image(systemName: "arrow.up.right.square")
+                        }
+                    }
+                    Link(destination: .init(string: "https://humane.center/account/contacts")!) {
+                        LabeledContent("Contacts") {
+                            Image(systemName: "arrow.up.right.square")
+                        }
+                    }
+                    Link(destination: .init(string: "https://humane.com/changelog")!) {
+                        LabeledContent("Change Log") {
+                            Image(systemName: "arrow.up.right.square")
+                        }
+                    }
                 }
                 Section("Miscellaneous") {
                     let info = repository.extendedInfo
@@ -154,7 +169,7 @@ struct SettingsView: View {
             } message: {
                 Text("This operation is irreversible, all notes will be deleted!")
             }
-            .alert("Lost or stolen Ai Pin", isPresented: $blockPinConfirmationPresented) {
+            .alert("Lost or Stolen Ai Pin", isPresented: $blockPinConfirmationPresented) {
                 Button("Block Pin", role: .destructive) {
                     if let id = repository.extendedInfo?.id {
                         Task {

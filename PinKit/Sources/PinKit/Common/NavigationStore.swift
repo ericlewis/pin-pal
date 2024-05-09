@@ -11,9 +11,11 @@ import AppIntents
     public var authenticationPresented = false
     public var activeNote: Note?
     public var isWifiCodeGeneratorPresented = false
-    
+    public var fileImporterPresented = false
+
     public var textColorPresented = false
     public var iconChangerPresented = false
+    public var savingNote = false
     
     public var showToast: Toast = .none
     

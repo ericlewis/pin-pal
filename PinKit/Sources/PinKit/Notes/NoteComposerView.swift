@@ -6,23 +6,13 @@ public struct NoteComposerView: View {
         case title
         case text
     }
-    
-    struct ViewState {
-        var isLoading = false
-    }
-    
-    @State
-    private var state = ViewState()
-    
+
     @Environment(\.dismiss)
     private var dismiss
     
     @Environment(NavigationStore.self)
-    private var navigationStore
-    
-    @Environment(NotesRepository.self)
-    private var notesRepository
-    
+    private var navigation
+
     @FocusState
     private var focus: Field?
     
@@ -75,16 +65,15 @@ public struct NoteComposerView: View {
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
                     Group {
-                        if state.isLoading {
+                        if navigation.savingNote {
                             ProgressView()
+                        } else if let id = note.memoryId {
+                            Button("Save", intent: UpdateNoteIntent(identifier: id.uuidString, title: note.title, text: note.text))
                         } else {
-                            Button("Save") {
-                                save()
-                            }
+                            Button("Save", intent: CreateNoteIntent(title: note.title, text: note.text))
                         }
                     }
                     .disabled(note.title.isEmpty || note.text.isEmpty)
-                    
                 }
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") {
@@ -94,29 +83,8 @@ public struct NoteComposerView: View {
             }
             .navigationTitle(isEditing ? "Update Note" : "New Note")
         }
-        .disabled(state.isLoading)
-        .interactiveDismissDisabled(state.isLoading)
-    }
-    
-    func save() {
-        Task {
-            do {
-                state.isLoading = true
-                if let uuid = note.memoryId {
-                    let intent = UpdateNoteIntent(identifier: uuid.uuidString, title: note.title, text: note.text)
-                    intent.navigationStore = navigationStore
-                    intent.notesRepository = notesRepository
-                    let _ = try await intent.perform()
-                } else {
-                    let intent = CreateNoteIntent(title: note.title, text: note.text)
-                    intent.navigationStore = navigationStore
-                    intent.notesRepository = notesRepository
-                    let _ = try await intent.perform()
-                }
-            } catch {
-                print(error)
-            }
-        }
+        .disabled(navigation.savingNote)
+        .interactiveDismissDisabled(navigation.savingNote)
     }
 }
 

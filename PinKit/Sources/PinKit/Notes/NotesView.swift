@@ -1,49 +1,67 @@
 import SwiftUI
+import SwiftData
 
 struct NotesView: View {
     
-    @Environment(NavigationStore.self) 
-    private var navigationStore
+    @Environment(NavigationStore.self)
+    private var navigation
+
+    @Environment(\.database)
+    private var database
     
-    @Environment(NotesRepository.self)
-    private var repository
+    @Environment(HumaneCenterService.self)
+    private var service
+
+    @State
+    private var isLoading = false
     
     @State
-    private var fileImporterPresented = false
+    private var isFirstLoad = true
     
     @State
     private var query = ""
     
+    @State
+    private var filter = _Note.all()
+
     var body: some View {
-        @Bindable var navigationStore = navigationStore
+        @Bindable var navigationStore = navigation
         NavigationStack(path: $navigationStore.notesNavigationPath) {
-            SearchableNotesListView(query: $query)
-                .refreshable(action: repository.reload)
-                .searchable(text: $query)
-                .toolbar {
-                    ToolbarItem(placement: .navigation) {
-                        EditButton()
-                    }
-                    ToolbarItem(placement: .primaryAction) {
-                        Menu("Create note", systemImage: "plus") {
-                            Button("Create", systemImage: "note.text.badge.plus") {
-                                self.navigationStore.activeNote = .create()
-                            }
-                            Button("Import", systemImage: "square.and.arrow.down") {
-                                self.fileImporterPresented = true
-                            }
-                        } primaryAction: {
-                            self.navigationStore.activeNote = .create()
+            SearchableNotesListView(
+                filter: filter,
+                isLoading: isLoading,
+                isFirstLoad: isFirstLoad
+            )
+            .refreshable(action: initial)
+            .searchable(text: $query)
+            .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    Menu("Options", systemImage: "ellipsis") {
+                        Toggle("Testing", isOn: .constant(true))
+                        Picker("Sort", systemImage: "arrow.up.arrow.down", selection: .constant("Created At")) {
+                            Text("Created At").tag("Created At")
+                            Text("Last Modified At").tag("Last Modified At")
                         }
+                        .pickerStyle(.menu)
+                    }
+                    .symbolVariant(.circle)
+                }
+                ToolbarItem(placement: .primaryAction) {
+                    Menu("Create note", systemImage: "plus") {
+                        Button("Create", systemImage: "note.text.badge.plus", intent: OpenNewNoteIntent())
+                        Button("Import", systemImage: "square.and.arrow.down", intent: OpenFileImportIntent())
+                    } primaryAction: {
+                        self.navigation.activeNote = .create()
                     }
                 }
-                .navigationTitle("Notes")
+            }
+            .navigationTitle("Notes")
         }
         .sheet(item: $navigationStore.activeNote) { note in
             NoteComposerView(note: note)
         }
         .fileImporter(
-            isPresented: $fileImporterPresented,
+            isPresented: $navigationStore.fileImporterPresented,
             allowedContentTypes: [.plainText]
         ) { result in
             Task.detached {
@@ -51,7 +69,7 @@ struct NotesView: View {
                     switch result {
                     case let .success(success):
                         let str = try String(contentsOf: success)
-                        self.navigationStore.activeNote = .init(text: str, title: success.lastPathComponent)
+                        self.navigation.activeNote = .init(text: str, title: success.lastPathComponent)
                     case let .failure(failure):
                         break
                     }
@@ -60,12 +78,42 @@ struct NotesView: View {
                 }
             }
         }
-        .task(repository.initial)
+        .task(initial)
+        .task(id: query) {
+            do {
+                try await Task.sleep(for: .milliseconds(300))
+                let intent = SearchNotesIntent()
+                intent.query = query
+                intent.service = service
+                guard !query.isEmpty, let result = try await intent.perform().value else {
+                    filter = _Note.all()
+                    return
+                }
+                let ids = result.map(\.id)
+                let predicate = #Predicate<_Note> {
+                    ids.contains($0.parentUUID)
+                }
+                filter = FetchDescriptor(predicate: predicate)
+            } catch is CancellationError {
+                
+            } catch {
+                filter = _Note.all()
+                print(error)
+            }
+        }
     }
-}
-
-#Preview {
-    NotesView()
-        .environment(NotesRepository())
-        .environment(NavigationStore())
+    
+    func initial() async {
+        isLoading = true
+        do {
+            let intent = SyncNotesIntent()
+            intent.database = database
+            intent.service = service
+            try await intent.perform()
+        } catch {
+            print(error)
+        }
+        isLoading = false
+        isFirstLoad = false
+    }
 }

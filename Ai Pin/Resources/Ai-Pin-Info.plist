@@ -2,6 +2,11 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>BGTaskSchedulerPermittedIdentifiers</key>
+	<array>
+		<string>com.ericlewis.Pin-Pal.Notes.refresh</string>
+		<string>com.ericlewis.Pin-Pal.Captures.refresh</string>
+	</array>
 	<key>CFBundleIconFiles</key>
 	<array>
 		<string>DeviceAppIcon.png</string>
@@ -22,6 +27,7 @@
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>fetch</string>
+		<string>processing</string>
 	</array>
 </dict>
 </plist>

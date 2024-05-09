@@ -37,10 +37,10 @@
 		6819B82C2BDB5468009255A0 /* Ai-Pin-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "Ai-Pin-Info.plist"; path = "Ai Pin/Resources/Ai-Pin-Info.plist"; sourceTree = SOURCE_ROOT; };
 		68774C762BEBF9DB00824064 /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = /System/Library/Frameworks/WidgetKit.framework; sourceTree = "<absolute>"; };
 		68774C782BEBF9DB00824064 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = /System/Library/Frameworks/SwiftUI.framework; sourceTree = "<absolute>"; };
-		6897F2A22BE9CE1C00224555 /* Intents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Intents.swift; sourceTree = "<group>"; };
-		6897F2A52BEA7E2700224555 /* NoteIntents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoteIntents.swift; sourceTree = "<group>"; };
-		6897F2A72BEA7E4E00224555 /* CaptureIntents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaptureIntents.swift; sourceTree = "<group>"; };
-		6897F2A92BEAC34D00224555 /* AiMicIntents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AiMicIntents.swift; sourceTree = "<group>"; };
+		6897F2A22BE9CE1C00224555 /* Intents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = Intents.swift; path = ../../PinKit/Sources/PinKit/Intents/Intents.swift; sourceTree = "<group>"; };
+		6897F2A52BEA7E2700224555 /* NoteIntents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NoteIntents.swift; path = ../../PinKit/Sources/PinKit/Intents/NoteIntents.swift; sourceTree = "<group>"; };
+		6897F2A72BEA7E4E00224555 /* CaptureIntents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = CaptureIntents.swift; path = ../../PinKit/Sources/PinKit/Intents/CaptureIntents.swift; sourceTree = "<group>"; };
+		6897F2A92BEAC34D00224555 /* AiMicIntents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AiMicIntents.swift; path = ../../PinKit/Sources/PinKit/Intents/AiMicIntents.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */

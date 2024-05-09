@@ -164,11 +164,6 @@ public struct Video: Codable, Hashable {
     public let accessToken: String
 }
 
-enum CaptureType: String, Codable, Hashable {
-    case photo = "PHOTO"
-    case video = "VIDEO"
-}
-
 enum CaptureState: String, Codable, Hashable {
     case pending = "PENDING_UPLOAD"
     case processed = "PROCESSED"
@@ -249,7 +244,7 @@ public struct ContentEnvelope: Codable, Identifiable, Hashable {
     public let id: UUID
     let uuid: UUID
     let originClientId: String
-    var favorite: Bool
+    public var favorite: Bool
     public let userLastModified: Date
     public let userCreatedAt: Date
     let location: String?
@@ -317,7 +312,7 @@ public struct PageableContentEnvelope<C: Codable>: Codable {
     let size: Int
     let last: Bool
     let empty: Bool
-    let totalElements: Int
+    public let totalElements: Int
     let first: Bool
 }
 
