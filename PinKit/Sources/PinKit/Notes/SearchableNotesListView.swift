@@ -33,14 +33,29 @@ struct SearchableNotesListView: View {
             ForEach(notes) { note in
                 Button(intent: OpenNoteIntent(note: note)) {
                     LabeledContent {} label: {
-                        Text(note.name)
-                            .font(.headline)
-                            .foregroundStyle(accentColor)
+                        LabeledContent {
+                            if note.isFavorite {
+                                Image(systemName: "heart")
+                                    .symbolVariant(.fill)
+                                    .imageScale(.small)
+                                    .foregroundStyle(.pink)
+                                    .offset(x: 10)
+                            }
+                        } label: {
+                            Text(note.name)
+                                .font(.headline)
+                                .foregroundStyle(accentColor)
+                        }
+                            
                         Text(note.body)
                             .foregroundStyle(.primary)
-                        DateTextView(date: note.modifiedAt)
-                            .font(.caption)
-                            .foregroundStyle(.tertiary)
+                        LabeledContent {
+                            
+                        } label: {
+                            DateTextView(date: note.modifiedAt)
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
                     }
                     .textSelection(.enabled)
                     .tint(.primary)

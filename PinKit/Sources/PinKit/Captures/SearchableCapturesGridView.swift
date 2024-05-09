@@ -19,7 +19,7 @@ struct SearchableCapturesGridView: View {
                     NavigationLink {
                         CaptureDetailView(capture: capture)
                     } label: {
-                        ContentCellView(content: capture)
+                        CaptureCellView(content: capture)
                     }
                     .contextMenu {
                         CaptureMenuContents(capture: capture)

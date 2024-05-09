@@ -35,27 +35,30 @@ struct NotesView: View {
             .refreshable(action: initial)
             .searchable(text: $query)
             .toolbar {
-                ToolbarItem(placement: .secondaryAction) {
-                    Menu("Options", systemImage: "ellipsis") {
-                        Menu("Filter", systemImage: "line.3.horizontal.decrease.circle") {
-                            Button("All Items") {
-                                
-                            }
-                        }
-                        Menu("Sort", systemImage: "arrow.up.arrow.down") {
-                            Button("Created At") {
-                                
-                            }
-                        }
-                    }
-                    .symbolVariant(.circle)
-                }
                 ToolbarItem(placement: .primaryAction) {
                     Menu("New Note", systemImage: "plus") {
                         Button("Create", systemImage: "note.text.badge.plus", intent: OpenNewNoteIntent())
                         Button("Import", systemImage: "square.and.arrow.down", intent: OpenFileImportIntent())
                     } primaryAction: {
                         self.navigation.activeNote = .create()
+                    }
+                }
+                ToolbarItemGroup(placement: .secondaryAction) {
+                    Menu("Filter", systemImage: "line.3.horizontal.decrease.circle") {
+                        Toggle("All Items", systemImage: "note.text", isOn: .constant(true))
+                        Section {
+                            Button("Favorites", systemImage: "heart") {
+                                
+                            }
+                        }
+                        .disabled(true)
+                    }
+                    Menu("Sort", systemImage: "arrow.up.arrow.down") {
+                        Toggle("Created At", isOn: .constant(true))
+                        Button("Last Modified At") {
+                            
+                        }
+                        .disabled(true)
                     }
                 }
             }

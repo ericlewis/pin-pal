@@ -1,7 +1,7 @@
 import SwiftUI
 import SDWebImageSwiftUI
 
-struct ContentCellView: View {
+struct CaptureCellView: View {
     let content: ContentEnvelope
     
     @AccentColor
@@ -52,27 +52,7 @@ struct ContentCellView: View {
                 .foregroundStyle(.white)
                 .shadow(color: .black, radius: 5)
             }
-        case let .note(note):
-            LabeledContent {} label: {
-                Text(note.title)
-                    .foregroundStyle(accentColor)
-                    .font(.headline)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .overlay(alignment: .topTrailing) {
-                        if content.favorite {
-                            Image(systemName: "heart")
-                                .symbolVariant(.fill)
-                                .foregroundStyle(.red)
-                        }
-                    }
-                Text(LocalizedStringKey(note.text))
-                    .lineLimit(note.text.count > 500 ? 5 : nil)
-                DateTextView(date: content.userCreatedAt)
-                    .font(.caption)
-                    .foregroundStyle(.tertiary)
-            }
-            .textSelection(.enabled)
-        case .unknown:
+        default:
             LabeledContent {} label: {
                 Text("Unknown")
                     .foregroundStyle(.red)
