@@ -28,16 +28,22 @@ struct ContentCellView: View {
                     .aspectRatio(1, contentMode: .fill)
             }
             .overlay(alignment: .bottom) {
-                HStack {
-                    if content.favorite {
-                        Image(systemName: "heart")
+                VStack {
+                    HStack {
+                        Spacer()
+                        if capture.state != .processed {
+                            Image(systemName: "icloud.and.arrow.up")
+                        }
                     }
                     Spacer()
-                    if capture.state != .processed {
-                        Image(systemName: "icloud.and.arrow.up")
-                    }
-                    if capture.type == .video {
-                        Image(systemName: "play")
+                    HStack {
+                        if content.favorite {
+                            Image(systemName: "heart")
+                        }
+                        Spacer()
+                        if capture.type == .video {
+                            Image(systemName: "play")
+                        }
                     }
                 }
                 .padding(5)
