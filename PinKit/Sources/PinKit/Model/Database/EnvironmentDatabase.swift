@@ -13,6 +13,11 @@ struct DefaultDatabase: Database {
         throw NotImplmentedError.instance
     }
     
+    func count<T>(_: FetchDescriptor<T>) async throws -> Int where T: PersistentModel {
+        assertionFailure("No Database Set.")
+        throw NotImplmentedError.instance
+    }
+    
     func delete(_: some PersistentModel) async {
         assertionFailure("No Database Set.")
     }

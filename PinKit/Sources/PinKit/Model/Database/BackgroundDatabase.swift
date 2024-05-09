@@ -51,18 +51,22 @@ public class BackgroundDatabase: Database {
     }
     
     public func fetch<T>(_ descriptor: FetchDescriptor<T>) async throws -> [T] where T: PersistentModel {
-        return try await self.database.fetch(descriptor)
+        try await self.database.fetch(descriptor)
+    }
+    
+    public func count<T>(_ descriptor: FetchDescriptor<T>) async throws -> Int where T: PersistentModel {
+        try await self.database.count(descriptor)
     }
     
     public func insert(_ model: some PersistentModel) async {
-        return await self.database.insert(model)
+        await self.database.insert(model)
     }
     
     public func insert<T>(_ model: [T]) async where T : PersistentModel {
-        return await self.database.insert(model)
+        await self.database.insert(model)
     }
     
     public func save() async throws {
-        return try await self.database.save()
+        try await self.database.save()
     }
 }

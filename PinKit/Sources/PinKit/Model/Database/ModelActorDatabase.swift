@@ -35,6 +35,10 @@ public actor ModelActorDatabase: Database {
     }
     
     public func fetch<T>(_ descriptor: FetchDescriptor<T>) async throws -> [T] where T: PersistentModel {
-        return try self.modelContext.fetch(descriptor)
+        try self.modelContext.fetch(descriptor)
+    }
+    
+    public func count<T>(_ descriptor: FetchDescriptor<T>) async throws -> Int where T: PersistentModel {
+        try self.modelContext.fetchCount(descriptor)
     }
 }

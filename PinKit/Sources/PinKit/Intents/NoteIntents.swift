@@ -1,5 +1,6 @@
 import AppIntents
 import PinKit
+import SwiftUI
 
 public struct NoteEntity: Identifiable {
     
@@ -570,19 +571,36 @@ struct SyncNotesIntent: AppIntent {
     @Dependency
     public var database: any Database
     
+    @Dependency
+    public var app: AppState
+    
     public func perform() async throws -> some IntentResult {
         let chunkSize = 30
         let total = try await service.notes(0, 1).totalElements
         let totalPages = (total + chunkSize - 1) / chunkSize
 
+        await MainActor.run {
+            withAnimation {
+                app.currentTotalToSync = total
+            }
+        }
+        
         let ids = try await (0..<totalPages).concurrentMap { page in
             let offset = page * chunkSize
             let limit = min(chunkSize, total - offset)
             let data = try await service.notes(offset, limit)
-            return try await data.content.concurrentMap(process)
+            let result = try await data.content.concurrentMap(process)
+                        
+            await MainActor.run {
+                withAnimation {
+                    app.currentSyncTotal += result.count
+                }
+            }
+                        
+            return result
         }
         .flatMap({ $0 })
-                
+                        
         try await self.database.save()
 
         let predicate = #Predicate<_Note> {
@@ -590,6 +608,12 @@ struct SyncNotesIntent: AppIntent {
         }
         try await self.database.delete(where: predicate)
         try await self.database.save()
+        
+        await MainActor.run {
+            app.currentTotalToSync = 0
+            app.currentSyncTotal = 0
+        }
+    
 
         return .result()
     }

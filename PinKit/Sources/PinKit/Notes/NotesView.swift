@@ -8,6 +8,9 @@ struct NotesView: View {
         case favorites
     }
     
+    @Environment(AppState.self)
+    private var app
+    
     @Environment(NavigationStore.self)
     private var navigation
 
@@ -63,6 +66,14 @@ struct NotesView: View {
             )
             .refreshable(action: load)
             .searchable(text: $query)
+            .overlay(alignment: .bottom) {
+                if app.currentTotalToSync > 0, app.currentSyncTotal > 0 {
+                    let current = Double(app.currentSyncTotal)
+                    let total = Double(app.currentTotalToSync)
+                    ProgressView(value:  current / total)
+                        .padding(.horizontal, -5)
+                }
+            }
             .toolbar {
                 ToolbarItem(placement: .primaryAction) {
                     Menu("New Note", systemImage: "plus") {
@@ -214,6 +225,7 @@ struct NotesView: View {
             let intent = SyncNotesIntent()
             intent.database = database
             intent.service = service
+            intent.app = app
             try await intent.perform()
         } catch {
             print(error)

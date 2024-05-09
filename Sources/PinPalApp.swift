@@ -11,6 +11,9 @@ struct PinPalApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self)
     var appDelegate
     #endif
+    
+    @State
+    private var sceneAppState: AppState
 
     @State
     private var sceneNavigationStore: NavigationStore
@@ -60,7 +63,11 @@ struct PinPalApp: App {
         
         let database = SharedDatabase(modelContainer: modelContainer).database
         sceneDatabase = database
+        
+        let appState = AppState()
+        sceneAppState = appState
 
+        AppDependencyManager.shared.add(dependency: appState)
         AppDependencyManager.shared.add(dependency: navigationStore)
         AppDependencyManager.shared.add(dependency: capturesRepository)
         AppDependencyManager.shared.add(dependency: myDataRepository)
@@ -72,14 +79,15 @@ struct PinPalApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()
-                .environment(sceneCapturesRepository)
-                .environment(sceneNavigationStore)
-                .environment(sceneMyDataRepository)
-                .environment(sceneSettingsRepository)
-                .environment(sceneService)
         }
-        .defaultAppStorage(.init(suiteName: "group.com.ericlewis.Pin-Pal") ?? .standard)
+        .environment(sceneCapturesRepository)
+        .environment(sceneNavigationStore)
+        .environment(sceneMyDataRepository)
+        .environment(sceneSettingsRepository)
+        .environment(sceneService)
+        .environment(sceneAppState)
         .environment(\.database, sceneDatabase)
+        .defaultAppStorage(.init(suiteName: "group.com.ericlewis.Pin-Pal") ?? .standard)
         .modelContainer(sceneModelContainer)
         .backgroundTask(.appRefresh("com.ericlewis.Pin-Pal.Notes.refresh")) {
             await handleNotesRefresh()
