@@ -559,23 +559,26 @@ struct LoadNotesIntent: AppIntent {
     public var database: any Database
     
     public func perform() async throws -> some IntentResult {
-        let total = try await service.notes(page, 1).totalElements
+        let chunkSize = 100
+        let total = try await service.notes(0, 1).totalElements
         let data = try await service.notes(0, total)
-        await data.content.concurrentForEach { content in
-            guard let note: Note = content.get() else {
-                return
-            }
-            await self.database.insert(_Note(
-                uuid: note.uuid ?? .init(),
-                parentUUID: content.id,
-                name: note.title,
-                body: note.text,
-                isFavorite: content.favorite,
-                createdAt: content.userCreatedAt,
-                modifedAt: content.userLastModified)
-            )
-        }
+        await data.content.concurrentForEach(process)
         try await self.database.save()
         return .result()
+    }
+    
+    private func process(_ content: ContentEnvelope) async {
+        guard let note: Note = content.get() else {
+            return
+        }
+        await self.database.insert(_Note(
+            uuid: note.uuid ?? .init(),
+            parentUUID: content.id,
+            name: note.title,
+            body: note.text,
+            isFavorite: content.favorite,
+            createdAt: content.userCreatedAt,
+            modifedAt: content.userLastModified)
+        )
     }
 }

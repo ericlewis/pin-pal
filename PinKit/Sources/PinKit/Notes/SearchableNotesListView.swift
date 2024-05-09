@@ -12,6 +12,9 @@ struct SearchableNotesListView: View {
 
     @Environment(\.database)
     private var database
+    
+    @AccentColor
+    private var accentColor
 
     var isLoading: Bool
     var isFirstLoad: Bool
@@ -31,9 +34,15 @@ struct SearchableNotesListView: View {
                 Button(intent: OpenNoteIntent(note: note)) {
                     LabeledContent {} label: {
                         Text(note.name)
+                            .font(.headline)
+                            .foregroundStyle(accentColor)
                         Text(note.body)
+                            .foregroundStyle(.primary)
                         DateTextView(date: note.createdAt)
+                            .font(.caption)
+                            .foregroundStyle(.tertiary)
                     }
+                    .textSelection(.enabled)
                     .tint(.primary)
                     .task {
                         do {

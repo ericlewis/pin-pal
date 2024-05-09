@@ -81,7 +81,7 @@ struct SettingsView: View {
                         }
                         .disabled(repository.subscription == nil)
                     }
-                    Toggle("Block my device", isOn: .constant(repository.isDeviceLost))
+                    Toggle("Mark device as lost or stolen", isOn: .constant(repository.isDeviceLost))
                         .onTapGesture(perform: {
                             if repository.isDeviceLost, let id = repository.extendedInfo?.id {
                                 Task {
@@ -153,7 +153,7 @@ struct SettingsView: View {
             } message: {
                 Text("This operation is irreversible, all notes will be deleted!")
             }
-            .alert("Mark device as lost or stolen", isPresented: $blockPinConfirmationPresented) {
+            .alert("Lost or Stolen Ai Pin", isPresented: $blockPinConfirmationPresented) {
                 Button("Block Pin", role: .destructive) {
                     if let id = repository.extendedInfo?.id {
                         Task {

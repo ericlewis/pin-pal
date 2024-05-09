@@ -18,5 +18,6 @@ struct AiMicCellView: View {
                 .foregroundStyle(.tertiary)
         }
         .foregroundStyle(.primary)
+        .textSelection(.enabled)
     }
 }
