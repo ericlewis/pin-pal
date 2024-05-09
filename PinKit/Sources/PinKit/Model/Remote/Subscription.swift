@@ -5,7 +5,6 @@ public struct Subscription: Codable {
     public let phoneNumber: String
     let accountNumber: String
     let planType: String
-    let defaultPaymentMethod: PaymentMethod
     let pinSetAt: Date?
     let planPrice: Int
     
@@ -14,7 +13,6 @@ public struct Subscription: Codable {
         phoneNumber: String,
         accountNumber: String,
         planType: String,
-        defaultPaymentMethod: PaymentMethod,
         pinSetAt: Date?,
         planPrice: Int
     ) {
@@ -22,7 +20,6 @@ public struct Subscription: Codable {
         self.phoneNumber = phoneNumber
         self.accountNumber = accountNumber
         self.planType = planType
-        self.defaultPaymentMethod = defaultPaymentMethod
         self.pinSetAt = pinSetAt
         self.planPrice = planPrice
     }

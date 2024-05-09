@@ -261,10 +261,6 @@ extension HumaneCenterService {
             try await get(url: deviceAssignmentUrl.appending(path: "devices"))
         }
         
-        func memories() async throws -> MemoriesResponse {
-            try await get(url: captureUrl.appending(path: "memories"))
-        }
-        
         func deleteAllNotes() async throws -> Bool {
             try await delete(url: noteUrl)
         }
@@ -315,7 +311,6 @@ extension HumaneCenterService {
             lostDeviceStatus: { try await service.lostDeviceStatus(deviceId: $0) },
             toggleLostDeviceStatus: { try await service.toggleLostDeviceStatus(deviceId: $0, isLost: $1) },
             deviceIdentifiers: { try await service.deviceIdentifiers() },
-            dashboard: { try await service.memories() },
             deleteAllNotes: { try await service.deleteAllNotes() },
             capturesList: { try await service.capturesList(uuids: $0) },
             bulkFavorite: { try await service.favorite(uuids: $0) },
@@ -337,7 +332,6 @@ extension HumaneCenterService {
     private static let eventsUrl = rootUrl.appending(path: "notable-events")
     private static let subscriptionUrl = rootUrl.appending(path: "subscription")
     private static let subscriptionV3Url = rootUrl.appending(path: "subscription/v3/subscription")
-    private static let addonsUrl = rootUrl.appending(path: "subscription/addons")
     private static let featureFlagsUrl = rootUrl.appending(path: "feature-flags/v0/feature-flag/flags")
     
     static let sessionUrl = URL(string: "https://humane.center/api/auth/session")!
@@ -384,7 +378,6 @@ extension HumaneCenterService {
     public var lostDeviceStatus: (String) async throws -> LostDeviceEnvelope
     public var toggleLostDeviceStatus: (String, Bool) async throws -> LostDeviceEnvelope
     public var deviceIdentifiers: () async throws -> [String]
-    public var dashboard: () async throws -> MemoriesResponse
     public var deleteAllNotes: () async throws -> Void
     public var capturesList: ([UUID]) async throws -> [ContentEnvelope]
     public var bulkFavorite: ([UUID]) async throws -> BulkResponse
@@ -417,7 +410,6 @@ extension HumaneCenterService {
         lostDeviceStatus: @escaping (String) async throws -> LostDeviceEnvelope,
         toggleLostDeviceStatus: @escaping (String, Bool) async throws -> LostDeviceEnvelope,
         deviceIdentifiers: @escaping () async throws -> [String],
-        dashboard: @escaping () async throws -> MemoriesResponse,
         deleteAllNotes: @escaping () async throws -> Void,
         capturesList: @escaping ([UUID]) async throws -> [ContentEnvelope],
         bulkFavorite: @escaping ([UUID]) async throws -> BulkResponse,
@@ -453,7 +445,6 @@ extension HumaneCenterService {
         self.lostDeviceStatus = lostDeviceStatus
         self.toggleLostDeviceStatus = toggleLostDeviceStatus
         self.deviceIdentifiers = deviceIdentifiers
-        self.dashboard = dashboard
         self.deleteAllNotes = deleteAllNotes
         self.favoriteById = favoriteById
         self.unfavoriteById = unfavoriteById
@@ -482,80 +473,3 @@ func extractValue(from text: String, forKey key: String) -> String? {
     
     return nil
 }
-
-// Note: Commented out because they aren't currently used, but will be used and are thus a useful reference
-//
-//extension HumaneCenterService {
-//
-//    func capturesList(for uuids: [UUID]) async throws -> Bool {
-//        try await get(url: Self.captureUrl.appending(path: "captures").appending(path: "list").appending(queryItems: [
-//            .init(name: "uuid", value: uuids.map(\.uuidString).joined(separator: ","))
-//        ]))
-//    }
-//
-//    func memoryOriginals(for id: String) async throws -> ResponseContainer {
-//        try await get(url: Self.memoryUrl.appending(path: id).appending(path: "originals"))
-//    }
-//
-//    func index(memory id: String) async throws -> ResponseContainer {
-//        try await post(url: Self.memoryUrl.appending(path: id).appending(path: "index"))
-//    }
-//
-//    func tag(memory id: String) async throws -> ResponseContainer {
-//        try await post(url: Self.memoryUrl.appending(path: id).appending(path: "tag"))
-//    }
-//
-//    func remove(tag id: String, from memory: String) async throws -> ResponseContainer {
-//        try await delete(url: Self.memoryUrl.appending(path: id).appending(path: "tag"))
-//    }
-//
-//    func save(search: String) async throws -> Bool {
-//        try await get(url: Self.captureUrl.appending(path: "search").appending(path: "save"))
-//    }
-//
-//    func eventsOverview() async throws -> EventOverview {
-//        try await get(url: Self.eventsUrl.appending(path: "mydata").appending(path: "overview"))
-//    }
-//
-//    func memoryDerivatives(for id: String) async throws -> ResponseContainer {
-//        try await get(url: Self.memoryUrl.appending(path: id).appending(path: "derivatives"))
-//    }
-//
-//    func pauseSubscription() async throws -> Bool {
-//        try await put(url: Self.subscriptionV3Url)
-//    }
-//
-//    func unpauseSubscription() async throws -> Bool {
-//        try await put(url: Self.subscriptionV3Url)
-//    }
-//
-//    // has a postable version
-//    func addons() async throws -> [Addon] {
-//        try await get(url: Self.addonsUrl)
-//    }
-//
-//    func delete(addon: Addon) async throws -> Bool {
-//        try await delete(url: Self.addonsUrl.appending(path: addon.spid))
-//    }
-//
-//    func availableAddons() async throws -> [Addon] {
-//        try await get(url: Self.addonsUrl.appending(path: "types"))
-//    }
-//}
-
-//
-//async bulkFavoriteMemories(e) {
-//    await t.post("/memory/bulk-favorite", {
-//        memoryUUIDs: e
-//    })
-//},
-//async bulkUnFavoriteMemories(e) {
-//    await t.post("/memory/bulk-unfavorite", {
-//        memoryUUIDs: e
-//    })
-//},
-//async bulkDeleteMemories(e) {
-//    await t.post("/memory/bulk-delete", {
-//        memoryUUIDs: e
-//    })
-//}
