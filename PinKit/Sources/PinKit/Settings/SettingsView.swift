@@ -61,7 +61,7 @@ struct SettingsView: View {
                 } header: {
                     Text("Device")
                 } footer: {
-                    Link("Subscription Details \(Image(systemName: "arrow.up.right.square"))", destination: .init(string: "https://humane.center/account/subscription")!)
+                    Link("Subscription \(Image(systemName: "arrow.up.right.square"))", destination: .init(string: "https://humane.center/account/subscription")!)
                         .font(.footnote.bold())
                         .imageScale(.small)
                 }
@@ -95,7 +95,7 @@ struct SettingsView: View {
                 } footer: {
                     Text("Marking your Ai Pin as lost or stolen keeps your .Center data safe and remotely locks your Pin. If your Pin is successfully unlocked while in this state, access to any of your .Center data will still be blocked. Once you recover your Pin, remember to disable this setting.")
                 }
-                Section(".Center") {
+                Section {
                     Link(destination: .init(string: "https://humane.center/account/services")!) {
                         LabeledContent("Services") {
                             Image(systemName: "arrow.up.right.square")
@@ -111,6 +111,15 @@ struct SettingsView: View {
                             Image(systemName: "arrow.up.right.square")
                         }
                     }
+                    Link(destination: .init(string: "https://support.humane.com/")!) {
+                        LabeledContent("Support") {
+                            Image(systemName: "arrow.up.right.square")
+                        }
+                    }
+                } header: {
+                    Text(".Center")
+                } footer: {
+                    Text("Please keep in mind Pin Pal is not an official app, the Support team cannot help with any app issues.")
                 }
                 Section("Miscellaneous") {
                     let info = repository.extendedInfo

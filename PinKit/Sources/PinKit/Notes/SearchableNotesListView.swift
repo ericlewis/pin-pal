@@ -59,25 +59,6 @@ struct SearchableNotesListView: View {
                     }
                     .textSelection(.enabled)
                     .tint(.primary)
-                    .task {
-                        do {
-                            try await service.memory(note.parentUUID)
-                        } catch is CancellationError {
-                            
-                        } catch APIError.notAuthorized {
-                            
-                        } catch {
-                            let err = (error as NSError)
-                            guard err.domain == NSURLErrorDomain, err.code == NSURLErrorCancelled else {
-                                return
-                            }
-                            await database.delete(note)
-                            try? await database.save()
-                            
-                            // the merge doesn't happen correctly so we manually clean it up
-                            note.modelContext?.delete(note)
-                        }
-                    }
                 }
                 .swipeActions(edge: .leading, allowsFullSwipe: true) {
                     FavoriteNoteButton(note: note)
