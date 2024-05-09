@@ -1,22 +1,6 @@
 import SwiftUI
 import SwiftData
 
-struct AiMicQueryView: View {
-    
-    @Query(AiMicEvent.all())
-    private var events: [AiMicEvent]
-    
-    init(descriptor: FetchDescriptor<AiMicEvent>) {
-        self._events = .init(descriptor)
-    }
-    
-    var body: some View {
-        ForEach(events) { event in
-            AiMicCellView(event: event)
-        }
-    }
-}
-
 struct AiMicListView: View {
     
     @Environment(\.database)
@@ -27,19 +11,13 @@ struct AiMicListView: View {
     
     @Environment(AppState.self)
     private var app
-    
-    @Environment(\.isSearching)
-    private var isSearching
-    
+
     @State
     private var isLoading = false
     
     @State
     private var isFirstLoad = true
-    
-    @Query(AiMicEvent.all())
-    private var events: [AiMicEvent]
-    
+
     var query: String
     
     var predicate: Predicate<AiMicEvent> {
@@ -55,27 +33,17 @@ struct AiMicListView: View {
     }
     
     var body: some View {
-        List {
-            var descriptor = AiMicEvent.all()
-            let _ = descriptor.predicate = predicate
-            AiMicQueryView(descriptor: descriptor)
+        var descriptor = AiMicEvent.all()
+        let _ = descriptor.predicate = predicate
+        QueryListView(descriptor: descriptor) { event in
+            AiMicCellView(event: event)
+        } placeholder: {
+            ContentUnavailableView("No data yet", systemImage: "person.text.rectangle")
         }
-        .overlay {
-            if isSearching, events.isEmpty, !isLoading {
-                ContentUnavailableView.search
-            } else if events.isEmpty, isLoading {
-                ProgressView()
-            } else if events.isEmpty, !isSearching, !isFirstLoad {
-                ContentUnavailableView("No data yet", systemImage: "person.text.rectangle")
-            }
-        }
+        .environment(\.isLoading, isLoading)
+        .environment(\.isFirstLoad, isFirstLoad)
         .overlay(alignment: .bottom) {
-            if app.totalAiMicEventsToSync > 0, app.numberOfAiMicEventsSynced > 0 {
-                let current = Double(app.numberOfAiMicEventsSynced)
-                let total = Double(app.totalAiMicEventsToSync)
-                ProgressView(value:  current / total)
-                    .padding(.horizontal, -5)
-            }
+            AiMicSyncStatusView()
         }
         .refreshable(action: load)
         .task(initial)
@@ -101,5 +69,20 @@ struct AiMicListView: View {
         }
         isLoading = false
         isFirstLoad = false
+    }
+}
+
+struct AiMicSyncStatusView: View {
+    
+    @Environment(AppState.self)
+    private var app
+    
+    var body: some View {
+        if app.totalAiMicEventsToSync > 0, app.numberOfAiMicEventsSynced > 0 {
+            let current = Double(app.numberOfAiMicEventsSynced)
+            let total = Double(app.totalAiMicEventsToSync)
+            ProgressView(value:  current / total)
+                .padding(.horizontal, -5)
+        }
     }
 }
