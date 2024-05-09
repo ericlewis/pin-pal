@@ -61,7 +61,7 @@ struct NotesView: View {
                 isLoading: isLoading,
                 isFirstLoad: isFirstLoad
             )
-            .refreshable(action: initial)
+            .refreshable(action: load)
             .searchable(text: $query)
             .toolbar {
                 ToolbarItem(placement: .primaryAction) {
@@ -202,6 +202,13 @@ struct NotesView: View {
     }
     
     func initial() async {
+        guard !isLoading, isFirstLoad else { return }
+        Task.detached {
+            await load()
+        }
+    }
+    
+    func load() async {
         isLoading = true
         do {
             let intent = SyncNotesIntent()

@@ -246,7 +246,7 @@ public struct FavoriteNotesIntent: AppIntent {
                     parentUUID: content.id,
                     name: note.title,
                     body: note.text,
-                    isFavorite: content.favorite,
+                    isFavorite: action == .add,
                     createdAt: content.userCreatedAt,
                     modifedAt: content.userLastModified)
                 )

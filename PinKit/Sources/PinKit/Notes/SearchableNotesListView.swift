@@ -61,7 +61,7 @@ struct SearchableNotesListView: View {
                     .tint(.primary)
                 }
                 .swipeActions(edge: .leading, allowsFullSwipe: true) {
-                    FavoriteNoteButton(note: note)
+                    FavoriteNoteButton(note: note, favorite: note.isFavorite)
                 }
                 .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                     DeleteNoteButton(note: note)
@@ -82,10 +82,10 @@ struct SearchableNotesListView: View {
 
 struct FavoriteNoteButton: View {
     
-    let note: _Note
+    var note: _Note
+    var favorite: Bool
     
     var body: some View {
-        let favorite = note.isFavorite
         Button(
             favorite ? "Unfavorite" : "Favorite",
             systemImage: "heart",
