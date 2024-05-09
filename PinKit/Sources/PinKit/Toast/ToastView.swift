@@ -10,7 +10,7 @@ public enum Toast {
 struct ToastView: View {
     
     @Environment(Navigation.self)
-    private var navigationStore
+    private var navigation
     
     let title: LocalizedStringKey
     let systemImage: String
@@ -32,11 +32,11 @@ struct ToastView: View {
             .task {
                 if let duration {
                     try? await Task.sleep(for: duration)
-                    navigationStore.dismissToast()
+                    navigation.dismissToast()
                 }
             }
             .transition(.scale(0.8, anchor: .top).combined(with: .opacity))
-            .animation(.spring, value: navigationStore.showToast)
+            .animation(.spring, value: navigation.showToast)
     }
 }
 

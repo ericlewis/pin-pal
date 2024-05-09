@@ -54,7 +54,7 @@ struct NotesView: View {
     }
 
     var body: some View {
-        @Bindable var navigationStore = navigation
+        @Bindable var navigation = navigation
         var filter = filter
         let _ = filter.sortBy = [sort]
         let _ = filter.predicate = predicate
@@ -166,11 +166,11 @@ struct NotesView: View {
             }
             .navigationTitle("Notes")
         }
-        .sheet(item: $navigationStore.activeNote) { note in
+        .sheet(item: $navigation.activeNote) { note in
             NoteComposerView(note: note)
         }
         .fileImporter(
-            isPresented: $navigationStore.fileImporterPresented,
+            isPresented: $navigation.fileImporterPresented,
             allowedContentTypes: [.plainText]
         ) { result in
             Task.detached {

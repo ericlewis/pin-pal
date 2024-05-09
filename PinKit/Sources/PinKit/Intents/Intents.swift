@@ -255,10 +255,10 @@ public struct ShowSettingsIntent: AppIntent {
     public static var isDiscoverable: Bool = true
 
     @Dependency
-    public var navigationStore: Navigation
+    public var navigation: Navigation
     
     public func perform() async throws -> some IntentResult {
-        navigationStore.selectedTab = .settings
+        navigation.selectedTab = .settings
         return .result()
     }
 }

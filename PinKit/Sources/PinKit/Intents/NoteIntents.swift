@@ -108,10 +108,10 @@ public struct OpenNoteIntent: OpenIntent {
     public static var isDiscoverable: Bool = true
     
     @Dependency
-    public var navigationStore: Navigation
+    public var navigation: Navigation
 
     public func perform() async throws -> some IntentResult {
-        navigationStore.activeNote = .init(
+        navigation.activeNote = .init(
             uuid: target.id,
             memoryId: target.id,
             text: target.text,
@@ -150,7 +150,7 @@ public struct CreateNoteIntent: AppIntent {
     public static var isDiscoverable: Bool = true
     
     @Dependency
-    public var navigationStore: Navigation
+    public var navigation: Navigation
 
     @Dependency
     public var database: any Database
@@ -159,7 +159,7 @@ public struct CreateNoteIntent: AppIntent {
     public var service: HumaneCenterService
     
     public func perform() async throws -> some IntentResult {
-        navigationStore.savingNote = true
+        navigation.savingNote = true
         let content = try await service.create(.init(text: text, title: title))
         let note: NoteEnvelope = content.get()!
         await database.insert(
@@ -174,8 +174,8 @@ public struct CreateNoteIntent: AppIntent {
             )
         )
         try await database.save()
-        navigationStore.activeNote = nil
-        navigationStore.savingNote = false
+        navigation.activeNote = nil
+        navigation.savingNote = false
         return .result()
     }
 }
@@ -516,10 +516,10 @@ public struct ShowNotesIntent: AppIntent {
     public static var isDiscoverable: Bool = true
 
     @Dependency
-    public var navigationStore: Navigation
+    public var navigation: Navigation
     
     public func perform() async throws -> some IntentResult {
-        navigationStore.selectedTab = .notes
+        navigation.selectedTab = .notes
         return .result()
     }
 }
@@ -534,11 +534,11 @@ public struct OpenNewNoteIntent: AppIntent {
     public static var isDiscoverable: Bool = true
 
     @Dependency
-    public var navigationStore: Navigation
+    public var navigation: Navigation
     
     public func perform() async throws -> some IntentResult {
-        if navigationStore.activeNote == nil {
-            navigationStore.activeNote = .create()
+        if navigation.activeNote == nil {
+            navigation.activeNote = .create()
         }
         return .result()
     }
@@ -554,11 +554,11 @@ public struct OpenFileImportIntent: AppIntent {
     public static var isDiscoverable: Bool = true
 
     @Dependency
-    public var navigationStore: Navigation
+    public var navigation: Navigation
     
     public func perform() async throws -> some IntentResult {
-        if navigationStore.activeNote == nil {
-            navigationStore.fileImporterPresented = true
+        if navigation.activeNote == nil {
+            navigation.fileImporterPresented = true
         }
         return .result()
     }
@@ -590,7 +590,7 @@ public struct UpdateNoteIntent: AppIntent {
     public static var isDiscoverable: Bool = false
     
     @Dependency
-    public var navigationStore: Navigation
+    public var navigation: Navigation
 
     @Dependency
     public var service: HumaneCenterService
@@ -608,7 +608,7 @@ public struct UpdateNoteIntent: AppIntent {
         guard let memoryId = UUID(uuidString: self.identifier) else {
             throw $identifier.needsValueError("What is identifier of the note to update?")
         }
-        navigationStore.savingNote = true
+        navigation.savingNote = true
         let content = try await service.update(identifier, .init(text: text, title: title))
         let note: NoteEnvelope = content.get()!
         await database.insert(
@@ -623,8 +623,8 @@ public struct UpdateNoteIntent: AppIntent {
             )
         )
         try await database.save()
-        navigationStore.activeNote = nil
-        navigationStore.savingNote = false
+        navigation.activeNote = nil
+        navigation.savingNote = false
         return .result(value: memoryId.uuidString)
     }
 }

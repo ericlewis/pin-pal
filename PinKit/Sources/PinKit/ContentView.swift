@@ -4,7 +4,7 @@ import SDWebImage
 public struct ContentView: View {
     
     @Environment(Navigation.self)
-    private var navigationStore
+    private var navigation
     
     @AccentColor
     private var tint
@@ -24,8 +24,8 @@ public struct ContentView: View {
     }
     
     public var body: some View {
-        @Bindable var navigationStore = navigationStore
-        TabView(selection: $navigationStore.selectedTab) {
+        @Bindable var navigation = navigation
+        TabView(selection: $navigation.selectedTab) {
             DashboardView()
                 .tabItem {
                     Label("Memories", systemImage: "memories")

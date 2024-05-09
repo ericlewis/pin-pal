@@ -3,13 +3,13 @@ import SwiftUI
 struct ToastViewModifier: ViewModifier {
     
     @Environment(Navigation.self)
-    private var navigationStore
+    private var navigation
     
     func body(content: Content) -> some View {
-        @Bindable var navigationStore = navigationStore
+        @Bindable var navigation = navigation
         content
             .overlay(alignment: .bottom) {
-                switch navigationStore.showToast {
+                switch navigation.showToast {
                 case .captureSaved:
                     ToastView("Capture saved to Camera Roll", systemImage: "checkmark")
                 case .error:

@@ -340,10 +340,10 @@ public struct ShowCapturesIntent: AppIntent {
     public static var isDiscoverable: Bool = true
 
     @Dependency
-    public var navigationStore: Navigation
+    public var navigation: Navigation
     
     public func perform() async throws -> some IntentResult {
-        navigationStore.selectedTab = .captures
+        navigation.selectedTab = .captures
         return .result()
     }
 }
