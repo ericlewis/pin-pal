@@ -94,6 +94,10 @@ public struct ToggleDeviceBlockIntent: AppIntent {
     @Parameter(title: "Enabled")
     public var enabled: Bool
 
+    public init(isBlocked: Bool) {
+        self.enabled = isBlocked
+    }
+
     public init() {}
 
     public static var openAppWhenRun: Bool = false
@@ -101,12 +105,16 @@ public struct ToggleDeviceBlockIntent: AppIntent {
     
     @Dependency
     public var service: HumaneCenterService
+    
+    @Dependency
+    public var settings: SettingsRepository
 
     public func perform() async throws -> some IntentResult & ReturnsValue<Bool> {
         guard let deviceId = try await service.deviceIdentifiers().first else {
             fatalError()
         }
         let result = try await service.toggleLostDeviceStatus(deviceId, enabled)
+        settings.isDeviceLost = result.isLost
         return .result(value: result.isLost)
     }
 }

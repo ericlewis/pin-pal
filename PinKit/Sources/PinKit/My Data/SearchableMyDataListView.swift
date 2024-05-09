@@ -44,8 +44,8 @@ struct SearchableMyDataListView: View {
             ForEach(isSearching ? searchContent : repository.content[repository.selectedFilter] ?? []) { event in
                 let createdAt = event.eventCreationTime
                 switch event.eventData {
-                case let .aiMic(event):
-                    AiMicCellView(event: event, createdAt: createdAt)
+                case let .aiMic(micEvent):
+                    AiMicCellView(event: micEvent, feedbackCategory: event.feedbackCategory, createdAt: createdAt)
                 case let .music(event):
                     MusicCellView(event: event, createdAt: createdAt)
                 case let .call(event):

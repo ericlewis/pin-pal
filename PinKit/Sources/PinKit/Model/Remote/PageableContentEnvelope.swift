@@ -125,11 +125,16 @@ public enum EventDataEnvelope: Codable {
     }
 }
 
+enum FeedbackCategory: String, Codable {
+    case positive = "EVENT_FEEDBACK_CATEGORY_POSITIVE"
+    case negative = "EVENT_FEEDBACK_CATEGORY_NEGATIVE"
+}
+
 public struct EventContentEnvelope: Codable {
     let originatorIdentifier: String
     let feedbackUUID: UUID?
     public let eventCreationTime: Date
-    let feedbackCategory: String?
+    let feedbackCategory: FeedbackCategory?
     let eventType: String
     public let eventIdentifier: UUID
     public let eventData: EventDataEnvelope

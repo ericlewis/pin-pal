@@ -25,7 +25,6 @@ import OSLog
     public var isDeviceLost = false
     
     var service: HumaneCenterService
-    var observationTask: Task<Void, Never>?
     
     public init(service: HumaneCenterService) {
         self.service = service
@@ -99,9 +98,5 @@ import OSLog
     
     func deleteAllNotes() async {
         try? await service.deleteAllNotes()
-    }
-
-    deinit {
-        self.observationTask?.cancel()
     }
 }

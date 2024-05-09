@@ -41,18 +41,18 @@ struct SettingsView: View {
                 Section() {
                     let text = repository.subscription?.phoneNumber.formatPhoneNumber() ?? "1111111111"
                     LabeledContent("Phone Number") {
-                        if canDevicePlaceCalls(), let number = repository.subscription?.phoneNumber, let url = URL(string: "tel://\(number)") {
-                            Link(text, destination: url)
+                        if canDevicePlaceCalls(), let number = repository.subscription?.phoneNumber.telephoneUrl() {
+                            Link(text, destination: number)
                         } else {
                             Text(text)
                         }
                     }
                     .contextMenu {
-                        if canDevicePlaceCalls(), let number = repository.subscription?.phoneNumber, let url = URL(string: "tel://\(number)") {
+                        if canDevicePlaceCalls(), let number = repository.subscription?.phoneNumber.telephoneUrl() {
                             Button("Copy Phone Number", systemImage: "doc.on.doc") {
-                                UIPasteboard.general.url = url
+                                UIPasteboard.general.url = number
                             }
-                            Link(destination: url) {
+                            Link(destination: number) {
                                 Label("Call \(text)", systemImage: "phone")
                             }
                         }
@@ -170,15 +170,7 @@ struct SettingsView: View {
                 Text("This operation is irreversible, all notes will be deleted!")
             }
             .alert("Lost or Stolen Ai Pin", isPresented: $blockPinConfirmationPresented) {
-                Button("Block Pin", role: .destructive) {
-                    if let id = repository.extendedInfo?.id {
-                        Task {
-                            try await service.toggleLostDeviceStatus(id, true)
-                            repository.isDeviceLost = true
-                            blockPinConfirmationPresented = false
-                        }
-                    }
-                }
+                Button("Block Pin", role: .destructive, intent: ToggleDeviceBlockIntent(isBlocked: true))
                 Button("Cancel", role: .cancel) {
                     blockPinConfirmationPresented = false
                 }
@@ -293,5 +285,9 @@ extension String {
         }
         
         return result
+    }
+    
+    func telephoneUrl() -> URL? {
+        URL(string: "tel://\(self)")
     }
 }
