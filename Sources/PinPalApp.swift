@@ -54,11 +54,9 @@ struct PinPalApp: App {
         let settingsRepository = SettingsRepository(service: service)
         sceneSettingsRepository = settingsRepository
         
-        let modelContainerConfig = ModelConfiguration("fdas", isStoredInMemoryOnly: false)
-        let modelContainer = try! ModelContainer(
-            for: Note.self,
-            configurations: modelContainerConfig
-        )
+        let schema = Schema(CurrentScheme.models)
+        let modelContainerConfig = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
+        let modelContainer = try! ModelContainer(for: schema, configurations: modelContainerConfig)
         sceneModelContainer = modelContainer
         
         let database = SharedDatabase(modelContainer: modelContainer).database

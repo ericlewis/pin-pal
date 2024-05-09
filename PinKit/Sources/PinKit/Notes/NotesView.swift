@@ -58,7 +58,7 @@ struct NotesView: View {
         var filter = filter
         let _ = filter.sortBy = [sort]
         let _ = filter.predicate = predicate
-        NavigationStack(path: $navigationStore.notesNavigationPath) {
+        NavigationStack {
             SearchableNotesListView(
                 filter: filter,
                 isLoading: isLoading,
@@ -67,9 +67,9 @@ struct NotesView: View {
             .refreshable(action: load)
             .searchable(text: $query)
             .overlay(alignment: .bottom) {
-                if app.currentTotalToSync > 0, app.currentSyncTotal > 0 {
-                    let current = Double(app.currentSyncTotal)
-                    let total = Double(app.currentTotalToSync)
+                if app.totalNotesToSync > 0, app.numberOfNotesSynced > 0 {
+                    let current = Double(app.numberOfNotesSynced)
+                    let total = Double(app.totalNotesToSync)
                     ProgressView(value:  current / total)
                         .padding(.horizontal, -5)
                 }

@@ -4,20 +4,16 @@ import AppIntents
 @Observable public class NavigationStore: @unchecked Sendable {
     public static let shared = NavigationStore()
     public var selectedTab: Tab = .notes
-    
-    public var notesNavigationPath = NavigationPath()
-    public var capturesNavigationPath = NavigationPath()
-    
+
     public var authenticationPresented = false
     public var activeNote: NoteEnvelope?
     public var isWifiCodeGeneratorPresented = false
     public var fileImporterPresented = false
-
     public var textColorPresented = false
     public var iconChangerPresented = false
-    public var savingNote = false
-    
     public var showToast: Toast = .none
+    
+    public var savingNote = false
     
     public init() {}
     

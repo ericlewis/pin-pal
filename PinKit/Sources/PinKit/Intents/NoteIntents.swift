@@ -581,7 +581,7 @@ struct SyncNotesIntent: AppIntent {
 
         await MainActor.run {
             withAnimation {
-                app.currentTotalToSync = total
+                app.totalNotesToSync = total
             }
         }
         
@@ -593,7 +593,7 @@ struct SyncNotesIntent: AppIntent {
                         
             await MainActor.run {
                 withAnimation {
-                    app.currentSyncTotal += result.count
+                    app.numberOfNotesSynced += result.count
                 }
             }
                         
@@ -610,8 +610,8 @@ struct SyncNotesIntent: AppIntent {
         try await self.database.save()
         
         await MainActor.run {
-            app.currentTotalToSync = 0
-            app.currentSyncTotal = 0
+            app.totalNotesToSync = 0
+            app.numberOfNotesSynced = 0
         }
     
 

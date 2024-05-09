@@ -4,16 +4,12 @@ struct CapturesView: View {
     
     @Environment(CapturesRepository.self)
     private var repository
-    
-    @Environment(NavigationStore.self)
-    private var navigationStore
-    
+
     @State
     private var query = ""
     
     var body: some View {
-        @Bindable var navigationStore = navigationStore
-        NavigationStack(path: $navigationStore.capturesNavigationPath) {
+        NavigationStack {
             SearchableCapturesGridView(query: $query)
                 .refreshable(action: repository.reload)
                 .searchable(text: $query)
