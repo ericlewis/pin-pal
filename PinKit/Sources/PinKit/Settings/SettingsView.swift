@@ -27,9 +27,6 @@ struct SettingsView: View {
     @AppStorage(Constants.UI_DATE_FORMAT)
     private var dateFormatPreference: DateFormat = .relative
     
-    @Environment(\.openURL)
-    private var openURL
-    
     @State
     private var deleteAllNotesConfirmationPresented = false
     
@@ -42,8 +39,24 @@ struct SettingsView: View {
         NavigationStack {
             Form {
                 Section() {
-                    LabeledContent("Account Number", value: repository.subscription?.accountNumber ?? "AAAAAAAAAAAAAAA")
-                    LabeledContent("Phone Number", value: repository.subscription?.phoneNumber ?? "1111111111")
+                    let text = repository.subscription?.phoneNumber.formatPhoneNumber() ?? "1111111111"
+                    LabeledContent("Phone Number") {
+                        if canDevicePlaceCalls(), let number = repository.subscription?.phoneNumber, let url = URL(string: "tel://\(number)") {
+                            Link(text, destination: url)
+                        } else {
+                            Text(text)
+                        }
+                    }
+                    .contextMenu {
+                        if canDevicePlaceCalls(), let number = repository.subscription?.phoneNumber, let url = URL(string: "tel://\(number)") {
+                            Button("Copy Phone Number", systemImage: "doc.on.doc") {
+                                UIPasteboard.general.url = url
+                            }
+                            Link(destination: url) {
+                                Label("Call \(text)", systemImage: "phone")
+                            }
+                        }
+                    }
                     LabeledContent("Status", value: repository.subscription?.status ?? "ACTIVE")
                 } header: {
                     Text("Device")
@@ -57,12 +70,7 @@ struct SettingsView: View {
                     Toggle(isOn: $repository.isVisionBetaEnabled) {
                         HStack {
                             Text("Vision")
-                            Text("BETA")
-                                .padding(1)
-                                .padding(.horizontal, 2)
-                                .font(.footnote.bold())
-                                .foregroundStyle(.white)
-                                .background(RoundedRectangle(cornerRadius: 5).fill(.red))
+                            BetaLabel()
                         }
                     }
                     .disabled(repository.isLoading)
@@ -71,14 +79,6 @@ struct SettingsView: View {
                     }
                     .sheet(isPresented: $navigationStore.isWifiCodeGeneratorPresented) {
                         WifiQRCodeGenView()
-                    }
-                    if canDevicePlaceCalls() {
-                        Button("Call my device") {
-                            if let number = repository.subscription?.phoneNumber, let url = URL(string: "tel://\(number)") {
-                                openURL(url.appending(path: number))
-                            }
-                        }
-                        .disabled(repository.subscription == nil)
                     }
                     Toggle("Mark device as lost or stolen", isOn: .constant(repository.isDeviceLost))
                         .onTapGesture(perform: {
@@ -257,11 +257,41 @@ struct AsyncValueLabelContentStyle: LabeledContentStyle {
     }
 }
 
-struct T {
-    
+struct BetaLabel: View {
+    var body: some View {
+        Text("BETA")
+            .padding(1)
+            .padding(.horizontal, 2)
+            .font(.footnote.bold())
+            .foregroundStyle(.white)
+            .background(RoundedRectangle(cornerRadius: 5).fill(.red))
+    }
 }
 
 #Preview {
     SettingsView()
         .environment(HumaneCenterService.live())
+}
+
+extension String {
+    func formatPhoneNumber() -> String {
+        let cleanNumber = components(separatedBy: CharacterSet.decimalDigits.inverted).joined()
+        
+        let mask = "(XXX) XXX-XXXX"
+        
+        var result = ""
+        var startIndex = cleanNumber.startIndex
+        var endIndex = cleanNumber.endIndex
+        
+        for char in mask where startIndex < endIndex {
+            if char == "X" {
+                result.append(cleanNumber[startIndex])
+                startIndex = cleanNumber.index(after: startIndex)
+            } else {
+                result.append(char)
+            }
+        }
+        
+        return result
+    }
 }
