@@ -29,10 +29,7 @@ struct PinPalApp: App {
     
     @State
     private var sceneModelContainer: ModelContainer
-    
-    @AccentColor
-    private var accentColor: Color
-    
+
     @Environment(\.scenePhase)
     private var phase
     
@@ -80,7 +77,6 @@ struct PinPalApp: App {
                 .environment(sceneMyDataRepository)
                 .environment(sceneSettingsRepository)
                 .environment(sceneService)
-                .tint(accentColor)
         }
         .defaultAppStorage(.init(suiteName: "group.com.ericlewis.Pin-Pal") ?? .standard)
         .environment(\.database, sceneDatabase)

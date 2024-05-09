@@ -6,6 +6,9 @@ public struct ContentView: View {
     @Environment(NavigationStore.self)
     private var navigationStore
     
+    @AccentColor
+    private var tint
+    
     public init() {
         SDWebImageManager.shared.cacheKeyFilter = SDWebImageCacheKeyFilter { url in
             var components = URLComponents(url: url, resolvingAgainstBaseURL: false)
@@ -43,9 +46,9 @@ public struct ContentView: View {
                 }
                 .tag(Tab.settings)
         }
+        .tint(tint)
         .modifier(AuthHandlerViewModifier())
         .modifier(ToastViewModifier())
-        .environment(navigationStore)
     }
 }
 

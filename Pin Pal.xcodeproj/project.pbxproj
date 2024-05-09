@@ -34,7 +34,7 @@
 		6819B7F52BD85431009255A0 /* PinPalApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PinPalApp.swift; sourceTree = "<group>"; };
 		6819B7F92BD85432009255A0 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		6819B7FB2BD85432009255A0 /* Ai_Pin.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Ai_Pin.entitlements; sourceTree = "<group>"; };
-		6819B82C2BDB5468009255A0 /* Ai-Pin-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "Ai-Pin-Info.plist"; path = "Ai Pin/Resources/Ai-Pin-Info.plist"; sourceTree = SOURCE_ROOT; };
+		6819B82C2BDB5468009255A0 /* Ai-Pin-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "Ai-Pin-Info.plist"; path = "Sources/Resources/Ai-Pin-Info.plist"; sourceTree = SOURCE_ROOT; };
 		68774C762BEBF9DB00824064 /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = /System/Library/Frameworks/WidgetKit.framework; sourceTree = "<absolute>"; };
 		68774C782BEBF9DB00824064 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = /System/Library/Frameworks/SwiftUI.framework; sourceTree = "<absolute>"; };
 		6897F2A22BE9CE1C00224555 /* Intents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = Intents.swift; path = ../../PinKit/Sources/PinKit/Intents/Intents.swift; sourceTree = "<group>"; };

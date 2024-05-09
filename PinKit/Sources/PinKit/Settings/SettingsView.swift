@@ -135,6 +135,7 @@ struct SettingsView: View {
                         Text("Relative").tag(DateFormat.relative)
                         Text("Timestamp").tag(DateFormat.timestamp)
                     }
+                    .id(accentColor)
                 }
 #if os(iOS)
                 Picker("App Icon", selection: $selectedIcon) {
