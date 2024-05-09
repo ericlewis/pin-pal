@@ -47,7 +47,15 @@ struct SearchableNotesListView: View {
                     .task {
                         do {
                             try await service.memory(note.parentUUID)
+                        } catch is CancellationError {
+                            
+                        } catch APIError.notAuthorized {
+                            
                         } catch {
+                            let err = (error as NSError)
+                            guard err.domain == NSURLErrorDomain, err.code == NSURLErrorCancelled else {
+                                return
+                            }
                             await database.delete(note)
                             try? await database.save()
                             

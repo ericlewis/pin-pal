@@ -73,7 +73,6 @@ struct SettingsView: View {
                             BetaLabel()
                         }
                     }
-                    .disabled(repository.isLoading)
                     Button("Add Wi-Fi Network") {
                         self.navigationStore.isWifiCodeGeneratorPresented = true
                     }
@@ -91,7 +90,6 @@ struct SettingsView: View {
                                 self.blockPinConfirmationPresented = true
                             }
                         })
-                        .disabled(repository.isLoading)
                 } header: {
                     Text("Features")
                 } footer: {

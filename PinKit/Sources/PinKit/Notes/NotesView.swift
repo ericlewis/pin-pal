@@ -35,6 +35,21 @@ struct NotesView: View {
             .refreshable(action: initial)
             .searchable(text: $query)
             .toolbar {
+                ToolbarItem(placement: .secondaryAction) {
+                    Menu("Options", systemImage: "ellipsis") {
+                        Menu("Filter", systemImage: "line.3.horizontal.decrease.circle") {
+                            Button("All Items") {
+                                
+                            }
+                        }
+                        Menu("Sort", systemImage: "arrow.up.arrow.down") {
+                            Button("Created At") {
+                                
+                            }
+                        }
+                    }
+                    .symbolVariant(.circle)
+                }
                 ToolbarItem(placement: .primaryAction) {
                     Menu("New Note", systemImage: "plus") {
                         Button("Create", systemImage: "note.text.badge.plus", intent: OpenNewNoteIntent())

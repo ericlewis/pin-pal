@@ -33,10 +33,11 @@ struct ContentCellView: View {
                         Image(systemName: "heart")
                     }
                     Spacer()
-                    if capture.state == .processed, capture.video != nil {
-                        Image(systemName: "play")
-                    } else if capture.state != .processed {
+                    if capture.state != .processed {
                         Image(systemName: "icloud.and.arrow.up")
+                    }
+                    if capture.type == .video {
+                        Image(systemName: "play")
                     }
                 }
                 .padding(5)
