@@ -30,7 +30,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		6819B7F22BD85431009255A0 /* Ai Pin.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Ai Pin.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		6819B7F22BD85431009255A0 /* Pin Pal.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Pin Pal.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		6819B7F52BD85431009255A0 /* Ai_PinApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Ai_PinApp.swift; sourceTree = "<group>"; };
 		6819B7F92BD85432009255A0 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		6819B7FB2BD85432009255A0 /* Ai_Pin.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Ai_Pin.entitlements; sourceTree = "<group>"; };
@@ -67,7 +67,7 @@
 		6819B7F32BD85431009255A0 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				6819B7F22BD85431009255A0 /* Ai Pin.app */,
+				6819B7F22BD85431009255A0 /* Pin Pal.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -115,9 +115,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		6819B7F12BD85431009255A0 /* Ai Pin */ = {
+		6819B7F12BD85431009255A0 /* Pin Pal */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 6819B8012BD85432009255A0 /* Build configuration list for PBXNativeTarget "Ai Pin" */;
+			buildConfigurationList = 6819B8012BD85432009255A0 /* Build configuration list for PBXNativeTarget "Pin Pal" */;
 			buildPhases = (
 				6819B7EE2BD85431009255A0 /* Sources */,
 				6819B7EF2BD85431009255A0 /* Frameworks */,
@@ -128,12 +128,12 @@
 			);
 			dependencies = (
 			);
-			name = "Ai Pin";
+			name = "Pin Pal";
 			packageProductDependencies = (
 				68C85B892BDFE01B0029A408 /* PinKit */,
 			);
 			productName = "Ai Pin";
-			productReference = 6819B7F22BD85431009255A0 /* Ai Pin.app */;
+			productReference = 6819B7F22BD85431009255A0 /* Pin Pal.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -151,7 +151,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 6819B7ED2BD85431009255A0 /* Build configuration list for PBXProject "Ai Pin" */;
+			buildConfigurationList = 6819B7ED2BD85431009255A0 /* Build configuration list for PBXProject "Pin Pal" */;
 			compatibilityVersion = "Xcode 14.0";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -161,13 +161,13 @@
 			);
 			mainGroup = 6819B7E92BD85431009255A0;
 			packageReferences = (
-				68C85B882BDFE01B0029A408 /* XCLocalSwiftPackageReference "PinKit" */,
+				68F420252BEC9DDF0001C2A0 /* XCLocalSwiftPackageReference "PinKit" */,
 			);
 			productRefGroup = 6819B7F32BD85431009255A0 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				6819B7F12BD85431009255A0 /* Ai Pin */,
+				6819B7F12BD85431009255A0 /* Pin Pal */,
 			);
 		};
 /* End PBXProject section */
@@ -409,7 +409,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		6819B7ED2BD85431009255A0 /* Build configuration list for PBXProject "Ai Pin" */ = {
+		6819B7ED2BD85431009255A0 /* Build configuration list for PBXProject "Pin Pal" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				6819B7FF2BD85432009255A0 /* Debug */,
@@ -418,7 +418,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		6819B8012BD85432009255A0 /* Build configuration list for PBXNativeTarget "Ai Pin" */ = {
+		6819B8012BD85432009255A0 /* Build configuration list for PBXNativeTarget "Pin Pal" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				6819B8022BD85432009255A0 /* Debug */,
@@ -430,7 +430,7 @@
 /* End XCConfigurationList section */
 
 /* Begin XCLocalSwiftPackageReference section */
-		68C85B882BDFE01B0029A408 /* XCLocalSwiftPackageReference "PinKit" */ = {
+		68F420252BEC9DDF0001C2A0 /* XCLocalSwiftPackageReference "PinKit" */ = {
 			isa = XCLocalSwiftPackageReference;
 			relativePath = PinKit;
 		};
