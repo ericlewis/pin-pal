@@ -12,6 +12,8 @@ extension SchemaV1 {
         public var uuid: UUID
         
         public var duration: Int64?
+        
+        @Relationship(inverse: \PhonePeer.call)
         public var peers: [PhonePeer]?
 
         public var feedbackUUID: UUID?
@@ -19,7 +21,7 @@ extension SchemaV1 {
         
         public var createdAt: Date
         
-        public init(uuid: UUID, duration: Int64? = nil, peers: [PhonePeer] = [], feedbackUUID: UUID? = nil, feedbackCategory: FeedbackCategory? = nil, createdAt: Date) {
+        public init(uuid: UUID, duration: Int64? = nil, peers: [PhonePeer]? = nil, feedbackUUID: UUID? = nil, feedbackCategory: FeedbackCategory? = nil, createdAt: Date) {
             self.uuid = uuid
             self.duration = duration
             self.peers = peers
