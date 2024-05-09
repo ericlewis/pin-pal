@@ -19,5 +19,6 @@ struct CallCellView: View {
                 .font(.caption)
                 .foregroundStyle(.secondary)
         }
+        .textSelection(.enabled)
     }
 }

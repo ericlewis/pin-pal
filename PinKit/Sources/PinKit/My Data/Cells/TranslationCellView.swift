@@ -24,5 +24,6 @@ struct TranslationCellView: View {
                 .font(.caption)
                 .foregroundStyle(.secondary)
         }
+        .textSelection(.enabled)
     }
 }
