@@ -374,6 +374,78 @@ public struct DeleteNotesIntent: DeleteIntent {
     }
 }
 
+public struct DeleteAllNotesIntent: AppIntent {
+    public static var title: LocalizedStringResource = "Delete All Notes"
+    public static var description: IntentDescription? = .init("Deletes all the notes on this account.", categoryName: "Notes")
+    public static var parameterSummary: some ParameterSummary {
+        When(\.$confirmBeforeDeleting, .equalTo, true, {
+            Summary("Delete all Notes") {
+                \.$confirmBeforeDeleting
+            }
+        }, otherwise: {
+            Summary("Immediately delete all Notes") {
+                \.$confirmBeforeDeleting
+            }
+        })
+    }
+    
+    @Parameter(title: "Confirm Before Deleting", description: "If toggled, you will need to confirm the notes will be deleted", default: true)
+    var confirmBeforeDeleting: Bool
+    
+    public init(confirmBeforeDeleting: Bool) {
+        self.confirmBeforeDeleting = confirmBeforeDeleting
+    }
+
+    public init() {}
+    
+    public static var openAppWhenRun: Bool = false
+    
+    // TODO: review if we should expose this... it's kinda dangerous
+    public static var isDiscoverable: Bool = false
+    
+    @Dependency
+    public var service: HumaneCenterService
+    
+    @Dependency
+    public var database: any Database
+
+    public func perform() async throws -> some IntentResult {
+        if confirmBeforeDeleting {
+            try await requestConfirmation(result: .result(dialog: "Are you sure you want to delete all Notes? This is not reversible."))
+            let _ = try await service.deleteAllNotes()
+        } else {
+            let _ = try await service.deleteAllNotes()
+        }
+        
+        try await database.delete(where: #Predicate<Note> { _ in true })
+        try await database.save()
+        
+        return .result()
+    }
+}
+
+public struct _DeleteAllNotesIntent: AppIntent {
+    public static var title: LocalizedStringResource = "Delete All Notes"
+
+    public init() {}
+    
+    public static var openAppWhenRun: Bool = false
+    
+    // TODO: review if we should expose this... it's kinda dangerous
+    public static var isDiscoverable: Bool = false
+    
+    @Dependency
+    public var service: HumaneCenterService
+    
+    @Dependency
+    public var navigation: NavigationStore
+
+    public func perform() async throws -> some IntentResult {
+        navigation.deleteAllNotesConfirmationPresented = true
+        return .result()
+    }
+}
+
 public struct SearchNotesIntent: AppIntent {
     public static var title: LocalizedStringResource = "Search Notes"
     public static var description: IntentDescription? = .init("Performs a search for the specified text.", categoryName: "Notes")

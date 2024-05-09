@@ -26,10 +26,7 @@ struct PinPalApp: App {
     
     @State
     private var sceneMyDataRepository: MyDataRepository
-    
-    @State
-    private var sceneSettingsRepository: SettingsRepository
-    
+
     @State
     private var sceneModelContainer: ModelContainer
 
@@ -50,10 +47,7 @@ struct PinPalApp: App {
         
         let myDataRepository = MyDataRepository(api: service)
         sceneMyDataRepository = myDataRepository
-        
-        let settingsRepository = SettingsRepository(service: service)
-        sceneSettingsRepository = settingsRepository
-        
+
         let schema = Schema(CurrentScheme.models)
         let modelContainerConfig = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
         let modelContainer = try! ModelContainer(for: schema, configurations: modelContainerConfig)
@@ -69,7 +63,6 @@ struct PinPalApp: App {
         AppDependencyManager.shared.add(dependency: navigationStore)
         AppDependencyManager.shared.add(dependency: capturesRepository)
         AppDependencyManager.shared.add(dependency: myDataRepository)
-        AppDependencyManager.shared.add(dependency: settingsRepository)
         AppDependencyManager.shared.add(dependency: service)
         AppDependencyManager.shared.add(dependency: database)
     }
@@ -81,7 +74,6 @@ struct PinPalApp: App {
         .environment(sceneCapturesRepository)
         .environment(sceneNavigationStore)
         .environment(sceneMyDataRepository)
-        .environment(sceneSettingsRepository)
         .environment(sceneService)
         .environment(sceneAppState)
         .environment(\.database, sceneDatabase)

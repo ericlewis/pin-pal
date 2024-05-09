@@ -3,9 +3,49 @@ import OSLog
 import AppIntents
 import SwiftData
 
-enum DateFormat: String {
-    case relative
-    case timestamp
+struct SettingsView: View {
+    
+    @Environment(\.database)
+    private var database
+    
+    @Environment(HumaneCenterService.self)
+    private var service
+
+    @Query
+    private var devices: [Device]
+    
+    var body: some View {
+        NavigationStack {
+            if let device = devices.first {
+                Form {
+                    DeviceSection()
+                    FeatureSection(isVisionEnabled: device.isVisionEnabled, isLost: device.isLost)
+                    LinkSection()
+                    MiscSection()
+                    AppearanceSections()
+                    DangerZoneSection()
+                }
+                .refreshable(action: load)
+                .navigationTitle("Settings")
+                .environment(device)
+            }
+        }
+        .task(load)
+        .overlay {
+            if devices.isEmpty {
+                ProgressView()
+            }
+        }
+    }
+    
+    func load() async {
+        do {
+            let intent = FetchDeviceInfoIntent()
+            intent.database = database
+            intent.service = service
+            try await intent.perform()
+        } catch {}
+    }
 }
 
 struct DeviceSection: View {
@@ -191,28 +231,22 @@ struct AppearanceSections: View {
 }
 
 struct DangerZoneSection: View {
-        
-    @State
-    private var deleteAllNotesConfirmationPresented = false
-
+     
+    @Environment(NavigationStore.self)
+    private var navigation
+    
     var body: some View {
+        @Bindable var navigation = navigation
         Section {
-            Button("Delete all notes", role: .destructive) {
-                self.deleteAllNotesConfirmationPresented = true
-            }
-            .alert("Are you sure?", isPresented: $deleteAllNotesConfirmationPresented) {
-                Button("Delete", role: .destructive) {
-                    Task {
-    //                    await repository.deleteAllNotes()
+            Button("Delete all notes", role: .destructive, intent: _DeleteAllNotesIntent())
+                .alert("Are you sure?", isPresented: $navigation.deleteAllNotesConfirmationPresented) {
+                    Button("Delete", role: .destructive, intent: DeleteAllNotesIntent(confirmBeforeDeleting: false))
+                    Button("Cancel", role: .cancel) {
+                        navigation.deleteAllNotesConfirmationPresented = false
                     }
-                    deleteAllNotesConfirmationPresented = false
+                } message: {
+                    Text("This operation is irreversible, all notes will be deleted!")
                 }
-                Button("Cancel", role: .cancel) {
-                    deleteAllNotesConfirmationPresented = false
-                }
-            } message: {
-                Text("This operation is irreversible, all notes will be deleted!")
-            }
         } header: {
             Text("Danger Zone")
         } footer: {
@@ -228,51 +262,6 @@ struct DangerZoneSection: View {
         }
         
         return "\(version) (\(build))"
-    }
-}
-
-struct SettingsView: View {
-    
-    @Environment(\.database)
-    private var database
-    
-    @Environment(HumaneCenterService.self)
-    private var service
-
-    @Query
-    private var devices: [Device]
-    
-    var body: some View {
-        NavigationStack {
-            if let device = devices.first {
-                Form {
-                    DeviceSection()
-                    FeatureSection(isVisionEnabled: device.isVisionEnabled, isLost: device.isLost)
-                    LinkSection()
-                    MiscSection()
-                    AppearanceSections()
-                    DangerZoneSection()
-                }
-                .refreshable(action: load)
-                .navigationTitle("Settings")
-                .environment(device)
-            }
-        }
-        .task(load)
-        .overlay {
-            if devices.isEmpty {
-                ProgressView()
-            }
-        }
-    }
-    
-    func load() async {
-        do {
-            let intent = FetchDeviceInfoIntent()
-            intent.database = database
-            intent.service = service
-            try await intent.perform()
-        } catch {}
     }
 }
 
@@ -323,9 +312,9 @@ struct BetaLabel: View {
     }
 }
 
-#Preview {
-    SettingsView()
-        .environment(HumaneCenterService.live())
+enum DateFormat: String {
+    case relative
+    case timestamp
 }
 
 extension String {
@@ -353,4 +342,9 @@ extension String {
     func telephoneUrl() -> URL? {
         URL(string: "tel://\(self)")
     }
+}
+
+#Preview {
+    SettingsView()
+        .environment(HumaneCenterService.live())
 }

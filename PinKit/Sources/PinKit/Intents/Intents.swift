@@ -51,12 +51,23 @@ public struct ToggleVisionAccessIntent: AppIntent {
     public var service: HumaneCenterService
     
     @Dependency
-    public var settings: SettingsRepository
+    public var database: any Database
 
     public func perform() async throws -> some IntentResult & ReturnsValue<Bool> {
-        let _ = try await service.toggleFeatureFlag(.visionAccess, enabled)
-        settings.isVisionBetaEnabled = !enabled
-        return .result(value: !enabled)
+        guard let device = try await database.fetch(Device.all()).first else {
+            throw Error.noDevice
+        }
+        let newValue = enabled
+        Task.detached {
+            let _ = try await service.toggleFeatureFlag(.visionAccess, newValue)
+        }
+        device.isVisionEnabled = newValue
+        try await database.save()
+        return .result(value: newValue)
+    }
+    
+    enum Error: Swift.Error {
+        case noDevice
     }
 }
 
