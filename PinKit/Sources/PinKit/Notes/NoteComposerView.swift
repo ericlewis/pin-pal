@@ -29,7 +29,7 @@ public struct NoteComposerView: View {
     }
     
     var isEditing: Bool {
-        note != nil
+        note?.uuid != nil
     }
     
     @Environment(\.horizontalSizeClass)
@@ -63,8 +63,6 @@ public struct NoteComposerView: View {
             .onAppear {
                 if !isEditing {
                     self.focus = .title
-                } else {
-                    self.focus = .text
                 }
             }
             .toolbar {
