@@ -16,19 +16,21 @@ struct SettingsView: View {
     
     var body: some View {
         NavigationStack {
-            if let device = devices.first {
-                Form {
-                    DeviceSection()
-                    FeatureSection(isVisionEnabled: device.isVisionEnabled, isLost: device.isLost)
-                    LinkSection()
-                    MiscSection()
-                    AppearanceSections()
-                    DangerZoneSection()
+            Form {
+                if let device = devices.first {
+                    Group {
+                        DeviceSection()
+                        FeatureSection(isVisionEnabled: device.isVisionEnabled, isLost: device.isLost)
+                        LinkSection()
+                        MiscSection()
+                        AppearanceSections()
+                        DangerZoneSection()
+                    }
+                    .environment(device)
                 }
-                .refreshable(action: load)
-                .navigationTitle("Settings")
-                .environment(device)
             }
+            .refreshable(action: load)
+            .navigationTitle("Settings")
         }
         .task(load)
         .overlay {
