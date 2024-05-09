@@ -44,16 +44,6 @@ public struct Note: Codable, Hashable, Equatable {
         case text
         case title
     }
-    
-    // TODO:
-    public func hash(into hasher: inout Hasher) {
-        hasher.combine(uuid)
-    }
-    
-    // TODO:
-    public static func == (lhs: Note, rhs: Note) -> Bool {
-        lhs.uuid == rhs.uuid
-    }
 }
 
 extension Note: Identifiable {
