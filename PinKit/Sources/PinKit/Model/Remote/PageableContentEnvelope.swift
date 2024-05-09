@@ -72,13 +72,13 @@ public struct TranslationEvent: Codable {
 }
 
 public struct CallEvent: Codable {
-    struct Peer: Codable {
-        let displayName: String
-        let phoneNumber: String
+    public struct Peer: Codable {
+        public let displayName: String
+        public let phoneNumber: String
     }
     
-    let duration: Duration?
-    let peers: [Peer]
+    public let duration: Duration?
+    public let peers: [Peer]
     
     public init(from decoder: any Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)

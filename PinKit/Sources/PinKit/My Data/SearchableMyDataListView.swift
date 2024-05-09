@@ -49,7 +49,7 @@ struct SearchableMyDataListView: View {
                 case let .music(event):
                     MusicCellView(event: event, createdAt: createdAt)
                 case let .call(event):
-                    CallCellView(event: event, createdAt: createdAt)
+                    EmptyView()
                 case let .translation(event):
                     TranslationCellView(event: event, createdAt: createdAt)
                 case .unknown:

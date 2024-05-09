@@ -8,6 +8,6 @@ public enum SchemaV1: VersionedSchema {
     }
     
     public static var models: [any PersistentModel.Type] {
-        [Note.self, Device.self, AiMicEvent.self]
+        [Note.self, Device.self, AiMicEvent.self, PhoneCallEvent.self]
     }
 }

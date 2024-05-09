@@ -8,5 +8,8 @@ import SwiftUI
     public var totalAiMicEventsToSync = 0
     public var numberOfAiMicEventsSynced = 0
     
+    public var totalCallEventsToSync = 0
+    public var numberOfCallEventsSynced = 0
+    
     public init() {}
 }

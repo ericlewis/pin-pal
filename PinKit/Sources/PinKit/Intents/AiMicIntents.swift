@@ -177,7 +177,8 @@ struct SyncAiMicIntent: AppIntent {
             }
         }
         
-        let ids = try await (0..<totalPages).concurrentMap { page in
+        // TODO: do cleanup too
+        try await (0..<totalPages).concurrentForEach { page in
             let data = try await service.events(.aiMic, page, chunkSize)
             let result = try await data.content.concurrentMap(process)
                         
@@ -186,10 +187,7 @@ struct SyncAiMicIntent: AppIntent {
                     app.numberOfAiMicEventsSynced += result.count
                 }
             }
-                        
-            return result
         }
-        .flatMap({ $0 })
                         
         try await self.database.save()
 
@@ -203,6 +201,67 @@ struct SyncAiMicIntent: AppIntent {
     
     private func process(_ content: EventContentEnvelope) async throws -> UUID {
         let event = AiMicEvent(from: content)
+        await self.database.insert(event)
+        return event.uuid
+    }
+    
+    enum Error: Swift.Error {
+        case invalidContentType
+    }
+}
+
+struct SyncCallEventsIntent: AppIntent {
+    public static var title: LocalizedStringResource = "Full Sync Phone Call Events"
+
+    public init() {}
+    
+    public static var openAppWhenRun: Bool = false
+    public static var isDiscoverable: Bool = false
+    
+    @Dependency
+    public var service: HumaneCenterService
+    
+    @Dependency
+    public var database: any Database
+    
+    @Dependency
+    public var app: AppState
+    
+    public func perform() async throws -> some IntentResult {
+        let chunkSize = 100
+        let total = try await service.events(.calls, 0, 1).totalElements
+        let totalPages = (total + chunkSize - 1) / chunkSize
+        
+        await MainActor.run {
+            withAnimation {
+                app.totalCallEventsToSync = total
+            }
+        }
+        
+        // TODO: do cleanup too
+        try await (0..<totalPages).concurrentForEach { page in
+            let data = try await service.events(.calls, page, chunkSize)
+            let result = try await data.content.concurrentMap(process)
+                        
+            await MainActor.run {
+                withAnimation {
+                    app.numberOfCallEventsSynced += result.count
+                }
+            }
+        }
+                        
+        try await self.database.save()
+
+        await MainActor.run {
+            app.totalCallEventsToSync = 0
+            app.numberOfCallEventsSynced = 0
+        }
+
+        return .result()
+    }
+    
+    private func process(_ content: EventContentEnvelope) async throws -> UUID {
+        let event = PhoneCallEvent(from: content)
         await self.database.insert(event)
         return event.uuid
     }

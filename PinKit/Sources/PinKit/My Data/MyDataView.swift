@@ -13,6 +13,8 @@ struct MyDataView: View {
             Group {
                 if repository.selectedFilter == .aiMic {
                     AiMicListView(query: query.lowercased())
+                } else if repository.selectedFilter == .calls {
+                    CallEventListView(query: query.lowercased())
                 } else {
                     SearchableMyDataListView(query: $query)
                         .task(repository.initial)

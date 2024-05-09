@@ -1,24 +1,26 @@
 import SwiftUI
 
 struct CallCellView: View {
-    let event: CallEvent
-    let createdAt: Date
+    
+    var event: PhoneCallEvent
     
     @AccentColor
     private var accentColor: Color
     
     var body: some View {
         LabeledContent {} label: {
-            Text(event.peers.map(\.displayName).joined(separator: ","))
-                .font(.headline)
-                .foregroundStyle(accentColor)
-            if let duration = event.duration {
+            if let peers = event.peers {
+                Text(peers.map(\.displayName).joined(separator: ","))
+                    .font(.headline)
+                    .foregroundStyle(accentColor)
+            }
+            if let duration = event.dur {
                 Text(duration.formatted())
             }
             LabeledContent {
                 
             } label: {
-                DateTextView(date: createdAt)
+                DateTextView(date: event.createdAt)
                     .foregroundStyle(.tertiary)
                     .font(.caption)
             }
