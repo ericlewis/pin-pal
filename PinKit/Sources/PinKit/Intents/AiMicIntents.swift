@@ -52,13 +52,11 @@ extension AiMicEntity: AppEntity {
 public struct AiMicEntityQuery: EntityQuery, EntityStringQuery, EnumerableEntityQuery {
     
     public func allEntities() async throws -> [AiMicEntity] {
-        try await service.events(.aiMic, 0, 500)
-            .content
-            .concurrentMap(AiMicEntity.init(from:))
+        try await database.fetch(AiMicEvent.all()).map(AiMicEntity.init(from:))
     }
 
     public static var findIntentDescription: IntentDescription? {
-        IntentDescription("Note: only 500 queries will be searched currently.",
+        IntentDescription("",
                           categoryName: "My Data",
                           searchKeywords: ["ai mic", "llm", "ai pin"],
                           resultValueName: "Ai Mic Queries")
@@ -67,9 +65,11 @@ public struct AiMicEntityQuery: EntityQuery, EntityStringQuery, EnumerableEntity
     @Dependency
     var service: HumaneCenterService
     
+    @Dependency
+    var database: any Database
+    
     public init() {}
     
-    // TODO: create service endpoint
     public func entities(for ids: [Self.Entity.ID]) async throws -> Self.Result {
         await ids.asyncCompactMap { id in
             nil// try? await AiMicEntity(from: service.event(id))
@@ -81,9 +81,7 @@ public struct AiMicEntityQuery: EntityQuery, EntityStringQuery, EnumerableEntity
     }
 
     public func suggestedEntities() async throws -> [AiMicEntity] {
-        try await service.events(.aiMic, 0, 10)
-            .content
-            .concurrentMap(AiMicEntity.init(from:))
+        try await database.fetch(AiMicEvent.all()).map(AiMicEntity.init(from:))
     }
 }
 
