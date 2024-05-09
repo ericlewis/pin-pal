@@ -575,29 +575,43 @@ struct SyncNotesIntent: AppIntent {
         let total = try await service.notes(0, 1).totalElements
         let totalPages = (total + chunkSize - 1) / chunkSize
 
-        try await (0..<totalPages).concurrentForEach { page in
+        let ids = try await (0..<totalPages).concurrentMap { page in
             let offset = page * chunkSize
             let limit = min(chunkSize, total - offset)
             let data = try await service.notes(offset, limit)
-            await data.content.concurrentForEach(process)
+            return try await data.content.concurrentMap(process)
         }
+        .flatMap({ $0 })
+                
         try await self.database.save()
-        
+
+        let predicate = #Predicate<_Note> {
+            !ids.contains($0.parentUUID)
+        }
+        try await self.database.delete(where: predicate)
+        try await self.database.save()
+
         return .result()
     }
     
-    private func process(_ content: ContentEnvelope) async {
+    private func process(_ content: ContentEnvelope) async throws -> UUID {
         guard let note: Note = content.get() else {
-            return
+            throw Error.invalidContentType
         }
-        await self.database.insert(_Note(
+        let newNote = _Note(
             uuid: note.uuid ?? .init(),
             parentUUID: content.id,
             name: note.title,
             body: note.text,
             isFavorite: content.favorite,
             createdAt: content.userCreatedAt,
-            modifedAt: content.userLastModified)
+            modifedAt: content.userLastModified
         )
+        await self.database.insert(newNote)
+        return newNote.parentUUID
+    }
+    
+    enum Error: Swift.Error {
+        case invalidContentType
     }
 }
