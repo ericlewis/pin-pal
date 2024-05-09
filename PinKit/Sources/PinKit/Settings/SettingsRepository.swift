@@ -1,7 +1,7 @@
 import SwiftUI
 import OSLog
 
-@Observable public final class SettingsRepository {
+@Observable public final class SettingsRepository: Sendable {
     
     let encoder = JSONEncoder()
     let decoder = JSONDecoder()
@@ -21,15 +21,8 @@ import OSLog
     
     var isLoading = false
     
-    var isVisionBetaEnabled = false {
-        didSet {
-            if isLoading { return }
-            Task {
-                try await self.service.toggleFeatureFlag(.visionAccess, isVisionBetaEnabled)
-            }
-        }
-    }
-    var isDeviceLost = false
+    public var isVisionBetaEnabled = false
+    public var isDeviceLost = false
     
     var service: HumaneCenterService
     var observationTask: Task<Void, Never>?

@@ -67,7 +67,7 @@ struct SettingsView: View {
                 }
                 .labeledContentStyle(AsyncValueLabelContentStyle(isLoading: repository.subscription == nil))
                 Section {
-                    Toggle(isOn: $repository.isVisionBetaEnabled) {
+                    Toggle(isOn: repository.isVisionBetaEnabled, intent: _ToggleVisionAccessIntent()) {
                         HStack {
                             Text("Vision")
                             BetaLabel()

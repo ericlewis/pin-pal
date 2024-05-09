@@ -40,17 +40,47 @@ public struct ToggleVisionAccessIntent: AppIntent {
         self.enabled = enabled
     }
     
-    public init() {}
+    public init() {
+        self.enabled = false
+    }
     
     public static var openAppWhenRun: Bool = false
     public static var isDiscoverable: Bool = true
 
     @Dependency
     public var service: HumaneCenterService
+    
+    @Dependency
+    public var settings: SettingsRepository
 
     public func perform() async throws -> some IntentResult & ReturnsValue<Bool> {
-        let result = try await service.toggleFeatureFlag(.visionAccess, enabled)
-        return .result(value: result.isEnabled)
+        let _ = try await service.toggleFeatureFlag(.visionAccess, enabled)
+        settings.isVisionBetaEnabled = !enabled
+        return .result(value: !enabled)
+    }
+}
+
+public struct _ToggleVisionAccessIntent: AppIntent {
+    public static var title: LocalizedStringResource = "Toggle Vision Beta"
+
+    public static var openAppWhenRun: Bool = false
+    public static var isDiscoverable: Bool = false
+
+    @Dependency
+    public var service: HumaneCenterService
+    
+    @Dependency
+    public var settings: SettingsRepository
+    
+    public init() {}
+
+    public func perform() async throws -> some IntentResult & ReturnsValue<Bool> {
+        let newValue = !settings.isVisionBetaEnabled
+        Task.detached {
+            let _ = try await service.toggleFeatureFlag(.visionAccess, newValue)
+        }
+        settings.isVisionBetaEnabled = newValue
+        return .result(value: newValue)
     }
 }
 
@@ -104,7 +134,7 @@ public enum WifiSecurityType: String, AppEnum {
     case wep = "WEP"
     case none = "nopass"
     
-    public static var typeDisplayRepresentation: TypeDisplayRepresentation = .init(name: "WiFi Security Type")
+    public static var typeDisplayRepresentation: TypeDisplayRepresentation = .init(name: "Wi-Fi Security Type")
     public static var caseDisplayRepresentations: [WifiSecurityType: DisplayRepresentation] = [
         .wpa: "WPA",
         .wep: "WEP",
@@ -113,7 +143,7 @@ public enum WifiSecurityType: String, AppEnum {
 }
 
 public struct AddWifiNetworkIntent: AppIntent {
-    public static var title: LocalizedStringResource = "Create WiFi Quick Setup Code"
+    public static var title: LocalizedStringResource = "Create Wi-Fi Quick Setup Code"
     public static var description: IntentDescription? = .init("""
 Create a QR code for use with quick setup on Ai Pin.
 
