@@ -49,9 +49,7 @@ struct NotesView: View {
                 ToolbarItem(placement: .primaryAction) {
                     Menu("Create note", systemImage: "plus") {
                         Button("Create", systemImage: "note.text.badge.plus", intent: OpenNewNoteIntent())
-                        Button("Import", systemImage: "square.and.arrow.down") {
-                            self.navigation.fileImporterPresented = true
-                        }
+                        Button("Import", systemImage: "square.and.arrow.down", intent: OpenFileImportIntent())
                     } primaryAction: {
                         self.navigation.activeNote = .create()
                     }
