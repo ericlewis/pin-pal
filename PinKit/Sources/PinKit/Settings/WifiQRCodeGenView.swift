@@ -3,6 +3,11 @@ import CoreImage.CIFilterBuiltins
 
 struct WifiQRCodeGenView: View {
     
+    enum Field {
+        case name
+        case password
+    }
+    
     enum WifiSecurityType: String {
         case wpa = "WPA"
         case wep = "WEP"
@@ -14,6 +19,7 @@ struct WifiQRCodeGenView: View {
         var password = ""
         var securityType: WifiSecurityType = .wpa
         var isHidden = false
+        var isActive = false
     }
     
     @Environment(\.dismiss)
@@ -22,11 +28,23 @@ struct WifiQRCodeGenView: View {
     @State
     private var state = ViewState()
     
+    @FocusState
+    private var focus: Field?
+    
     var body: some View {
         NavigationStack {
             Form {
                 LabeledContent("Name") {
                     TextField("Network Name", text: $state.name)
+                        .focused($focus, equals: Field.name)
+                        .submitLabel(state.securityType == .none ? .done : .next)
+                        .onSubmit {
+                            if state.securityType == .none {
+                                state.isActive = true
+                            } else {
+                                focus = .password
+                            }
+                        }
                 }
                 Section {
                     Picker("Security Type", selection: $state.securityType) {
@@ -37,6 +55,11 @@ struct WifiQRCodeGenView: View {
                     if state.securityType != .none {
                         LabeledContent("Password") {
                             SecureField("", text: $state.password)
+                                .focused($focus, equals: Field.password)
+                                .submitLabel(.done)
+                                .onSubmit {
+                                    state.isActive = true
+                                }
                         }
                     }
                 }
@@ -50,7 +73,7 @@ struct WifiQRCodeGenView: View {
                     }
                 }
                 ToolbarItem(placement: .confirmationAction) {
-                    NavigationLink("Next") {
+                    NavigationLink("Next", isActive: $state.isActive) {
                         List {
                             Image(uiImage: generateQRCode(from: "WIFI:S:\(state.name);T:\(state.securityType.rawValue);P:\(state.password);H:\(state.isHidden ? "true" : "false");;"))
                                 .resizable()
@@ -86,6 +109,9 @@ struct WifiQRCodeGenView: View {
                     .disabled(state.name.isEmpty || state.password.isEmpty)
                 }
             }
+        }
+        .onAppear {
+            self.focus = .name
         }
     }
     
