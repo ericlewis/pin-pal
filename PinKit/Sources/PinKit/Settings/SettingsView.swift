@@ -82,7 +82,7 @@ struct SettingsView: View {
                         }
                         .disabled(repository.subscription == nil)
                     }
-                    Toggle("Block my device", isOn: .constant(repository.isDeviceLost))
+                    Toggle("Mark device as lost or stolen", isOn: .constant(repository.isDeviceLost))
                         .onTapGesture(perform: {
                             if repository.isDeviceLost, let id = repository.extendedInfo?.id {
                                 Task {
