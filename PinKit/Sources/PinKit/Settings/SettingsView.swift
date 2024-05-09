@@ -154,7 +154,7 @@ struct SettingsView: View {
             } message: {
                 Text("This operation is irreversible, all notes will be deleted!")
             }
-            .alert("Lost or stolen Ai Pin", isPresented: $blockPinConfirmationPresented) {
+            .alert("Mark device as lost or stolen", isPresented: $blockPinConfirmationPresented) {
                 Button("Block Pin", role: .destructive) {
                     if let id = repository.extendedInfo?.id {
                         Task {
