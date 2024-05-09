@@ -5,7 +5,7 @@ import SwiftData
 import BackgroundTasks
 
 @main
-struct Ai_PinApp: App {
+struct PinPalApp: App {
     
     #if os(iOS)
     @UIApplicationDelegateAdaptor(AppDelegate.self)

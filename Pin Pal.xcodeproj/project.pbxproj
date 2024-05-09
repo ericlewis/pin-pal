@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		6819B7F62BD85431009255A0 /* Ai_PinApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6819B7F52BD85431009255A0 /* Ai_PinApp.swift */; };
+		6819B7F62BD85431009255A0 /* PinPalApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6819B7F52BD85431009255A0 /* PinPalApp.swift */; };
 		6819B7FA2BD85432009255A0 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 6819B7F92BD85432009255A0 /* Assets.xcassets */; };
 		6897F2A32BE9CE1C00224555 /* Intents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6897F2A22BE9CE1C00224555 /* Intents.swift */; };
 		6897F2A62BEA7E2700224555 /* NoteIntents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6897F2A52BEA7E2700224555 /* NoteIntents.swift */; };
@@ -31,7 +31,7 @@
 
 /* Begin PBXFileReference section */
 		6819B7F22BD85431009255A0 /* Pin Pal.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Pin Pal.app"; sourceTree = BUILT_PRODUCTS_DIR; };
-		6819B7F52BD85431009255A0 /* Ai_PinApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Ai_PinApp.swift; sourceTree = "<group>"; };
+		6819B7F52BD85431009255A0 /* PinPalApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PinPalApp.swift; sourceTree = "<group>"; };
 		6819B7F92BD85432009255A0 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		6819B7FB2BD85432009255A0 /* Ai_Pin.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Ai_Pin.entitlements; sourceTree = "<group>"; };
 		6819B82C2BDB5468009255A0 /* Ai-Pin-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "Ai-Pin-Info.plist"; path = "Ai Pin/Resources/Ai-Pin-Info.plist"; sourceTree = SOURCE_ROOT; };
@@ -58,7 +58,7 @@
 		6819B7E92BD85431009255A0 = {
 			isa = PBXGroup;
 			children = (
-				6819B7F42BD85431009255A0 /* Ai Pin */,
+				6819B7F42BD85431009255A0 /* Sources */,
 				6819B7F32BD85431009255A0 /* Products */,
 				6819B8292BDB5451009255A0 /* Frameworks */,
 			);
@@ -72,14 +72,14 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		6819B7F42BD85431009255A0 /* Ai Pin */ = {
+		6819B7F42BD85431009255A0 /* Sources */ = {
 			isa = PBXGroup;
 			children = (
 				6897F2A42BEA7E1B00224555 /* Intents */,
 				68C85B7B2BDCA1BE0029A408 /* Resources */,
-				6819B7F52BD85431009255A0 /* Ai_PinApp.swift */,
+				6819B7F52BD85431009255A0 /* PinPalApp.swift */,
 			);
-			path = "Ai Pin";
+			path = Sources;
 			sourceTree = "<group>";
 		};
 		6819B8292BDB5451009255A0 /* Frameworks */ = {
@@ -189,7 +189,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				6897F2A82BEA7E4E00224555 /* CaptureIntents.swift in Sources */,
-				6819B7F62BD85431009255A0 /* Ai_PinApp.swift in Sources */,
+				6819B7F62BD85431009255A0 /* PinPalApp.swift in Sources */,
 				6897F2AA2BEAC34D00224555 /* AiMicIntents.swift in Sources */,
 				6897F2A32BE9CE1C00224555 /* Intents.swift in Sources */,
 				6897F2A62BEA7E2700224555 /* NoteIntents.swift in Sources */,
@@ -321,7 +321,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
-				CODE_SIGN_ENTITLEMENTS = "Ai Pin/Resources/Ai_Pin.entitlements";
+				CODE_SIGN_ENTITLEMENTS = Sources/Resources/Ai_Pin.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEAD_CODE_STRIPPING = YES;
@@ -329,7 +329,7 @@
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = "Ai Pin/Resources/Ai-Pin-Info.plist";
+				INFOPLIST_FILE = "Sources/Resources/Ai-Pin-Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "Pin Pal";
 				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "Save Ai Pin captures.";
 				INFOPLIST_KEY_NSSiriUsageDescription = "Creating new notes.";
@@ -367,7 +367,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
-				CODE_SIGN_ENTITLEMENTS = "Ai Pin/Resources/Ai_Pin.entitlements";
+				CODE_SIGN_ENTITLEMENTS = Sources/Resources/Ai_Pin.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEAD_CODE_STRIPPING = YES;
@@ -375,7 +375,7 @@
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = "Ai Pin/Resources/Ai-Pin-Info.plist";
+				INFOPLIST_FILE = "Sources/Resources/Ai-Pin-Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "Pin Pal";
 				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "Save Ai Pin captures.";
 				INFOPLIST_KEY_NSSiriUsageDescription = "Creating new notes.";
