@@ -4,17 +4,14 @@ import SwiftData
 struct NotesView: View {
     
     @Environment(NavigationStore.self)
-    private var navigationStore
+    private var navigation
 
     @Environment(\.database)
     private var database
     
     @Environment(HumaneCenterService.self)
     private var service
-    
-    @State
-    private var fileImporterPresented = false
-    
+
     @State
     private var isLoading = false
     
@@ -28,7 +25,7 @@ struct NotesView: View {
     private var filter = _Note.all()
 
     var body: some View {
-        @Bindable var navigationStore = navigationStore
+        @Bindable var navigationStore = navigation
         NavigationStack(path: $navigationStore.notesNavigationPath) {
             SearchableNotesListView(
                 filter: filter,
@@ -38,14 +35,25 @@ struct NotesView: View {
             .refreshable(action: initial)
             .searchable(text: $query)
             .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    Menu("Options", systemImage: "ellipsis") {
+                        Toggle("Testing", isOn: .constant(true))
+                        Picker("Sort", systemImage: "arrow.up.arrow.down", selection: .constant("Created At")) {
+                            Text("Created At").tag("Created At")
+                            Text("Last Modified At").tag("Last Modified At")
+                        }
+                        .pickerStyle(.menu)
+                    }
+                    .symbolVariant(.circle)
+                }
                 ToolbarItem(placement: .primaryAction) {
                     Menu("Create note", systemImage: "plus") {
                         Button("Create", systemImage: "note.text.badge.plus", intent: OpenNewNoteIntent())
                         Button("Import", systemImage: "square.and.arrow.down") {
-                            self.fileImporterPresented = true
+                            self.navigation.fileImporterPresented = true
                         }
                     } primaryAction: {
-                        self.navigationStore.activeNote = .create()
+                        self.navigation.activeNote = .create()
                     }
                 }
             }
@@ -55,7 +63,7 @@ struct NotesView: View {
             NoteComposerView(note: note)
         }
         .fileImporter(
-            isPresented: $fileImporterPresented,
+            isPresented: $navigationStore.fileImporterPresented,
             allowedContentTypes: [.plainText]
         ) { result in
             Task.detached {
@@ -63,7 +71,7 @@ struct NotesView: View {
                     switch result {
                     case let .success(success):
                         let str = try String(contentsOf: success)
-                        self.navigationStore.activeNote = .init(text: str, title: success.lastPathComponent)
+                        self.navigation.activeNote = .init(text: str, title: success.lastPathComponent)
                     case let .failure(failure):
                         break
                     }
