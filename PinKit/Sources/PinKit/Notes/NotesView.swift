@@ -91,7 +91,9 @@ struct NotesView: View {
                             },
                             set: {
                                 if $0 {
-                                    self.filterType = .all
+                                    withAnimation(.snappy) {
+                                        self.filterType = .all
+                                    }
                                 }
                             }
                         ))
@@ -102,7 +104,9 @@ struct NotesView: View {
                                 },
                                 set: {
                                     if $0 {
-                                        self.filterType = .favorites
+                                        withAnimation(.snappy) {
+                                            self.filterType = .favorites
+                                        }
                                     }
                                 }
                             ))
