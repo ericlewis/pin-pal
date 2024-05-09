@@ -556,20 +556,9 @@ public struct UpdateNoteIntent: AppIntent {
     }
 }
 
-struct LoadNotesIntent: AppIntent {
+struct SyncNotesIntent: AppIntent {
     public static var title: LocalizedStringResource = "Load Notes"
-    
-    @Parameter(title: "Page")
-    public var page: Int
-    
-    @Parameter(title: "Page Size")
-    public var pageSize: Int
-    
-    public init(page: Int = 0, pageSize: Int = 15) {
-        self.page = page
-        self.pageSize = pageSize
-    }
-    
+
     public init() {}
     
     public static var openAppWhenRun: Bool = false
@@ -582,11 +571,18 @@ struct LoadNotesIntent: AppIntent {
     public var database: any Database
     
     public func perform() async throws -> some IntentResult {
-        let chunkSize = 100
+        let chunkSize = 30
         let total = try await service.notes(0, 1).totalElements
-        let data = try await service.notes(0, total)
-        await data.content.concurrentForEach(process)
+        let totalPages = (total + chunkSize - 1) / chunkSize
+
+        try await (0..<totalPages).concurrentForEach { page in
+            let offset = page * chunkSize
+            let limit = min(chunkSize, total - offset)
+            let data = try await service.notes(offset, limit)
+            await data.content.concurrentForEach(process)
+        }
         try await self.database.save()
+        
         return .result()
     }
     

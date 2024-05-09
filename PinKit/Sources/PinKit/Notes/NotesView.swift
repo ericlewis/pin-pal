@@ -106,7 +106,7 @@ struct NotesView: View {
     func initial() async {
         isLoading = true
         do {
-            let intent = LoadNotesIntent(page: 0)
+            let intent = SyncNotesIntent()
             intent.database = database
             intent.service = service
             try await intent.perform()

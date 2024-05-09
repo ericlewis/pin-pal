@@ -110,7 +110,7 @@ struct Ai_PinApp: App {
     
     func handleNotesRefresh() async {
         do {
-            let intent = LoadNotesIntent(page: 0)
+            let intent = SyncNotesIntent()
             intent.database = sceneDatabase
             intent.service = sceneService
             let _ = try await intent.perform()
