@@ -3,74 +3,19 @@ import SwiftData
 
 struct CallEventListView: View {
     
-    @Environment(\.database)
-    private var database
-    
-    @Environment(HumaneCenterService.self)
-    private var service
-    
-    @Environment(AppState.self)
-    private var app
-
-    @State
-    private var isLoading = false
-    
-    @State
-    private var isFirstLoad = true
-
     var query: String
     
-    var predicate: Predicate<PhoneCallEvent> {
-        if query.isEmpty {
-            return #Predicate { _ in
-                true
-            }
-        } else {
-            return #Predicate { event in
-                return event.peers.contains(query)
-            }
-        }
-    }
-    
     var body: some View {
-        var descriptor = PhoneCallEvent.all()
-        let _ = descriptor.predicate = predicate
-        QueryListView(descriptor: descriptor) { event in
-            CallCellView(event: event)
-        } placeholder: {
-            ContentUnavailableView("No data yet", systemImage: "person.text.rectangle")
+        EventListView(intent: SyncMusicEventsIntent()) {
+            #Predicate<PhoneCallEvent> {
+                if query.isEmpty {
+                    true
+                } else {
+                    $0.peers.contains(query)
+                }
+            }
+        } content: {
+            CallCellView(event: $0)
         }
-        .environment(\.isLoading, isLoading)
-        .environment(\.isFirstLoad, isFirstLoad)
-        .overlay(alignment: .bottom) {
-            SyncStatusView(
-                current: \.numberOfCallEventsSynced,
-                total: \.totalCallEventsToSync
-            )
-        }
-        .refreshable(action: load)
-        .task(initial)
-    }
-    
-    func initial() async {
-        guard !isLoading, isFirstLoad else { return }
-        Task.detached {
-            await load()
-        }
-    }
-    
-    func load() async {
-        isLoading = true
-        do {
-            let intent = SyncCallEventsIntent()
-            intent.database = database
-            intent.service = service
-            intent.app = app
-            try await intent.perform()
-        } catch {
-            print(error)
-        }
-        isLoading = false
-        isFirstLoad = false
     }
 }

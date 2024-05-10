@@ -149,7 +149,13 @@ public struct DeleteAiMicEventsIntent: DeleteIntent {
     }
 }
 
-struct SyncAiMicIntent: AppIntent {
+extension KeyPath: @unchecked Sendable {}
+
+struct SyncAiMicEventsIntent: AppIntent, SyncIntent {
+    
+    var currentKeyPath: KeyPath<AppState, Int> = \.numberOfAiMicEventsSynced
+    var totalKeyPath: KeyPath<AppState, Int> = \.totalAiMicEventsToSync
+    
     public static var title: LocalizedStringResource = "Full Sync Ai Mic Requests"
 
     public init() {}
@@ -210,7 +216,11 @@ struct SyncAiMicIntent: AppIntent {
     }
 }
 
-struct SyncCallEventsIntent: AppIntent {
+struct SyncCallEventsIntent: AppIntent, SyncIntent {
+    
+    var currentKeyPath: KeyPath<AppState, Int> = \.numberOfCallEventsSynced
+    var totalKeyPath: KeyPath<AppState, Int> = \.totalCallEventsToSync
+    
     public static var title: LocalizedStringResource = "Full Sync Phone Call Events"
 
     public init() {}
@@ -271,7 +281,11 @@ struct SyncCallEventsIntent: AppIntent {
     }
 }
 
-struct SyncTranslationEventsIntent: AppIntent {
+struct SyncTranslationEventsIntent: AppIntent, SyncIntent {
+    
+    var currentKeyPath: KeyPath<AppState, Int> = \.numberOfTranslationEventsSynced
+    var totalKeyPath: KeyPath<AppState, Int> = \.totalTranslationEventsToSync
+    
     public static var title: LocalizedStringResource = "Full Sync Translation Events"
 
     public init() {}
@@ -333,7 +347,11 @@ struct SyncTranslationEventsIntent: AppIntent {
 }
 
 
-struct SyncMusicEventsIntent: AppIntent {
+struct SyncMusicEventsIntent: AppIntent, SyncIntent {
+    
+    var currentKeyPath: KeyPath<AppState, Int> = \.numberOfMusicEventsSynced
+    var totalKeyPath: KeyPath<AppState, Int> = \.totalMusicEventsToSync
+    
     public static var title: LocalizedStringResource = "Full Sync Music Events"
 
     public init() {}

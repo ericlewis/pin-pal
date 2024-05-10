@@ -12,7 +12,7 @@ struct SyncStatusView: View {
         if app[keyPath: total] > 0, app[keyPath: current] > 0 {
             let current = Double(app[keyPath: current])
             let total = Double(app[keyPath: total])
-            ProgressView(value:  current / total)
+            ProgressView(value:  max(min(current / total, 1.0), 0.0))
                 .padding(.horizontal, -5)
         }
     }

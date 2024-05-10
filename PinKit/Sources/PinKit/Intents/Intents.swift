@@ -3,6 +3,14 @@ import Foundation
 import PinKit
 import SwiftUI
 
+public protocol SyncIntent: AppIntent {
+    var currentKeyPath: KeyPath<AppState, Int> { get }
+    var totalKeyPath: KeyPath<AppState, Int> { get }
+    var database: any Database { get set }
+    var service: HumaneCenterService { get set }
+    var app: AppState { get set }
+}
+
 struct PinPalShortcuts: AppShortcutsProvider {
     
     @AppShortcutsBuilder

@@ -38,3 +38,51 @@ struct MyDataView: View {
         }
     }
 }
+
+enum MyDataFilter {
+    case aiMic
+    case calls
+    case music
+    case translations
+    
+    var title: LocalizedStringKey {
+        switch self {
+        case .aiMic:
+            "Ai Mic"
+        case .calls:
+            "Calls"
+        case .music:
+            "Music"
+        case .translations:
+            "Translation"
+        }
+    }
+    
+    var systemImage: String {
+        switch self {
+        case .aiMic:
+            "mic"
+        case .calls:
+            "phone"
+        case .music:
+            "music.note"
+        case .translations:
+            "bubble.left.and.text.bubble.right"
+        }
+    }
+    
+    var domain: EventDomain {
+        switch self {
+        case .aiMic: .aiMic
+        case .calls: .calls
+        case .music: .music
+        case .translations: .translation
+        }
+    }
+}
+
+extension MyDataFilter: CaseIterable {}
+
+extension MyDataFilter: Identifiable {
+    var id: Self { self }
+}
