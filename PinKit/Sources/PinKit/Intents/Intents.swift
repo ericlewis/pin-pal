@@ -9,8 +9,8 @@ public protocol SyncManager: AppIntent {
     
     associatedtype Event: EventDecodable
         
-    var currentKeyPath: WritableKeyPath<AppState, Int> { get }
-    var totalKeyPath: WritableKeyPath<AppState, Int> { get }
+    var currentKeyPath: ReferenceWritableKeyPath<AppState, Int> { get }
+    var totalKeyPath: ReferenceWritableKeyPath<AppState, Int> { get }
     var domain: EventDomain { get }
 
     var app: AppState { get set }
@@ -34,12 +34,12 @@ extension SyncManager {
         
         await MainActor.run {
             withAnimation {
-                app.totalMusicEventsToSync = total
+                app[keyPath: totalKeyPath] = total
+                app[keyPath: currentKeyPath] = 0
             }
         }
         
-        // TODO: do cleanup too
-        try await (0..<totalPages).concurrentForEach { page in
+        let ids = try await (0..<totalPages).concurrentMap { page in
             let data = try await service.events(domain, page, chunkSize)
             let result = await data.content.concurrentMap {
                 let event = type.init(from: $0)
@@ -49,16 +49,49 @@ extension SyncManager {
                         
             await MainActor.run {
                 withAnimation {
-                    app.numberOfMusicEventsSynced += result.count
+                    app[keyPath: currentKeyPath] += result.count
                 }
             }
-        }
-                        
-        try await database.save()
+            
+            return result
+        }.flatMap({ $0 })
+        
+        try await self.database.save()
+
+        do {
+            if type is AiMicEvent.Type {
+                let predicate = #Predicate<AiMicEvent> {
+                    !ids.contains($0.uuid)
+                }
+                try await self.database.delete(where: predicate)
+                try await database.save()
+            }
+            if type is PhoneCallEvent.Type {
+                let predicate = #Predicate<PhoneCallEvent> {
+                    !ids.contains($0.uuid)
+                }
+                try await self.database.delete(where: predicate)
+                try await database.save()
+            }
+            if type is TranslationEvent.Type {
+                let predicate = #Predicate<TranslationEvent> {
+                    !ids.contains($0.uuid)
+                }
+                try await self.database.delete(where: predicate)
+                try await database.save()
+            }
+            if type is MusicEvent.Type {
+                let predicate = #Predicate<MusicEvent> {
+                    !ids.contains($0.uuid)
+                }
+                try await self.database.delete(where: predicate)
+                try await database.save()
+            }
+        } catch {}
 
         await MainActor.run {
-            app.totalMusicEventsToSync = 0
-            app.numberOfMusicEventsSynced = 0
+            app[keyPath: currentKeyPath] = 0
+            app[keyPath: totalKeyPath] = 0
         }
     }
     

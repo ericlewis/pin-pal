@@ -347,8 +347,8 @@ struct SyncAiMicEventsIntent: AppIntent, SyncManager {
     
     typealias Event = AiMicEvent
     
-    var currentKeyPath: WritableKeyPath<AppState, Int> = \.numberOfAiMicEventsSynced
-    var totalKeyPath: WritableKeyPath<AppState, Int> = \.totalAiMicEventsToSync
+    var currentKeyPath: ReferenceWritableKeyPath<AppState, Int> = \.numberOfAiMicEventsSynced
+    var totalKeyPath: ReferenceWritableKeyPath<AppState, Int> = \.totalAiMicEventsToSync
     var domain: EventDomain = .aiMic
     
     public static var title: LocalizedStringResource = "Full Sync Ai Mic Requests"
@@ -372,8 +372,8 @@ struct SyncCallEventsIntent: AppIntent, SyncManager {
     
     typealias Event = PhoneCallEvent
 
-    var currentKeyPath: WritableKeyPath<AppState, Int> = \.numberOfCallEventsSynced
-    var totalKeyPath: WritableKeyPath<AppState, Int> = \.totalCallEventsToSync
+    var currentKeyPath: ReferenceWritableKeyPath<AppState, Int> = \.numberOfCallEventsSynced
+    var totalKeyPath: ReferenceWritableKeyPath<AppState, Int> = \.totalCallEventsToSync
     var domain: EventDomain = .calls
 
     public static var title: LocalizedStringResource = "Full Sync Phone Call Events"
@@ -397,8 +397,8 @@ struct SyncTranslationEventsIntent: AppIntent, SyncManager {
     
     typealias Event = TranslationEvent
     
-    var currentKeyPath: WritableKeyPath<AppState, Int> = \.numberOfTranslationEventsSynced
-    var totalKeyPath: WritableKeyPath<AppState, Int> = \.totalTranslationEventsToSync
+    var currentKeyPath: ReferenceWritableKeyPath<AppState, Int> = \.numberOfTranslationEventsSynced
+    var totalKeyPath: ReferenceWritableKeyPath<AppState, Int> = \.totalTranslationEventsToSync
     var domain: EventDomain = .translation
     
     public static var title: LocalizedStringResource = "Full Sync Translation Events"
@@ -423,8 +423,8 @@ struct SyncMusicEventsIntent: AppIntent, SyncManager {
     
     typealias Event = MusicEvent
     
-    var currentKeyPath: WritableKeyPath<AppState, Int> = \.numberOfMusicEventsSynced
-    var totalKeyPath: WritableKeyPath<AppState, Int> = \.totalMusicEventsToSync
+    var currentKeyPath: ReferenceWritableKeyPath<AppState, Int> = \.numberOfMusicEventsSynced
+    var totalKeyPath: ReferenceWritableKeyPath<AppState, Int> = \.totalMusicEventsToSync
     var domain: EventDomain = .music
 
     public static var title: LocalizedStringResource = "Full Sync Music Events"
