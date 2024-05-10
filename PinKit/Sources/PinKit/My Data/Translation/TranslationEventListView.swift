@@ -78,9 +78,9 @@ struct TranslationEventSyncStatusView: View {
     private var app
         
     var body: some View {
-        if app.totalCallEventsToSync > 0, app.numberOfCallEventsSynced > 0 {
-            let current = Double(app.numberOfCallEventsSynced)
-            let total = Double(app.totalCallEventsToSync)
+        if app.totalTranslationEventsToSync > 0, app.numberOfTranslationEventsSynced > 0 {
+            let current = Double(app.numberOfTranslationEventsSynced)
+            let total = Double(app.totalTranslationEventsToSync)
             ProgressView(value:  current / total)
                 .padding(.horizontal, -5)
         }

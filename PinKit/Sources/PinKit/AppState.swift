@@ -17,5 +17,8 @@ import SwiftUI
     public var totalTranslationEventsToSync = 0
     public var numberOfTranslationEventsSynced = 0
     
+    public var totalMusicEventsToSync = 0
+    public var numberOfMusicEventsSynced = 0
+    
     public init() {}
 }

@@ -2,8 +2,7 @@ import SwiftUI
 import SDWebImageSwiftUI
 
 struct MusicCellContent: View {
-    let event: RemoteMusicEvent
-    let createdAt: Date
+    let event: MusicEvent
     
     @AccentColor
     private var accentColor: Color
@@ -11,7 +10,7 @@ struct MusicCellContent: View {
     var body: some View {
         LabeledContent {
             if event.sourceService == "TIDAL" {
-                if let id = event.albumArtUuid {
+                if let id = event.albumArtUUID {
                     WebImage(url: makeAlbumURL(id: id)) { image in
                         image
                             .resizable()
@@ -39,6 +38,9 @@ struct MusicCellContent: View {
                     .font(.headline)
                     .foregroundStyle(accentColor)
             }
+            if let length = event.trackCount {
+                Text("^[\(length) track](inflect: true)")
+            }
             if let artistName = event.artistName {
                 Text(artistName)
             }
@@ -48,7 +50,7 @@ struct MusicCellContent: View {
             LabeledContent {
                 
             } label: {
-                DateTextView(date: createdAt)
+                DateTextView(date: event.createdAt)
                     .foregroundStyle(.tertiary)
                     .font(.caption)
             }
@@ -62,8 +64,7 @@ struct MusicCellContent: View {
 }
 
 struct MusicCellView: View {
-    let event: RemoteMusicEvent
-    let createdAt: Date
+    let event: MusicEvent
     
     @AccentColor
     private var accentColor: Color
@@ -72,7 +73,7 @@ struct MusicCellView: View {
     private var openURL
     
     var body: some View {
-        if let playlist = event.generatedPlaylist {
+        /* if let playlist = event.generatedPlaylist {
             NavigationLink {
                 SmartPlaylistView(playlist: playlist, event: event)
             } label: {
@@ -94,16 +95,16 @@ struct MusicCellView: View {
                     }
                 }
             }
-        } else if let trackId = event.trackID, event.sourceService == "TIDAL" {
+         } else */ if let trackId = event.sourceTrackId, event.sourceService == "TIDAL" {
             Button {
                 if let trackUrl = makeTidalTrackURL(trackID: trackId) {
                     openURL(trackUrl)
                 }
             } label: {
-                MusicCellContent(event: event, createdAt: createdAt)
+                MusicCellContent(event: event)
             }
         } else {
-            MusicCellContent(event: event, createdAt: createdAt)
+            MusicCellContent(event: event)
         }
     }
     

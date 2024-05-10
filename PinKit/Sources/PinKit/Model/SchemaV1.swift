@@ -14,7 +14,8 @@ public enum SchemaV1: VersionedSchema {
             AiMicEvent.self,
             PhoneCallEvent.self,
             Capture.self,
-            TranslationEvent.self
+            TranslationEvent.self,
+            MusicEvent.self
         ]
     }
 }

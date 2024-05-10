@@ -30,19 +30,22 @@ extension SchemaV1 {
         }
         
         public init(from event: EventContentEnvelope) {
+            self.uuid = event.eventIdentifier
+            self.feedbackUUID = event.feedbackUUID
+            self.feedbackCategory = event.feedbackCategory
+            self.createdAt = event.eventCreationTime
+            
             guard case let .call(call) = event.eventData else {
                 fatalError()
             }
-            self.uuid = event.eventIdentifier
+            
             if let duration = call.duration {
                 self.duration = duration.components.attoseconds
             } else {
                 self.duration = nil
             }
+            
             self.peers = call.peers.map(\.displayName)
-            self.feedbackUUID = event.feedbackUUID
-            self.feedbackCategory = event.feedbackCategory
-            self.createdAt = event.eventCreationTime
         }
         
         var dur: Duration? {

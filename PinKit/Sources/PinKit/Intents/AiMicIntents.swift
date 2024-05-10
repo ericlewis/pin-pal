@@ -331,3 +331,65 @@ struct SyncTranslationEventsIntent: AppIntent {
         case invalidContentType
     }
 }
+
+
+struct SyncMusicEventsIntent: AppIntent {
+    public static var title: LocalizedStringResource = "Full Sync Music Events"
+
+    public init() {}
+    
+    public static var openAppWhenRun: Bool = false
+    public static var isDiscoverable: Bool = false
+    
+    @Dependency
+    public var service: HumaneCenterService
+    
+    @Dependency
+    public var database: any Database
+    
+    @Dependency
+    public var app: AppState
+    
+    public func perform() async throws -> some IntentResult {
+        let chunkSize = 100
+        let total = try await service.events(.music, 0, 1).totalElements
+        let totalPages = (total + chunkSize - 1) / chunkSize
+        
+        await MainActor.run {
+            withAnimation {
+                app.totalMusicEventsToSync = total
+            }
+        }
+        
+        // TODO: do cleanup too
+        try await (0..<totalPages).concurrentForEach { page in
+            let data = try await service.events(.music, page, chunkSize)
+            let result = try await data.content.concurrentMap(process)
+                        
+            await MainActor.run {
+                withAnimation {
+                    app.numberOfMusicEventsSynced += result.count
+                }
+            }
+        }
+                        
+        try await self.database.save()
+
+        await MainActor.run {
+            app.totalMusicEventsToSync = 0
+            app.numberOfMusicEventsSynced = 0
+        }
+
+        return .result()
+    }
+    
+    private func process(_ content: EventContentEnvelope) async throws -> UUID {
+        let event = MusicEvent(from: content)
+        await self.database.insert(event)
+        return event.uuid
+    }
+    
+    enum Error: Swift.Error {
+        case invalidContentType
+    }
+}

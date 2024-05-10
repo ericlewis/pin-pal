@@ -20,23 +20,23 @@ struct MusicEventListView: View {
 
     var query: String
     
-    var predicate: Predicate<TranslationEvent> {
+    var predicate: Predicate<MusicEvent> {
         if query.isEmpty {
             return #Predicate { _ in
                 true
             }
         } else {
             return #Predicate { event in
-                return event.originLanguage.contains(query) || event.targetLanguage.contains(query)
+                return event.artistName?.contains(query) == true || event.albumName?.contains(query) == true
             }
         }
     }
     
     var body: some View {
-        var descriptor = TranslationEvent.all()
+        var descriptor = MusicEvent.all()
         let _ = descriptor.predicate = predicate
         QueryListView(descriptor: descriptor) { event in
-            TranslationCellView(event: event)
+            MusicCellView(event: event)
         } placeholder: {
             ContentUnavailableView("No data yet", systemImage: "person.text.rectangle")
         }
@@ -59,7 +59,7 @@ struct MusicEventListView: View {
     func load() async {
         isLoading = true
         do {
-            let intent = SyncTranslationEventsIntent()
+            let intent = SyncMusicEventsIntent()
             intent.database = database
             intent.service = service
             intent.app = app
@@ -78,9 +78,9 @@ struct MusicEventSyncStatusView: View {
     private var app
         
     var body: some View {
-        if app.totalCallEventsToSync > 0, app.numberOfCallEventsSynced > 0 {
-            let current = Double(app.numberOfCallEventsSynced)
-            let total = Double(app.totalCallEventsToSync)
+        if app.totalMusicEventsToSync > 0, app.numberOfMusicEventsSynced > 0 {
+            let current = Double(app.numberOfMusicEventsSynced)
+            let total = Double(app.totalMusicEventsToSync)
             ProgressView(value:  current / total)
                 .padding(.horizontal, -5)
         }
