@@ -28,9 +28,9 @@ public enum FeatureFlag: String, Codable {
     public var toggleLostDeviceStatus: (String, Bool) async throws -> LostDeviceEnvelope
     public var deviceIdentifiers: () async throws -> [String]
     public var deleteAllNotes: () async throws -> Void
-    public var bulkFavorite: ([UUID]) async throws -> BulkResponse
-    public var bulkUnfavorite: ([UUID]) async throws -> BulkResponse
-    public var bulkRemove: ([UUID]) async throws -> BulkResponse
+    public var bulkFavorite: ([UUID]) async throws -> BulkMemoryActionResult
+    public var bulkUnfavorite: ([UUID]) async throws -> BulkMemoryActionResult
+    public var bulkRemove: ([UUID]) async throws -> BulkMemoryActionResult
 
     required public init(
         notes: @escaping (Int, Int) async throws -> PageableMemoryContentEnvelope,
@@ -49,9 +49,9 @@ public enum FeatureFlag: String, Codable {
         toggleLostDeviceStatus: @escaping (String, Bool) async throws -> LostDeviceEnvelope,
         deviceIdentifiers: @escaping () async throws -> [String],
         deleteAllNotes: @escaping () async throws -> Void,
-        bulkFavorite: @escaping ([UUID]) async throws -> BulkResponse,
-        bulkUnfavorite: @escaping ([UUID]) async throws -> BulkResponse,
-        bulkRemove: @escaping ([UUID]) async throws -> BulkResponse
+        bulkFavorite: @escaping ([UUID]) async throws -> BulkMemoryActionResult,
+        bulkUnfavorite: @escaping ([UUID]) async throws -> BulkMemoryActionResult,
+        bulkRemove: @escaping ([UUID]) async throws -> BulkMemoryActionResult
     ) {
         self.notes = notes
         self.captures = captures

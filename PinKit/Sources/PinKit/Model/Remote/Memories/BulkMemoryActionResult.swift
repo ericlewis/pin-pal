@@ -1,5 +1,5 @@
 import Foundation
 
-public struct BulkResponse: Codable {
+public struct BulkMemoryActionResult: Codable {
     public let memoryUUIDToStatus: [String: Int]
 }

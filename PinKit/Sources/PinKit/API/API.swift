@@ -55,19 +55,19 @@ enum API {
         ])
     }
     
-    static func favorite(memoryUUIDs: [UUID]) -> Request<BulkResponse> {
+    static func favorite(memoryUUIDs: [UUID]) -> Request<BulkMemoryActionResult> {
         .init(url: API.memoryUrl.appending(path: "bulk-favorite"), method: .post, body: ["memoryUUIDs": memoryUUIDs])
     }
     
-    static func unfavorite(memoryUUIDs: [UUID]) -> Request<BulkResponse> {
+    static func unfavorite(memoryUUIDs: [UUID]) -> Request<BulkMemoryActionResult> {
         .init(url: API.memoryUrl.appending(path: "bulk-unfavorite"), method: .post, body: ["memoryUUIDs": memoryUUIDs])
     }
     
-    static func delete(memoryUUIDs: [UUID]) -> Request<BulkResponse> {
+    static func delete(memoryUUIDs: [UUID]) -> Request<BulkMemoryActionResult> {
         .init(url: API.memoryUrl.appending(path: "bulk-delete"), method: .post, body: ["memoryUUIDs": memoryUUIDs])
     }
     
-    static func delete(eventUUID: UUID) -> Request<BulkResponse> {
+    static func delete(eventUUID: UUID) -> Request<BulkMemoryActionResult> {
         .init(url: eventsUrl.appending(path: "event").appending(path: eventUUID.uuidString), method: .delete)
     }
     
