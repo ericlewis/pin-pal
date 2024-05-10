@@ -6,8 +6,12 @@ import CollectionConcurrencyKit
 import Models
 import SwiftData
 
+extension KeyPath: @unchecked Sendable {}
+
 public protocol DeletableEvent: Sendable, PersistentModel {
     var uuid: UUID { get }
+    var feedbackUUID: UUID? { get }
+    var feedbackCategory: FeedbackCategory? { get }
 }
 
 public struct AiMicEntity: Identifiable {
@@ -192,7 +196,152 @@ public struct DeleteEventsIntent: AppIntent {
     }
 }
 
-extension KeyPath: @unchecked Sendable {}
+public struct PositiveAiMicEventFeedbackIntent: AppIntent {
+    
+    public static var openAppWhenRun: Bool = false
+    public static var isDiscoverable: Bool = false
+    
+    public static var title: LocalizedStringResource = "Send Positive Ai Mic Feedback"
+    public static var description: IntentDescription? = .init("Marks the specified Ai Mic event as a good response.", categoryName: "My Data")
+
+    @Parameter(title: "Ai Mic Event")
+    public var event: AiMicEntity
+
+    public init(event: AiMicEvent) {
+        self.event = AiMicEntity(from: event)
+    }
+    
+    public init() {}
+
+    @Dependency
+    public var service: HumaneCenterService
+    
+    @Dependency
+    public var database: any Database
+    
+    @Dependency
+    public var navigation: Navigation
+
+    public func perform() async throws -> some IntentResult {
+        let e = AiMicEvent(
+            uuid: event.id,
+            request: event.request,
+            response: event.response,
+            createdAt: event.createdAt
+        )
+        let uuid = try await service.feedback(.unspecifiedPositive, e)
+        e.feedbackUUID = uuid
+        e.feedbackCategory = .positive
+        await database.insert(e)
+        try await database.save()
+        navigation.show(toast: .sentFeedback)
+        return .result()
+    }
+}
+
+public enum NegativeFeedbackReason: String, Codable, AppEnum {
+    case wrongTranscription
+    case wrongAnswer
+    case inaccurate
+    case inappropriateOrOffensive
+    case dangerousOrHarmful
+    case other
+    
+    public static var typeDisplayRepresentation: TypeDisplayRepresentation = .init(name: "Negative Feedback Reason")
+    public static var caseDisplayRepresentations: [NegativeFeedbackReason: DisplayRepresentation] = [
+        .wrongAnswer: "Wrong answer",
+        .wrongTranscription: "I didn't say this",
+        .inaccurate: "Inaccurate factual information",
+        .inappropriateOrOffensive: "Inappropriate or offensive answer",
+        .dangerousOrHarmful: "Dangerous or harmful answer",
+        .other: "Other",
+    ]
+    
+    public init(from category: AiMicFeedbackCategory) {
+        switch category {
+        case .wrongAnswer:
+            self = .wrongAnswer
+        case .wrongTranscription:
+            self = .wrongTranscription
+        case .inaccurate:
+            self = .inaccurate
+        case .inappropriateOrOffensive:
+            self = .inappropriateOrOffensive
+        case .dangerousOrHarmful:
+            self = .dangerousOrHarmful
+        case .other:
+            self = .other
+        case .unspecifiedPositive:
+            fatalError()
+        }
+    }
+}
+
+extension AiMicFeedbackCategory {
+    public init(from reason: NegativeFeedbackReason) throws {
+        switch reason {
+        case .wrongTranscription:
+            self = .wrongTranscription
+        case .wrongAnswer:
+            self = .wrongAnswer
+        case .inaccurate:
+            self = .inaccurate
+        case .inappropriateOrOffensive:
+            self = .inappropriateOrOffensive
+        case .dangerousOrHarmful:
+            self = .dangerousOrHarmful
+        case .other:
+            self = .other
+        }
+    }
+}
+
+public struct NegativeAiMicEventFeedbackIntent: AppIntent {
+    
+    public static var openAppWhenRun: Bool = false
+    public static var isDiscoverable: Bool = false
+    
+    public static var title: LocalizedStringResource = "Send Negative Ai Mic Feedback"
+    public static var description: IntentDescription? = .init("Marks the specified Ai Mic event as negative, including the reason why.", categoryName: "My Data")
+
+    @Parameter(title: "Ai Mic Event")
+    public var event: AiMicEntity
+    
+    @Parameter(title: "Reason")
+    public var reason: NegativeFeedbackReason
+
+    public init(event: AiMicEvent, reason: NegativeFeedbackReason) {
+        self.event = AiMicEntity(from: event)
+        self.reason = reason
+    }
+    
+    public init() {}
+
+    @Dependency
+    public var service: HumaneCenterService
+    
+    @Dependency
+    public var database: any Database
+    
+    @Dependency
+    public var navigation: Navigation
+
+    public func perform() async throws -> some IntentResult {
+        let e = AiMicEvent(
+            uuid: event.id,
+            request: event.request,
+            response: event.response,
+            createdAt: event.createdAt
+        )
+        let uuid = try await service.feedback(.init(from: reason), e)
+        e.feedbackUUID = uuid
+        e.feedbackCategory = .negative
+        await database.insert(e)
+        try await database.save()
+        navigation.show(toast: .sentFeedback)
+        return .result()
+    }
+}
 
 struct SyncAiMicEventsIntent: AppIntent, SyncManager {
     

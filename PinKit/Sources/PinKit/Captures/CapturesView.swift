@@ -53,7 +53,6 @@ struct CapturesView: View {
                         total: \.totalCapturesToSync
                     )
                 }
-                .refreshable(action: load)
                 .searchable(text: $query)
                 .navigationTitle("Captures")
                 .toolbar {
@@ -110,6 +109,7 @@ struct CapturesView: View {
         } placeholder: {
             ContentUnavailableView("No captures yet", systemImage: "camera.aperture")
         }
+        .refreshable(action: reload)
     }
     
     @ToolbarContentBuilder
@@ -196,5 +196,17 @@ extension CapturesView {
         }
         isLoading = false
         isFirstLoad = false
+    }
+    
+    func reload() async {
+        do {
+            let intent = SyncCapturesIntent()
+            intent.database = database
+            intent.service = service
+            intent.app = app
+            try await intent.perform()
+        } catch {
+            print(error)
+        }
     }
 }

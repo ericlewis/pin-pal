@@ -33,6 +33,7 @@ public enum FeatureFlag: String, Codable {
     public var bulkUnfavorite: ([UUID]) async throws -> BulkMemoryActionResult
     public var bulkRemove: ([UUID]) async throws -> BulkMemoryActionResult
     public var download: (UUID, FileAsset) async throws -> Data
+    public var feedback: (AiMicFeedbackCategory, AiMicEvent) async throws -> UUID
 
     required public init(
         notes: @escaping (Int, Int) async throws -> PageableMemoryContentEnvelope,
@@ -54,7 +55,8 @@ public enum FeatureFlag: String, Codable {
         bulkFavorite: @escaping ([UUID]) async throws -> BulkMemoryActionResult,
         bulkUnfavorite: @escaping ([UUID]) async throws -> BulkMemoryActionResult,
         bulkRemove: @escaping ([UUID]) async throws -> BulkMemoryActionResult,
-        download: @escaping (UUID, FileAsset) async throws -> Data
+        download: @escaping (UUID, FileAsset) async throws -> Data,
+        feedback: @escaping (AiMicFeedbackCategory, AiMicEvent) async throws -> UUID
     ) {
         self.notes = notes
         self.captures = captures
@@ -76,6 +78,7 @@ public enum FeatureFlag: String, Codable {
         self.bulkUnfavorite = bulkUnfavorite
         self.bulkRemove = bulkRemove
         self.download = download
+        self.feedback = feedback
     }
     
     public func isLoggedIn() -> Bool {

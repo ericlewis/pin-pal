@@ -32,8 +32,13 @@ struct CaptureCellView: View {
             VStack {
                 HStack {
                     Spacer()
-                    if capture.state != .processed {
+                    switch capture.state {
+                    case .pending:
                         Image(systemName: "icloud.and.arrow.up")
+                    case .processed:
+                        EmptyView()
+                    case .processing:
+                        Image(systemName: "arrow.triangle.2.circlepath.icloud.fill")
                     }
                 }
                 Spacer()

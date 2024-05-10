@@ -4,8 +4,9 @@ import Models
 
 extension HumaneCenterService {
     public static func live() -> Self {
+        let delegate = ClientDelegate()
         let client = APIClient(baseURL: API.rootUrl) {
-            $0.delegate = ClientDelegate()
+            $0.delegate = delegate
             $0.decoder = {
                 let decoder = JSONDecoder()
                 let dateFormatter = DateFormatter()
@@ -13,6 +14,15 @@ extension HumaneCenterService {
                 dateFormatter.locale = Locale(identifier: "en_US_POSIX")
                 dateFormatter.timeZone = TimeZone(secondsFromGMT: 0)
                 decoder.dateDecodingStrategy = .formatted(dateFormatter)
+                return decoder
+            }()
+            $0.encoder = {
+                let decoder = JSONEncoder()
+                let dateFormatter = DateFormatter()
+                dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSSSSX"
+                dateFormatter.locale = Locale(identifier: "en_US_POSIX")
+                dateFormatter.timeZone = TimeZone(secondsFromGMT: 0)
+                decoder.dateEncodingStrategy = .formatted(dateFormatter)
                 return decoder
             }()
         }
@@ -84,7 +94,25 @@ extension HumaneCenterService {
             },
             download: {
                 try await client.send(API.download(memoryUUID: $0, asset: $1)).data
+            },
+            feedback: { category, event in
+                if delegate.userId == nil {
+                    let result = try await client.send(API.session()).value
+                    delegate.userId = result.user.id
+                }
+                guard let userId = delegate.userId else {
+                    throw APIError.unacceptableStatusCode(403)
+                }
+                let id = try await client.send(API.feedback(category: category, event: event, userId: userId)).value.dropFirst().dropLast()
+                guard let uuid = UUID(uuidString: String(id)) else {
+                    throw Error.feedbackError
+                }
+                return uuid
             }
         )
+    }
+    
+    enum Error: Swift.Error {
+        case feedbackError
     }
 }

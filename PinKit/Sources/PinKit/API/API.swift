@@ -150,4 +150,63 @@ enum API {
             ]
         )
     }
+
+    static func feedback(
+        category: AiMicFeedbackCategory,
+        event: AiMicEvent,
+        userId: UUID
+    ) -> Request<String> {
+        .init(url: rootUrl.appending(path: "feedback/user-feedback"), method: .post, body:
+                AiMicImprovementFeedback(
+                    userId: userId.uuidString.lowercased(),
+                    eventTimeIsoFormat: event.createdAt,
+                    data: .init(
+                        aiMicFeedbackData: .init(
+                            category: category,
+                            request: event.request,
+                            response: event.response,
+                            notableEventUuid: event.uuid.uuidString.lowercased()
+                        )
+                    ),
+                    overallCategory: category == .unspecifiedPositive ? .positive : .negative
+                )
+        )
+    }
+}
+
+enum OverallFeedbackCategory: String, Codable {
+    case positive = "OVERALL_FEEDBACK_CATEGORY_POSITIVE"
+    case negative = "OVERALL_FEEDBACK_CATEGORY_NEGATIVE"
+}
+
+public enum AiMicFeedbackCategory: String, Codable {
+    case wrongAnswer = "AI_MIC_FEEDBACK_CATEGORY_WRONG_ANSWER"
+    case wrongTranscription = "AI_MIC_FEEDBACK_CATEGORY_WRONG_TRANSCRIPTION"
+    case inaccurate = "AI_MIC_FEEDBACK_CATEGORY_INACCURATE_ANSWER"
+    case inappropriateOrOffensive = "AI_MIC_FEEDBACK_CATEGORY_INAPPROPRIATE_OR_OFFENSIVE_ANSWER"
+    case dangerousOrHarmful = "AI_MIC_FEEDBACK_CATEGORY_DANGEROUS_OR_HARMFUL_ANSWER"
+    case unspecifiedPositive = "AI_MIC_FEEDBACK_CATEGORY_UNSPECIFIED_POSITIVE"
+    case other = "AI_MIC_FEEDBACK_CATEGORY_OTHER"
+    
+    static let type = "FEEDBACK_TYPE_AI_MIC"
+}
+
+struct AiMicImprovementFeedback: Codable {
+    
+    struct Feedback: Codable {
+        struct Data: Codable {
+            var category: AiMicFeedbackCategory
+            var request: String
+            var response: String
+            var notableEventUuid: String
+        }
+        
+        var aiMicFeedbackData: Data
+    }
+    
+    var type = AiMicFeedbackCategory.type
+    var userId: String
+    var eventTimeIsoFormat: Date
+    var data: Feedback
+    var overallCategory: OverallFeedbackCategory
 }

@@ -15,7 +15,7 @@ struct AiMicCellView: View {
                 .foregroundStyle(accentColor)
             Text(event.response)
             LabeledContent {
-                AiMicFeedbackButton(category: event.feedbackCategory)
+                AiMicFeedbackButton(event: event, category: event.feedbackCategory)
             } label: {
                 DateTextView(date: event.createdAt)
             }
@@ -32,20 +32,29 @@ struct AiMicCellView: View {
 
 struct AiMicFeedbackButton: View {
     
+    let event: AiMicEvent
     let category: FeedbackCategory?
+    
+    func makeNegativeFeedbackButton(reason: NegativeFeedbackReason) -> some View {
+        Button(
+            NegativeFeedbackReason.caseDisplayRepresentations[reason]?.title.key ?? "",
+            intent: NegativeAiMicEventFeedbackIntent(event: event, reason: reason)
+        )
+    }
     
     var body: some View {
         HStack {
             Menu {
-                Section {
-                    Button("Good Response", systemImage: "hand.thumbsup") {
-                        // self.feedbackState = .positive
-                    }
-                    Button("Needs Improvement", systemImage: "hammer", role: .destructive) {
-                        // self.feedbackState = .negative
+                if category == nil {
+                    Section {
+                        Button("Good Response", systemImage: "hand.thumbsup", intent: PositiveAiMicEventFeedbackIntent(event: event))
+                        Menu("Needs Improvement", systemImage: "hammer") {
+                            ForEach(NegativeFeedbackReason.allCases, id: \.rawValue) { reason in
+                                makeNegativeFeedbackButton(reason: reason)
+                            }
+                        }
                     }
                 }
-                .disabled(true)
             } label: {
                 switch category {
                 case .none:
@@ -73,6 +82,7 @@ struct AiMicFeedbackButton: View {
                 }
             }
             .font(.footnote)
+            .frame(maxWidth: .greatestFiniteMagnitude, alignment: .trailing)
         }
         .font(.caption)
         .foregroundStyle(.tertiary)
