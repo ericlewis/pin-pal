@@ -14,6 +14,9 @@ struct VideoView: View {
     @Environment(HumaneCenterService.self)
     private var service
     
+    @Environment(Navigation.self)
+    private var navigation
+    
     @State
     private var player = AVPlayer()
     

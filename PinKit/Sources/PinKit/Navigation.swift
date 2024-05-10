@@ -20,13 +20,13 @@ import Models
     
     public init() {}
     
-    func show(toast: Toast) {
+    public func show(toast: Toast) {
         withAnimation {
             self.showToast = toast
         }
     }
     
-    func dismissToast() {
+    public func dismissToast() {
         withAnimation {
             self.showToast = .none
         }

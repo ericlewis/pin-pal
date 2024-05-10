@@ -608,25 +608,31 @@ public struct SaveCaptureToCameraRollIntent: AppIntent {
     
     @Dependency
     public var service: HumaneCenterService
+    
+    @Dependency
+    public var navigation: Navigation
 
     public func perform() async throws -> some IntentResult {
+        navigation.show(toast: .downloadingCapture)
         switch capture.type {
         case .photo:
             let file = try await GetBestPhotoIntent(capture: capture).perform()
-            guard let photo = file.value, let filename = photo?.filename, let data = photo?.data, let image = UIImage(data: data) else {
+            guard let photo = file.value, let data = photo?.data, let image = UIImage(data: data) else {
+                navigation.show(toast: .error)
                 return .result()
             }
             UIImageWriteToSavedPhotosAlbum(image, nil, nil, nil)
         case .video:
             let videoFile = try await GetVideoIntent(capture: capture).perform()
             guard let video = videoFile.value, let filename = video?.filename, let data = video?.data else {
+                navigation.show(toast: .error)
                 return .result()
             }
             let targetURL: URL = .temporaryDirectory.appending(path: filename)
             FileManager.default.createFile(atPath: targetURL.path(), contents: data)
             UISaveVideoAtPathToSavedPhotosAlbum(targetURL.path(), nil, nil, nil)
         }
-        
+        navigation.show(toast: .captureSaved)
         return .result()
     }
     
@@ -660,21 +666,26 @@ public struct SaveUnprocessedVideoToCameraRollIntent: AppIntent {
     
     @Dependency
     public var service: HumaneCenterService
+    
+    @Dependency
+    public var navigation: Navigation
 
     public func perform() async throws -> some IntentResult {
+        navigation.show(toast: .downloadingCapture)
         switch capture.type {
         case .photo:
             break
         case .video:
             let videoFile = try await GetUnprocessedVideoIntent(capture: capture).perform()
             guard let video = videoFile.value, let filename = video?.filename, let data = video?.data else {
+                navigation.show(toast: .error)
                 return .result()
             }
             let targetURL: URL = .temporaryDirectory.appending(path: filename)
             FileManager.default.createFile(atPath: targetURL.path(), contents: data)
             UISaveVideoAtPathToSavedPhotosAlbum(targetURL.path(), nil, nil, nil)
         }
-        
+        navigation.show(toast: .captureSaved)
         return .result()
     }
     

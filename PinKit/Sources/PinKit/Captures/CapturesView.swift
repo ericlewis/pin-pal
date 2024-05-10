@@ -114,12 +114,6 @@ struct CapturesView: View {
     
     @ToolbarContentBuilder
     var toolbar: some ToolbarContent {
-        ToolbarItemGroup(placement: .primaryAction) {
-            Button("Select") {
-                
-            }
-            .disabled(true)
-        }
         ToolbarItemGroup(placement: .secondaryAction) {
             @Bindable var captureFilter = app.captureFilter
             if imageContentMode == .fill {
