@@ -1,34 +1,56 @@
 import SwiftUI
 import AppIntents
 
-@Observable public final class NoteFilterState {
-    
+@Observable 
+public final class NoteFilterState {
     public var filter = Note.all()
     public var type: NoteFilterType = .all
     public var sort = SortDescriptor<Note>(\.createdAt, order: .reverse)
     public var order = SortOrder.reverse
+}
+
+@Observable 
+public final class CaptureFilterState {
+    
+    public enum Filter {
+        case all
+        case photo
+        case video
+        case favorites
+    }
+    
+    public var filter = Capture.all()
+    public var type = Filter.all
+    public var order = SortOrder.reverse
+    public var sort = SortDescriptor<Capture>(\.createdAt, order: .reverse)
     
     
-    func toggle(sortedBy: KeyPath<Note, String>) -> Binding<Bool> {
+    func toggle(sortedBy: KeyPath<Capture, Date>) -> Binding<Bool> {
         Binding(
             get: { self.sort.keyPath == sortedBy  },
             set: {
                 if $0 {
                     withAnimation(.snappy) {
-                        self.sort = SortDescriptor<Note>(sortedBy, order: self.order)
+                        self.sort = SortDescriptor<Capture>(sortedBy, order: self.order)
                     }
                 }
             }
         )
     }
     
-    func toggle(sortedBy: KeyPath<Note, Date>) -> Binding<Bool> {
+    func toggle(filter: Filter) -> Binding<Bool> {
         Binding(
-            get: { self.sort.keyPath == sortedBy  },
-            set: {
-                if $0 {
+            get: {
+                self.type == filter
+            },
+            set: { isOn in
+                if isOn, self.type != filter {
                     withAnimation(.snappy) {
-                        self.sort = SortDescriptor<Note>(sortedBy, order: self.order)
+                        self.type = filter
+                    }
+                } else {
+                    withAnimation(.snappy) {
+                        self.type = .all
                     }
                 }
             }
@@ -57,6 +79,7 @@ import AppIntents
     public var numberOfMusicEventsSynced = 0
     
     public var noteFilter = NoteFilterState()
-    
+    public var captureFilter = CaptureFilterState()
+
     public init() {}
 }

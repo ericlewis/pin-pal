@@ -99,7 +99,7 @@ struct QueryGridView<Model: PersistentModel, Content: View, Placeholder: View>: 
             if isSearching, data.isEmpty, !isLoading {
                 ContentUnavailableView.search
             } else if data.isEmpty, isLoading {
-                ProgressView()
+                ProgressView("This may take a while")
             } else if data.isEmpty, !isSearching, !isFirstLoad {
                 placeholder()
             }

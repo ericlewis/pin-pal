@@ -24,6 +24,9 @@ struct NotesView: View {
     
     @State
     private var query = ""
+    
+    @State
+    private var ids: [UUID] = []
 
     var body: some View {
         @Bindable var navigation = navigation
@@ -62,7 +65,11 @@ struct NotesView: View {
     }
     
     var predicate: Predicate<Note> {
-        if app.noteFilter.type == .all {
+        if !query.isEmpty {
+            return #Predicate<Note> {
+                ids.contains($0.parentUUID)
+            }
+        } else if app.noteFilter.type == .all {
             return #Predicate<Note> { _ in
                 true
             }
@@ -120,24 +127,24 @@ struct NotesView: View {
 extension NotesView {
     func search() async {
         do {
+            isLoading = true
             try await Task.sleep(for: .milliseconds(300))
             let intent = SearchNotesIntent()
             intent.query = query
             intent.service = service
             guard !query.isEmpty, let result = try await intent.perform().value else {
-                app.noteFilter.filter = Note.all()
+                self.ids = []
+                self.isLoading = false
                 return
             }
-            let ids = result.map(\.id)
-            let predicate = #Predicate<Note> {
-                ids.contains($0.parentUUID)
+            withAnimation(.snappy) {
+                self.ids = result.map(\.id)
+                isLoading = false
             }
-            app.noteFilter.filter = FetchDescriptor(predicate: predicate)
         } catch is CancellationError {
             
         } catch {
-            app.noteFilter.filter = Note.all()
-            print(error)
+            
         }
     }
  

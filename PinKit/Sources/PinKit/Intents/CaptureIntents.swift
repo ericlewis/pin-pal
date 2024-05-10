@@ -206,7 +206,7 @@ public struct GetOriginalPhotosIntent: AppIntent {
             return .result(value: [])
         }
         let urlAndIds: [(UUID, URL)]? = captureEnv.originals?.compactMap({
-            guard let url = $0.makeImageURL(memoryUUID: capture.id) else {
+            guard let url = $0.downloadUrl(memoryUUID: capture.id) else {
                 return nil
             }
             return ($0.fileUUID, url)
@@ -247,7 +247,7 @@ public struct GetProcessedPhotosIntent: AppIntent {
             return .result(value: [])
         }
         let urlAndIds: [(UUID, URL)]? = captureEnv.derivatives?.compactMap({
-            guard let url = $0.makeImageURL(memoryUUID: capture.id) else {
+            guard let url = $0.downloadUrl(memoryUUID: capture.id) else {
                 return nil
             }
             return ($0.fileUUID, url)
