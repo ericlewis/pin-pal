@@ -15,3 +15,19 @@ extension Constants {
     public static let defaultAppAccentColor = Color.accentColor
     public static let defaultAppIconName = ""
 }
+
+public enum SyncIdentifier: String {
+    case notes
+    case captures
+    case myData
+}
+
+extension Constants {
+    public static func taskId(for id: SyncIdentifier) -> String {
+        switch id {
+        case .captures: "com.ericlewis.Pin-Pal.Captures.refresh"
+        case .myData: "com.ericlewis.Pin-Pal.MyData.refresh"
+        case .notes: "com.ericlewis.Pin-Pal.Notes.refresh"
+        }
+    }
+}

@@ -63,41 +63,36 @@ struct PinPalApp: App {
         .environment(\.database, sceneDatabase)
         .defaultAppStorage(.init(suiteName: "group.com.ericlewis.Pin-Pal") ?? .standard)
         .modelContainer(sceneModelContainer)
-        .backgroundTask(.appRefresh("com.ericlewis.Pin-Pal.Notes.refresh")) {
+        .backgroundTask(.appRefresh(Constants.taskId(for: .notes))) {
             await handleNotesRefresh()
         }
-        .backgroundTask(.appRefresh("com.ericlewis.Pin-Pal.Captures.refresh")) {
+        .backgroundTask(.appRefresh(Constants.taskId(for: .captures))) {
             await handleCapturesRefresh()
+        }
+        .backgroundTask(.appRefresh(Constants.taskId(for: .myData))) {
+            await handleMyDataRefresh()
         }
         .onChange(of: phase) { oldPhase, newPhase in
             switch (oldPhase, newPhase) {
             case (.inactive, .background):
-                requestNotesRefreshBackgroundTask()
-                requestCapturesRefreshBackgroundTask()
+                requestRefreshBackgroundTask(for: .notes)
+                requestRefreshBackgroundTask(for: .captures)
+                requestRefreshBackgroundTask(for: .myData)
             default: break
             }
         }
     }
-    
-    func requestNotesRefreshBackgroundTask() {
-        let request = BGAppRefreshTaskRequest(identifier: "com.ericlewis.Pin-Pal.Notes.refresh")
-        request.earliestBeginDate = Date(timeIntervalSinceNow: 5 * 60) // 5 min
+}
+
+extension PinPalApp {
+    func requestRefreshBackgroundTask(for id: SyncIdentifier) {
+        let request = BGAppRefreshTaskRequest(identifier: Constants.taskId(for: id))
+        request.earliestBeginDate = Date(timeIntervalSinceNow: 1 * 60) // 1 min
         do {
             try BGTaskScheduler.shared.submit(request)
-            print("submitted bg task")
+            print("submitted bg task: \(id.rawValue)")
         } catch {
-            print("Could not schedule app refresh: \(error)")
-        }
-    }
-    
-    func requestCapturesRefreshBackgroundTask() {
-        let request = BGAppRefreshTaskRequest(identifier: "com.ericlewis.Pin-Pal.Captures.refresh")
-        request.earliestBeginDate = Date(timeIntervalSinceNow: 5 * 60) // 5 min
-        do {
-            try BGTaskScheduler.shared.submit(request)
-            print("submitted bg task")
-        } catch {
-            print("Could not schedule app refresh: \(error)")
+            print("Could not schedule app refresh: \(error) for \(id.rawValue)")
         }
     }
     
@@ -108,7 +103,7 @@ struct PinPalApp: App {
             intent.service = sceneService
             intent.app = sceneAppState
             let _ = try await intent.perform()
-            requestNotesRefreshBackgroundTask()
+            requestRefreshBackgroundTask(for: .notes)
         } catch {
             
         }
@@ -121,9 +116,28 @@ struct PinPalApp: App {
             intent.service = sceneService
             intent.app = sceneAppState
             let _ = try await intent.perform()
-            requestCapturesRefreshBackgroundTask()
+            requestRefreshBackgroundTask(for: .captures)
         } catch {
             
+        }
+    }
+    
+    func handleMyDataRefresh() async {
+        Task {
+            let intent = SyncAiMicEventsIntent()
+            intent.database = sceneDatabase
+            intent.service = sceneService
+            intent.app = sceneAppState
+            let _ = try await intent.perform()
+            requestRefreshBackgroundTask(for: .myData)
+        }
+        Task {
+            let intent = SyncMusicEventsIntent()
+            intent.database = sceneDatabase
+            intent.service = sceneService
+            intent.app = sceneAppState
+            let _ = try await intent.perform()
+            requestRefreshBackgroundTask(for: .myData)
         }
     }
 }
