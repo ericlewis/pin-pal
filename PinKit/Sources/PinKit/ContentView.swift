@@ -17,6 +17,10 @@ public struct ContentView: View {
     
     public init() {
         SDWebImageManager.shared.cacheKeyFilter = SDWebImageCacheKeyFilter { url in
+            if url.host() == "humane.center" {
+                return url.absoluteString
+            }
+            
             var components = URLComponents(url: url, resolvingAgainstBaseURL: false)
             components?.query = nil
             return components?.url?.absoluteString ?? ""
