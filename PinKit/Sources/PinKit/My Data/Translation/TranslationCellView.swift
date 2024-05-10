@@ -1,8 +1,8 @@
 import SwiftUI
 
 struct TranslationCellView: View {
-    let event: RemoteTranslationEvent
-    let createdAt: Date
+    
+    var event: TranslationEvent
     
     @AccentColor
     private var accentColor: Color
@@ -23,7 +23,7 @@ struct TranslationCellView: View {
             LabeledContent {
                 
             } label: {
-                DateTextView(date: createdAt)
+                DateTextView(date: event.createdAt)
                     .foregroundStyle(.tertiary)
                     .font(.caption)
             }

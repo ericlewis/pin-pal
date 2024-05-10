@@ -1,8 +1,8 @@
 import SwiftUI
 
 struct SmartPlaylistView: View {
-    let playlist: SmartGeneratedPlaylist
-    let event: MusicEvent
+    let playlist: RemoteSmartGeneratedPlaylist
+    let event: RemoteMusicEvent
 
     var body: some View {
         List {

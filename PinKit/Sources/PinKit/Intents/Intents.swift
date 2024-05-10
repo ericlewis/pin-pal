@@ -270,7 +270,7 @@ protocol DateSortable {
     var modifiedAt: Date { get }
 }
 
-func filter<E: DateSortable>(content: [ContentEnvelope], predicate: NSPredicate, sortedBy: [EntityQuerySort<E>]) -> [ContentEnvelope] {
+func filter<E: DateSortable>(content: [MemoryContentEnvelope], predicate: NSPredicate, sortedBy: [EntityQuerySort<E>]) -> [MemoryContentEnvelope] {
     Array(((content as NSArray).filtered(using: predicate) as NSArray).sortedArray(using: sortedBy.map({
         switch $0.by {
         case \E.createdAt:
@@ -280,7 +280,7 @@ func filter<E: DateSortable>(content: [ContentEnvelope], predicate: NSPredicate,
         default:
             NSSortDescriptor(key: "userCreatedAt", ascending: $0.order.ascending)
         }
-    }))) as? [ContentEnvelope] ?? []
+    }))) as? [MemoryContentEnvelope] ?? []
 }
 
 // TODO: delete

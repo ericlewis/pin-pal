@@ -22,7 +22,7 @@ extension SchemaV1 {
             self.displayName = displayName
         }
         
-        public init(from peer: CallEvent.Peer) {
+        public init(from peer: RemoteCallEvent.Peer) {
             self.ident = peer.phoneNumber + peer.displayName
             self.phoneNumber = peer.phoneNumber
             self.displayName = peer.displayName

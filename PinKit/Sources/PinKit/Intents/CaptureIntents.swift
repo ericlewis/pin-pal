@@ -28,7 +28,7 @@ public struct CaptureEntity: Identifiable {
     
     let url: URL?
 
-    public init(from content: ContentEnvelope) async {
+    public init(from content: MemoryContentEnvelope) async {
         let capture: CaptureEnvelope? = content.get()
         self.id = content.id
         self.url = capture?.makeThumbnailURL()
@@ -427,7 +427,7 @@ struct SyncCapturesIntent: AppIntent {
         return .result()
     }
     
-    private func process(_ content: ContentEnvelope) async throws -> UUID {
+    private func process(_ content: MemoryContentEnvelope) async throws -> UUID {
         guard let capture: CaptureEnvelope = content.get() else {
             throw Error.invalidContentType
         }

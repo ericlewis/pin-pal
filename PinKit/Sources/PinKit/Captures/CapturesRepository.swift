@@ -6,8 +6,8 @@ import OrderedCollections
     let logger = Logger()
     var api: HumaneCenterService
     var data: PageableMemoryContentEnvelope?
-    var contentSet: OrderedSet<ContentEnvelope> = []
-    var content: [ContentEnvelope] = []
+    var contentSet: OrderedSet<MemoryContentEnvelope> = []
+    var content: [MemoryContentEnvelope] = []
     var isLoading: Bool = false
     var isFinished: Bool = false
     var hasMoreData: Bool = false
@@ -60,7 +60,7 @@ extension CapturesRepository {
         await load(page: nextPage)
     }
     
-    public func remove(content: ContentEnvelope) async {
+    public func remove(content: MemoryContentEnvelope) async {
         do {
             guard let i = self.content.firstIndex(where: { $0.uuid == content.uuid }) else {
                 return
@@ -89,7 +89,7 @@ extension CapturesRepository {
         }
     }
     
-    public func toggleFavorite(content: ContentEnvelope) async {
+    public func toggleFavorite(content: MemoryContentEnvelope) async {
         do {
             if content.favorite {
                 // try await api.unfavorite(content)
@@ -105,11 +105,11 @@ extension CapturesRepository {
         }
     }
     
-    public func copyToClipboard(capture: ContentEnvelope) async {
+    public func copyToClipboard(capture: MemoryContentEnvelope) async {
         UIPasteboard.general.image = try? await image(for: capture)
     }
     
-    public func save(capture: ContentEnvelope) async throws {
+    public func save(capture: MemoryContentEnvelope) async throws {
         if capture.get()?.video == nil {
             try await UIImageWriteToSavedPhotosAlbum(image(for: capture), nil, nil, nil)
         } else {
@@ -126,7 +126,7 @@ extension CapturesRepository {
                 self.contentSet = OrderedSet()
                 throw CancellationError()
             }
-            var fetchedResults: [ContentEnvelope] = await try searchIds.concurrentCompactMap { id in
+            var fetchedResults: [MemoryContentEnvelope] = await try searchIds.concurrentCompactMap { id in
                 if let localContent = self.content.first(where: { $0.uuid == id }) {
                     return localContent
                 } else {
@@ -151,7 +151,7 @@ extension CapturesRepository {
         isLoading = false
     }
     
-    func saveVideo(capture: ContentEnvelope) async throws {
+    func saveVideo(capture: MemoryContentEnvelope) async throws {
         guard let url = capture.videoDownloadUrl(), let accessToken = (UserDefaults(suiteName: "group.com.ericlewis.Pin-Pal") ?? .standard).string(forKey: Constants.ACCESS_TOKEN) else { return }
         let tempDirectoryURL = URL(fileURLWithPath: NSTemporaryDirectory(), isDirectory: true)
         let targetURL = tempDirectoryURL.appendingPathComponent(capture.uuid.uuidString).appendingPathExtension("mp4")
@@ -162,7 +162,7 @@ extension CapturesRepository {
         UISaveVideoAtPathToSavedPhotosAlbum(targetURL.path(), nil, nil, nil)
     }
     
-    func image(for capture: ContentEnvelope) async throws -> UIImage {
+    func image(for capture: MemoryContentEnvelope) async throws -> UIImage {
         guard let cap: CaptureEnvelope = capture.get() else { return UIImage() }
         var req = URLRequest(url: URL(string: "https://webapi.prod.humane.cloud/capture/memory/\(capture.uuid)/file/\(cap.closeupAsset?.fileUUID ?? cap.thumbnail.fileUUID)/download")!.appending(queryItems: [
             .init(name: "token", value: cap.closeupAsset?.accessToken ?? cap.thumbnail.accessToken),

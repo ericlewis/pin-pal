@@ -51,9 +51,9 @@ struct SearchableMyDataListView: View {
                 case let .call(event):
                     EmptyView()
                 case let .translation(event):
-                    TranslationCellView(event: event, createdAt: createdAt)
+                    EmptyView()
                 case .unknown:
-                    UnknownCellView()
+                    EmptyView()
                 }
             }
             .onDelete { indexSet in

@@ -10,7 +10,7 @@ extension URL {
     }
 }
 
-extension ContentEnvelope {
+extension MemoryContentEnvelope {
     public func videoDownloadUrl() -> URL? {
         guard let cap: CaptureEnvelope = self.get(), let vid = cap.video else {
             return nil

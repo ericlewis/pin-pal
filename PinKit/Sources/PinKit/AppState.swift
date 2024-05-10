@@ -14,5 +14,8 @@ import SwiftUI
     public var totalCallEventsToSync = 0
     public var numberOfCallEventsSynced = 0
     
+    public var totalTranslationEventsToSync = 0
+    public var numberOfTranslationEventsSynced = 0
+    
     public init() {}
 }

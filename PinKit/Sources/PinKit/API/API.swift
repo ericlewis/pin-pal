@@ -71,11 +71,11 @@ enum API {
         .init(url: eventsUrl.appending(path: "event").appending(path: eventUUID.uuidString), method: .delete)
     }
     
-    static func create(note: NoteEnvelope) -> Request<ContentEnvelope> {
+    static func create(note: NoteEnvelope) -> Request<MemoryContentEnvelope> {
         .init(url: API.noteUrl.appending(path: "create"), method: .post, body: note)
     }
     
-    static func update(note: NoteEnvelope) -> Request<ContentEnvelope> {
+    static func update(note: NoteEnvelope) -> Request<MemoryContentEnvelope> {
         .init(url: API.noteUrl.appending(path: note.memoryId!.uuidString), method: .post, body: note)
     }
     
@@ -87,7 +87,7 @@ enum API {
         .init(url: API.featureFlagsUrl.appending(path: flag.rawValue))
     }
     
-    static func memory(uuid: UUID) -> Request<ContentEnvelope> {
+    static func memory(uuid: UUID) -> Request<MemoryContentEnvelope> {
         .init(url: API.memoryUrl.appending(path: uuid.uuidString))
     }
     

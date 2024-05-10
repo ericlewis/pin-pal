@@ -35,13 +35,13 @@ struct CaptureImageView: View {
 
 struct CaptureDetailView: View {
     
-    let capture: ContentEnvelope
+    let capture: MemoryContentEnvelope
     
     @Environment(HumaneCenterService.self)
     private var service
     
     @State
-    private var detailedCaptureInformation: ContentEnvelope?
+    private var detailedCaptureInformation: MemoryContentEnvelope?
     
     @State
     private var originalPhotos: [FileAsset] = []
@@ -149,7 +149,7 @@ struct CaptureDetailView: View {
         }
     }
     
-    func makeThumbnailURL(content: ContentEnvelope, capture: CaptureEnvelope) -> URL? {
+    func makeThumbnailURL(content: MemoryContentEnvelope, capture: CaptureEnvelope) -> URL? {
         makeThumbnailURL(uuid: content.uuid, fileUUID: capture.thumbnail.fileUUID, accessToken: capture.thumbnail.accessToken)
     }
     

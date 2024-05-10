@@ -18,7 +18,7 @@ public struct NoteEntity: Identifiable {
     @Property(title: "Last Modified Date")
     public var modifiedAt: Date
 
-    public init(from content: ContentEnvelope) {
+    public init(from content: MemoryContentEnvelope) {
         let note: NoteEnvelope = content.get()!
         self.id = note.memoryId!
         self.createdAt = note.createdAt!
@@ -688,7 +688,7 @@ struct SyncNotesIntent: AppIntent {
         return .result()
     }
     
-    private func process(_ content: ContentEnvelope) async throws -> UUID {
+    private func process(_ content: MemoryContentEnvelope) async throws -> UUID {
         guard let note: NoteEnvelope = content.get() else {
             throw Error.invalidContentType
         }

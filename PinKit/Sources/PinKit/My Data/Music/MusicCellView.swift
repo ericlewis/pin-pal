@@ -2,7 +2,7 @@ import SwiftUI
 import SDWebImageSwiftUI
 
 struct MusicCellContent: View {
-    let event: MusicEvent
+    let event: RemoteMusicEvent
     let createdAt: Date
     
     @AccentColor
@@ -62,7 +62,7 @@ struct MusicCellContent: View {
 }
 
 struct MusicCellView: View {
-    let event: MusicEvent
+    let event: RemoteMusicEvent
     let createdAt: Date
     
     @AccentColor

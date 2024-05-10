@@ -18,11 +18,11 @@ public enum FeatureFlag: String, Codable {
     public var featureFlag: (FeatureFlag) async throws -> FeatureFlagEnvelope
     public var subscription: () async throws -> Subscription
     public var detailedDeviceInformation: () async throws -> DetailedDeviceInfo
-    public var create: (NoteEnvelope) async throws -> ContentEnvelope
-    public var update: (String, NoteEnvelope) async throws -> ContentEnvelope
+    public var create: (NoteEnvelope) async throws -> MemoryContentEnvelope
+    public var update: (String, NoteEnvelope) async throws -> MemoryContentEnvelope
     public var search: (String, SearchDomain) async throws -> SearchResults
     public var deleteEvent: (UUID) async throws -> Void
-    public var memory: (UUID) async throws -> ContentEnvelope
+    public var memory: (UUID) async throws -> MemoryContentEnvelope
     public var toggleFeatureFlag: (FeatureFlag, Bool) async throws -> FeatureFlagEnvelope
     public var lostDeviceStatus: (String) async throws -> LostDeviceEnvelope
     public var toggleLostDeviceStatus: (String, Bool) async throws -> LostDeviceEnvelope
@@ -39,11 +39,11 @@ public enum FeatureFlag: String, Codable {
         featureFlag: @escaping (FeatureFlag) async throws -> FeatureFlagEnvelope,
         subscription: @escaping () async throws -> Subscription,
         detailedDeviceInformation: @escaping () async throws -> DetailedDeviceInfo,
-        create: @escaping (NoteEnvelope) async throws -> ContentEnvelope,
-        update: @escaping (String, NoteEnvelope) async throws -> ContentEnvelope,
+        create: @escaping (NoteEnvelope) async throws -> MemoryContentEnvelope,
+        update: @escaping (String, NoteEnvelope) async throws -> MemoryContentEnvelope,
         search: @escaping (String, SearchDomain) async throws -> SearchResults,
         deleteEvent: @escaping (UUID) async throws -> Void,
-        memory: @escaping (UUID) async throws -> ContentEnvelope,
+        memory: @escaping (UUID) async throws -> MemoryContentEnvelope,
         toggleFeatureFlag: @escaping (FeatureFlag, Bool) async throws -> FeatureFlagEnvelope,
         lostDeviceStatus: @escaping (String) async throws -> LostDeviceEnvelope,
         toggleLostDeviceStatus: @escaping (String, Bool) async throws -> LostDeviceEnvelope,
