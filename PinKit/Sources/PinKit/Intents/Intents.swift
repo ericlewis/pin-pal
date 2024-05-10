@@ -28,7 +28,7 @@ extension SyncManager {
         type: S.Type,
         domain: EventDomain
     ) async throws {
-        let chunkSize = 100
+        let chunkSize = 80
         let total = try await service.events(domain, 0, 1).totalElements
         let totalPages = (total + chunkSize - 1) / chunkSize
         
@@ -39,22 +39,44 @@ extension SyncManager {
             }
         }
         
-        let ids = try await (0..<totalPages).concurrentMap { page in
-            let data = try await service.events(domain, page, chunkSize)
-            let result = await data.content.concurrentMap {
-                let event = type.init(from: $0)
-                await database.insert(event)
-                return event.uuid
-            }
-                        
+        // Fetch and process the first page synchronously
+        // TODO: make this dynamic based on delta
+        let firstPageData = try await service.events(domain, 0, 15)
+        var ids = await firstPageData.content.concurrentMap { item -> UUID in
+            let event = type.init(from: item)
+            await database.insert(event)
             await MainActor.run {
                 withAnimation {
-                    app[keyPath: currentKeyPath] += result.count
+                    app[keyPath: currentKeyPath] += 1
                 }
             }
+            return event.uuid
+        }
+
+        try await self.database.save()
+
+        // Update UI for the first page
+        
+        if totalPages > 1 {
+            let concurrentIds = try await (1..<totalPages).concurrentMap { page in
+                let data = try await service.events(domain, page, chunkSize)
+                let result = await data.content.concurrentMap { item -> UUID in
+                    let event = type.init(from: item)
+                    await database.insert(event)
+                    return event.uuid
+                }
+                
+                await MainActor.run {
+                    withAnimation {
+                        app[keyPath: currentKeyPath] += result.count
+                    }
+                }
+                
+                return result
+            }.flatMap({ $0 })
             
-            return result
-        }.flatMap({ $0 })
+            ids += concurrentIds
+        }
         
         try await self.database.save()
 
