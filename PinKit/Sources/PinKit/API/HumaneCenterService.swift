@@ -20,7 +20,7 @@ public enum FeatureFlag: String, Codable {
     public var subscription: () async throws -> Subscription
     public var detailedDeviceInformation: () async throws -> DetailedDeviceInfo
     public var create: (NoteEnvelope) async throws -> MemoryContentEnvelope
-    public var update: (String, NoteEnvelope) async throws -> MemoryContentEnvelope
+    public var update: (NoteEnvelope) async throws -> MemoryContentEnvelope
     public var search: (String, SearchDomain) async throws -> SearchResults
     public var deleteEvent: (UUID) async throws -> Void
     public var memory: (UUID) async throws -> MemoryContentEnvelope
@@ -41,7 +41,7 @@ public enum FeatureFlag: String, Codable {
         subscription: @escaping () async throws -> Subscription,
         detailedDeviceInformation: @escaping () async throws -> DetailedDeviceInfo,
         create: @escaping (NoteEnvelope) async throws -> MemoryContentEnvelope,
-        update: @escaping (String, NoteEnvelope) async throws -> MemoryContentEnvelope,
+        update: @escaping (NoteEnvelope) async throws -> MemoryContentEnvelope,
         search: @escaping (String, SearchDomain) async throws -> SearchResults,
         deleteEvent: @escaping (UUID) async throws -> Void,
         memory: @escaping (UUID) async throws -> MemoryContentEnvelope,

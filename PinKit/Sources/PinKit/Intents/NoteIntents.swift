@@ -295,7 +295,7 @@ public struct AppendToNoteIntent: AppIntent {
     \(note.text)
     \(text)
     """
-        let content = try await service.update(note.id.uuidString, .init(text: newBody, title: note.title))
+        let content = try await service.update(.init(uuid: note.id, text: newBody, title: note.title))
         let note: NoteEnvelope = content.get()!
         await database.insert(
             Note(
@@ -503,7 +503,7 @@ public struct ReplaceNoteBodyIntent: AppIntent {
     public var service: HumaneCenterService
 
     public func perform() async throws -> some IntentResult & ReturnsValue<NoteEntity> {
-        try await .result(value: .init(from: service.update(note.id.uuidString, .init(text: body, title: note.title))))
+        try await .result(value: .init(from: service.update(.init(uuid: note.id, text: body, title: note.title))))
     }
 }
 
@@ -610,11 +610,11 @@ public struct UpdateNoteIntent: AppIntent {
             throw $identifier.needsValueError("What is identifier of the note to update?")
         }
         navigation.savingNote = true
-        let content = try await service.update(identifier, .init(text: text, title: title))
+        let content = try await service.update(.init(uuid: UUID(uuidString: identifier), text: text, title: title))
         let note: NoteEnvelope = content.get()!
         await database.insert(
             Note(
-                uuid: note.id ?? .init(),
+                uuid: note.id!,
                 parentUUID: content.id,
                 name: note.title,
                 body: note.text,

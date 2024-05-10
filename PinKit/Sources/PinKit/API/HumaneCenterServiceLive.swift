@@ -46,7 +46,7 @@ extension HumaneCenterService {
                 try await client.send(API.create(note: $0)).value
             },
             update: {
-                try await client.send(API.update(note: $1)).value
+                try await client.send(API.update(note: $0)).value
             },
             search: {
                 try await client.send(API.search(query: $0, domain: $1)).value
