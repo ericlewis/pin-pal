@@ -2,12 +2,12 @@ import SwiftData
 import Foundation
 import Models
 
-public typealias Capture = SchemaV1.Capture
+public typealias Capture = SchemaV1._Capture_
 
 extension SchemaV1 {
     
     @Model
-    public final class Capture {
+    public final class _Capture_ {
         
         @Attribute(.unique)
         public var uuid: UUID

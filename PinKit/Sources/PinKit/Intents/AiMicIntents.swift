@@ -183,6 +183,7 @@ public struct DeleteEventsIntent: AppIntent {
         for entity in entities {
             try? await service.deleteEvent(entity.uuid)
             await database.delete(entity)
+            entity.modelContext?.delete(entity)
         }
         
         try await database.save()
