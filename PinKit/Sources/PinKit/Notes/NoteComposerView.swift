@@ -48,16 +48,28 @@ public struct NoteComposerView: View {
                     .onSubmit {
                         self.focus = .text
                     }
-                if horizontalSizeClass == .regular, verticalSizeClass == .regular {
-                    TextEditor(text: $text)
-                        .focused($focus, equals: .text)
-                        .submitLabel(.return)
-                        .padding(.bottom, -5)
-                        .padding(.leading, -5)
-                } else {
-                    TextField("Note Text", text: $text, axis: .vertical)
-                        .focused($focus, equals: .text)
-                        .submitLabel(.return)
+                Section {
+                    if horizontalSizeClass == .regular, verticalSizeClass == .regular {
+                        TextEditor(text: $text)
+                            .focused($focus, equals: .text)
+                            .submitLabel(.return)
+                            .padding(.bottom, -5)
+                            .padding(.leading, -5)
+                    } else {
+                        ZStack(alignment: .topLeading) {
+                            Rectangle()
+                                .fill(Color.clear)
+                                .frame(minHeight: 80)
+                                .contentShape(Rectangle())
+                                .onTapGesture {
+                                    focus = .text
+                                }
+                            TextField("Note Text", text: $text, axis: .vertical)
+                                .focused($focus, equals: .text)
+                                .submitLabel(.return)
+                                .padding(.top, 10)
+                        }
+                    }
                 }
             }
             .onAppear {
