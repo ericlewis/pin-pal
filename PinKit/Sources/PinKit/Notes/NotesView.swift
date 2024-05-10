@@ -67,12 +67,7 @@ struct NotesView: View {
             .refreshable(action: load)
             .searchable(text: $query)
             .overlay(alignment: .bottom) {
-                if app.totalNotesToSync > 0, app.numberOfNotesSynced > 0 {
-                    let current = Double(app.numberOfNotesSynced)
-                    let total = Double(app.totalNotesToSync)
-                    ProgressView(value:  current / total)
-                        .padding(.horizontal, -5)
-                }
+                SyncStatusView(current: \.numberOfNotesSynced, total: \.totalNotesToSync)
             }
             .toolbar {
                 ToolbarItem(placement: .primaryAction) {
@@ -85,75 +80,17 @@ struct NotesView: View {
                 }
                 ToolbarItemGroup(placement: .secondaryAction) {
                     Menu("Filter", systemImage: "line.3.horizontal.decrease.circle") {
-                        Toggle("All Items", systemImage: "note.text", isOn: Binding(
-                            get: {
-                                filterType == .all
-                            },
-                            set: {
-                                if $0 {
-                                    withAnimation(.snappy) {
-                                        self.filterType = .all
-                                    }
-                                }
-                            }
-                        ))
+                        Toggle("All Items", systemImage: "note.text", isOn: toggle(filter: .all))
                         Section {
-                            Toggle("Favorites", systemImage: "heart", isOn: Binding(
-                                get: {
-                                    filterType == .favorites
-                                },
-                                set: {
-                                    if $0 {
-                                        withAnimation(.snappy) {
-                                            self.filterType = .favorites
-                                        }
-                                    }
-                                }
-                            ))
+                            Toggle("Favorites", systemImage: "heart", isOn: toggle(filter: .favorites))
                         }
                     }
                     .symbolVariant(filterType == .all ? .none : .fill)
                     Menu("Sort", systemImage: "arrow.up.arrow.down") {
-                        Toggle("Name", isOn: Binding(
-                            get: { sort.keyPath == \Note.name  },
-                            set: {
-                                if $0 {
-                                    withAnimation(.snappy) {
-                                        sort = SortDescriptor<Note>(\.name, order: order)
-                                    }
-                                }
-                            }
-                        ))
-                        Toggle("Body", isOn: Binding(
-                            get: { sort.keyPath == \Note.body  },
-                            set: {
-                                if $0 {
-                                    withAnimation(.snappy) {
-                                        sort = SortDescriptor<Note>(\.body, order: order)
-                                    }
-                                }
-                            }
-                        ))
-                        Toggle("Created At", isOn: Binding(
-                            get: { sort.keyPath == \Note.createdAt  },
-                            set: {
-                                if $0 {
-                                    withAnimation(.snappy) {
-                                        sort = SortDescriptor<Note>(\.createdAt, order: order)
-                                    }
-                                }
-                            }
-                        ))
-                        Toggle("Modified At", isOn: Binding(
-                            get: { sort.keyPath == \Note.modifiedAt  },
-                            set: {
-                                if $0 {
-                                    withAnimation(.snappy) {
-                                        sort = SortDescriptor<Note>(\.modifiedAt, order: order)
-                                    }
-                                }
-                            }
-                        ))
+                        Toggle("Name", isOn: toggle(sortedBy: \.name))
+                        Toggle("Body", isOn: toggle(sortedBy: \.body))
+                        Toggle("Created At", isOn: toggle(sortedBy: \.createdAt))
+                        Toggle("Modified At", isOn: toggle(sortedBy: \.modifiedAt))
                         Section("Order") {
                             Picker("Order", selection: $order) {
                                 Label("Ascending", systemImage: "arrow.up").tag(SortOrder.forward)
@@ -216,6 +153,51 @@ struct NotesView: View {
         }
     }
     
+    func toggle(sortedBy: KeyPath<Note, String>) -> Binding<Bool> {
+        Binding(
+            get: { sort.keyPath == sortedBy  },
+            set: {
+                if $0 {
+                    withAnimation(.snappy) {
+                        sort = SortDescriptor<Note>(sortedBy, order: order)
+                    }
+                }
+            }
+        )
+    }
+    
+    func toggle(sortedBy: KeyPath<Note, Date>) -> Binding<Bool> {
+        Binding(
+            get: { sort.keyPath == sortedBy  },
+            set: {
+                if $0 {
+                    withAnimation(.snappy) {
+                        sort = SortDescriptor<Note>(sortedBy, order: order)
+                    }
+                }
+            }
+        )
+    }
+    
+    func toggle(filter: FilterType) -> Binding<Bool> {
+        Binding(
+            get: {
+                filterType == filter
+            },
+            set: { isOn in
+                if isOn, filterType != filter {
+                    withAnimation(.snappy) {
+                        self.filterType = filter
+                    }
+                } else {
+                    withAnimation(.snappy) {
+                        self.filterType = .all
+                    }
+                }
+            }
+        )
+    }
+    
     func initial() async {
         guard !isLoading, isFirstLoad else { return }
         Task.detached {
@@ -238,3 +220,7 @@ struct NotesView: View {
         isFirstLoad = false
     }
 }
+
+protocol Sortable {}
+
+extension Date: Sortable {}

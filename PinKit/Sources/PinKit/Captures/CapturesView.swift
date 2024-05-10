@@ -101,7 +101,10 @@ struct CapturesView: View {
             .environment(\.isLoading, isLoading)
             .environment(\.isFirstLoad, isFirstLoad)
             .overlay(alignment: .bottom) {
-                CapturesSyncStatusView()
+                SyncStatusView(
+                    current: \.numberOfCapturesSynced,
+                    total: \.totalCapturesToSync
+                )
             }
             .refreshable(action: load)
             .searchable(text: $query)
@@ -128,71 +131,17 @@ struct CapturesView: View {
                         }
                     }
                     Menu("Filter", systemImage: "line.3.horizontal.decrease.circle") {
-                        Toggle("All Items", systemImage: "photo.on.rectangle", isOn: Binding(
-                            get: { filter == .all },
-                            set: {
-                                if $0 {
-                                    withAnimation(.snappy) {
-                                        self.filter = .all
-                                    }
-                                }
-                            }
-                        ))
+                        Toggle("All Items", systemImage: "photo.on.rectangle", isOn: toggle(filter: .all))
                         Section {
-                            Toggle("Favorites", systemImage: "heart", isOn: Binding(
-                                get: { filter == .favorites },
-                                set: {
-                                    if $0 {
-                                        withAnimation(.snappy) {
-                                            self.filter = .favorites
-                                        }
-                                    }
-                                }
-                            ))
-                            Toggle("Photos", systemImage: "photo", isOn: Binding(
-                                get: { filter == .photo },
-                                set: {
-                                    if $0 {
-                                        withAnimation(.snappy) {
-                                            self.filter = .photo
-                                        }
-                                    }
-                                }
-                            ))
-                            Toggle("Videos", systemImage: "video", isOn: Binding(
-                                get: { filter == .video },
-                                set: {
-                                    if $0 {
-                                        withAnimation(.snappy) {
-                                            self.filter = .video
-                                        }
-                                    }
-                                }
-                            ))
+                            Toggle("Favorites", systemImage: "heart", isOn: toggle(filter: .favorites))
+                            Toggle("Photos", systemImage: "photo", isOn: toggle(filter: .photo))
+                            Toggle("Videos", systemImage: "video", isOn: toggle(filter: .video))
                         }
                     }
                     .symbolVariant(filter == .all ? .none : .fill)
                     Menu("Sort", systemImage: "arrow.up.arrow.down") {
-                        Toggle("Created At", isOn: Binding(
-                            get: { sort.keyPath == \Capture.createdAt  },
-                            set: {
-                                if $0 {
-                                    withAnimation(.snappy) {
-                                        sort = SortDescriptor<Capture>(\.createdAt, order: order)
-                                    }
-                                }
-                            }
-                        ))
-                        Toggle("Modified At", isOn: Binding(
-                            get: { sort.keyPath == \Capture.modifiedAt  },
-                            set: {
-                                if $0 {
-                                    withAnimation(.snappy) {
-                                        sort = SortDescriptor<Capture>(\.modifiedAt, order: order)
-                                    }
-                                }
-                            }
-                        ))
+                        Toggle("Created At", isOn: toggle(sortedBy: \.createdAt))
+                        Toggle("Modified At", isOn: toggle(sortedBy: \.modifiedAt))
                         Section("Order") {
                             Picker("Order", selection: $order) {
                                 Label("Ascending", systemImage: "arrow.up").tag(SortOrder.forward)
@@ -232,19 +181,36 @@ struct CapturesView: View {
         isLoading = false
         isFirstLoad = false
     }
-}
 
-struct CapturesSyncStatusView: View {
+    func toggle(sortedBy: KeyPath<Capture, Date>) -> Binding<Bool> {
+        Binding(
+            get: { sort.keyPath == sortedBy  },
+            set: {
+                if $0 {
+                    withAnimation(.snappy) {
+                        sort = SortDescriptor<Capture>(sortedBy, order: order)
+                    }
+                }
+            }
+        )
+    }
     
-    @Environment(AppState.self)
-    private var app
-    
-    var body: some View {
-        if app.totalCapturesToSync > 0, app.numberOfCapturesSynced > 0 {
-            let current = Double(app.numberOfCapturesSynced)
-            let total = Double(app.totalCapturesToSync)
-            ProgressView(value:  current / total)
-                .padding(.horizontal, -5)
-        }
+    func toggle(filter: Filter) -> Binding<Bool> {
+        Binding(
+            get: {
+                self.filter == filter
+            },
+            set: { isOn in
+                if isOn, self.filter != filter {
+                    withAnimation(.snappy) {
+                        self.filter = filter
+                    }
+                } else {
+                    withAnimation(.snappy) {
+                        self.filter = .all
+                    }
+                }
+            }
+        )
     }
 }
