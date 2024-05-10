@@ -9,11 +9,9 @@ struct CallCellView: View {
     
     var body: some View {
         LabeledContent {} label: {
-            if let peers = event.peers {
-                Text(peers.map(\.displayName).joined(separator: ","))
-                    .font(.headline)
-                    .foregroundStyle(accentColor)
-            }
+            Text(event.peers.joined(separator: ","))
+                .font(.headline)
+                .foregroundStyle(accentColor)
             if let duration = event.dur {
                 Text(duration.formatted())
             }

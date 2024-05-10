@@ -38,8 +38,12 @@ extension SchemaV1 {
 }
 
 extension Capture {
-    public static func all(order: SortOrder = .reverse) -> FetchDescriptor<Capture> {
-        FetchDescriptor<Capture>(sortBy: [.init(\.createdAt, order: order)])
+    public static func all(limit: Int? = nil, order: SortOrder = .reverse) -> FetchDescriptor<Capture> {
+        var d = FetchDescriptor<Capture>(sortBy: [.init(\.createdAt, order: order)])
+        if let limit {
+            d.fetchLimit = limit
+        }
+        return d
     }
 }
 

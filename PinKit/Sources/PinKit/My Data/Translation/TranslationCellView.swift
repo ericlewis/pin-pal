@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct TranslationCellView: View {
-    let event: TranslationEvent
+    let event: RemoteTranslationEvent
     let createdAt: Date
     
     @AccentColor

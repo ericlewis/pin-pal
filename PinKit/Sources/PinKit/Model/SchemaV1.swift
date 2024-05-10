@@ -13,7 +13,8 @@ public enum SchemaV1: VersionedSchema {
             Device.self,
             AiMicEvent.self,
             PhoneCallEvent.self,
-            Capture.self
+            Capture.self,
+            TranslationEvent.self
         ]
     }
 }

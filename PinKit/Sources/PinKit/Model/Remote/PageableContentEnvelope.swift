@@ -66,9 +66,9 @@ public struct RemoteAiMicEvent: Codable {
     public let response: String
 }
 
-public struct TranslationEvent: Codable {
-    let targetLanguage: String
-    let originLanguage: String
+public struct RemoteTranslationEvent: Codable {
+    public let targetLanguage: String
+    public let originLanguage: String
 }
 
 public struct CallEvent: Codable {
@@ -106,7 +106,7 @@ public enum EventDataEnvelope: Codable {
     case aiMic(RemoteAiMicEvent)
     case music(MusicEvent)
     case call(CallEvent)
-    case translation(TranslationEvent)
+    case translation(RemoteTranslationEvent)
     case unknown
     
     public init(from decoder: any Decoder) throws {
@@ -117,7 +117,7 @@ public enum EventDataEnvelope: Codable {
             self = .music(musicEvent)
         } else if let callEvent = try? container.decode(CallEvent.self) {
             self = .call(callEvent)
-        } else if let translationEvent = try? container.decode(TranslationEvent.self) {
+        } else if let translationEvent = try? container.decode(RemoteTranslationEvent.self) {
             self = .translation(translationEvent)
         } else {
             self = .unknown

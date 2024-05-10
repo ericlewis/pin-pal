@@ -1,12 +1,12 @@
 import SwiftData
 import Foundation
 
-public typealias PhonePeer = SchemaV1._PhonePeer
+public typealias PhonePeer = SchemaV1.PhonePeer
 
 extension SchemaV1 {
     
     @Model
-    public final class _PhonePeer {
+    public final class PhonePeer {
         
         @Attribute(.unique)
         public var ident: String

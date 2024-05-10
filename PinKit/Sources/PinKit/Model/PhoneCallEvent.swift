@@ -1,27 +1,26 @@
 import SwiftData
 import Foundation
 
-public typealias PhoneCallEvent = SchemaV1.PhoneCallEvent
+public typealias PhoneCallEvent = SchemaV1._PhoneCallEvent
 
 extension SchemaV1 {
     
     @Model
-    public final class PhoneCallEvent {
+    public final class _PhoneCallEvent {
         
         @Attribute(.unique)
         public var uuid: UUID
         
         public var duration: Int64?
         
-        @Relationship(inverse: \PhonePeer.call)
-        public var peers: [PhonePeer]?
+        public var peers: [String]
 
         public var feedbackUUID: UUID?
         public var feedbackCategory: FeedbackCategory?
         
         public var createdAt: Date
         
-        public init(uuid: UUID, duration: Int64? = nil, peers: [PhonePeer]? = nil, feedbackUUID: UUID? = nil, feedbackCategory: FeedbackCategory? = nil, createdAt: Date) {
+        public init(uuid: UUID, duration: Int64? = nil, peers: [String], feedbackUUID: UUID? = nil, feedbackCategory: FeedbackCategory? = nil, createdAt: Date) {
             self.uuid = uuid
             self.duration = duration
             self.peers = peers
@@ -40,7 +39,7 @@ extension SchemaV1 {
             } else {
                 self.duration = nil
             }
-            self.peers = call.peers.map(PhonePeer.init(from:))
+            self.peers = call.peers.map(\.displayName)
             self.feedbackUUID = event.feedbackUUID
             self.feedbackCategory = event.feedbackCategory
             self.createdAt = event.eventCreationTime

@@ -36,6 +36,14 @@ public struct CaptureEntity: Identifiable {
         self.createdAt = content.userCreatedAt
         self.modifiedAt = content.userLastModified
     }
+    
+    public init(from capture: Capture) {
+        self.id = capture.uuid
+        self.url = nil // capture?.makeThumbnailURL()
+        self.type = capture.isPhoto ? .photo : .video
+        self.createdAt = capture.createdAt
+        self.modifiedAt = capture.modifiedAt
+    }
 }
 
 extension CaptureEntity: AppEntity {
@@ -58,9 +66,8 @@ extension CaptureEntity: AppEntity {
 public struct CaptureEntityQuery: EntityQuery, EntityStringQuery, EnumerableEntityQuery {
     
     public func allEntities() async throws -> [CaptureEntity] {
-        try await service.captures(0, 1000)
-            .content
-            .concurrentMap(CaptureEntity.init(from:))
+        try await database.fetch(Capture.all())
+            .map(CaptureEntity.init(from:))
     }
 
     public static var findIntentDescription: IntentDescription? {
@@ -72,6 +79,9 @@ public struct CaptureEntityQuery: EntityQuery, EntityStringQuery, EnumerableEnti
     
     @Dependency
     var service: HumaneCenterService
+    
+    @Dependency
+    var database: any Database
     
     public init() {}
     
@@ -86,9 +96,8 @@ public struct CaptureEntityQuery: EntityQuery, EntityStringQuery, EnumerableEnti
     }
 
     public func suggestedEntities() async throws -> [CaptureEntity] {
-        try await service.captures(0, 30)
-            .content
-            .concurrentMap(CaptureEntity.init(from:))
+        try await database.fetch(Capture.all(limit: 30))
+            .map(CaptureEntity.init(from:))
     }
 }
 
