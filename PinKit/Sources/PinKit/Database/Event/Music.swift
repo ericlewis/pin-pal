@@ -2,7 +2,7 @@ import SwiftData
 import Foundation
 import Models
 
-public typealias MusicEvent = SchemaV1.MusicEvent
+public typealias MusicEvent = SchemaV1._MusicEvent_
 
 extension MusicEvent: EventDecodable {}
 extension MusicEvent: DeletableEvent {}
@@ -10,7 +10,7 @@ extension MusicEvent: DeletableEvent {}
 extension SchemaV1 {
     
     @Model
-    public final class MusicEvent {
+    public final class _MusicEvent_ {
         
         @Attribute(.unique)
         public var uuid: UUID
