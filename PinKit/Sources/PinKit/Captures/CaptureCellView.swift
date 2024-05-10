@@ -7,6 +7,7 @@ struct CaptureCellView: View {
     private var contentMode
     
     var capture: Capture
+    var isFavorite: Bool
 
     var body: some View {
         WebImage(url: makeThumbnailURL(capture: capture)) { image in
@@ -37,7 +38,7 @@ struct CaptureCellView: View {
                 }
                 Spacer()
                 HStack {
-                    if capture.isFavorite {
+                    if isFavorite {
                         Image(systemName: "heart")
                     }
                     Spacer()

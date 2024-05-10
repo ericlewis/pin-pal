@@ -22,9 +22,6 @@ struct PinPalApp: App {
     private var sceneService: HumaneCenterService
 
     @State
-    private var sceneCapturesRepository: CapturesRepository
-
-    @State
     private var sceneModelContainer: ModelContainer
 
     @Environment(\.scenePhase)
@@ -38,10 +35,7 @@ struct PinPalApp: App {
         
         let service = HumaneCenterService.live()
         sceneService = service
-        
-        let capturesRepository = CapturesRepository(api: service)
-        sceneCapturesRepository = capturesRepository
-  
+
         let schema = Schema(CurrentScheme.models)
         let modelContainerConfig = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
         let modelContainer = try! ModelContainer(for: schema, configurations: modelContainerConfig)
@@ -55,7 +49,6 @@ struct PinPalApp: App {
 
         AppDependencyManager.shared.add(dependency: appState)
         AppDependencyManager.shared.add(dependency: navigationStore)
-        AppDependencyManager.shared.add(dependency: capturesRepository)
         AppDependencyManager.shared.add(dependency: service)
         AppDependencyManager.shared.add(dependency: database)
     }
@@ -64,7 +57,6 @@ struct PinPalApp: App {
         WindowGroup {
             ContentView()
         }
-        .environment(sceneCapturesRepository)
         .environment(sceneNavigationStore)
         .environment(sceneService)
         .environment(sceneAppState)

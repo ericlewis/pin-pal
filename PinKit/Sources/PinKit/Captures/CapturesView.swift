@@ -19,10 +19,7 @@ struct CapturesView: View {
         case video
         case favorites
     }
-    
-    @Environment(CapturesRepository.self)
-    private var repository
-    
+
     @Environment(\.database)
     private var database
     
@@ -83,11 +80,10 @@ struct CapturesView: View {
                 NavigationLink {
                     // CaptureDetailView(capture: capture)
                 } label: {
-                    CaptureCellView(capture: capture)
-                        .environment(\.imageContentMode, imageContentMode)
+                    CaptureCellView(capture: capture, isFavorite: capture.isFavorite)
                 }
                 .contextMenu {
-                    CaptureMenuContents(capture: capture)
+                    CaptureMenuContents(capture: capture, isFavorite: capture.isFavorite)
                 } preview: {
                     CaptureImageView(capture: capture)
                 }
@@ -95,6 +91,7 @@ struct CapturesView: View {
             } placeholder: {
                 ContentUnavailableView("No captures yet", systemImage: "camera.aperture")
             }
+            .environment(\.imageContentMode, imageContentMode)
             .onChange(of: order) {
                 sort.order = order
             }

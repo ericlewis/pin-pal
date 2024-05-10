@@ -261,6 +261,16 @@ public struct FavoriteCapturesIntent: AppIntent {
     
     @Parameter(title: "Captures")
     public var captures: [CaptureEntity]
+    
+    public init(action: FavoriteAction, captures: [CaptureEntity]) {
+        self.action = action
+        self.captures = captures
+    }
+    
+    public init(action: FavoriteAction, captures: [Capture]) {
+        self.action = action
+        self.captures = captures.map(CaptureEntity.init(from:))
+    }
 
     public init() {}
     
@@ -269,6 +279,9 @@ public struct FavoriteCapturesIntent: AppIntent {
     
     @Dependency
     public var service: HumaneCenterService
+    
+    @Dependency
+    public var database: any Database
 
     public func perform() async throws -> some IntentResult {
         let ids = captures.map(\.id)
@@ -277,7 +290,37 @@ public struct FavoriteCapturesIntent: AppIntent {
         } else {
             let _ = try await service.bulkUnfavorite(ids)
         }
+        await ids.concurrentForEach { id in
+            do {
+                try await process(service.memory(id))
+            } catch {
+                print(error)
+            }
+        }
+        try await self.database.save()
         return .result()
+    }
+    
+    private func process(_ content: MemoryContentEnvelope) async throws {
+        guard let capture: CaptureEnvelope = content.get() else {
+            throw Error.invalidContentType
+        }
+        let newCapture = Capture(
+            uuid: content.id,
+            state: capture.state,
+            type: capture.type,
+            isPhoto: capture.type == .photo,
+            thumbnailUUID: capture.thumbnail.fileUUID,
+            thumbnailAccessToken: capture.thumbnail.accessToken,
+            isFavorite: action == .add ? true : false,
+            createdAt: content.userCreatedAt,
+            modifiedAt: content.userLastModified
+        )
+        await self.database.insert(newCapture)
+    }
+    
+    enum Error: Swift.Error {
+        case invalidContentType
     }
 }
 
@@ -302,6 +345,16 @@ public struct DeleteCapturesIntent: DeleteIntent {
     @Parameter(title: "Confirm Before Deleting", description: "If toggled, you will need to confirm the captures will be deleted", default: true)
     var confirmBeforeDeleting: Bool
 
+    public init(entities: [CaptureEntity], confirmBeforeDeleting: Bool) {
+        self.confirmBeforeDeleting = confirmBeforeDeleting
+        self.entities = entities
+    }
+    
+    public init(entities: [Capture], confirmBeforeDeleting: Bool) {
+        self.confirmBeforeDeleting = confirmBeforeDeleting
+        self.entities = entities.map(CaptureEntity.init(from:))
+    }
+    
     public init() {}
     
     public static var openAppWhenRun: Bool = false
@@ -309,6 +362,9 @@ public struct DeleteCapturesIntent: DeleteIntent {
     
     @Dependency
     public var service: HumaneCenterService
+    
+    @Dependency
+    public var database: any Database
 
     public func perform() async throws -> some IntentResult {
         let ids = entities.map(\.id)
@@ -318,6 +374,12 @@ public struct DeleteCapturesIntent: DeleteIntent {
         } else {
             let _ = try await service.bulkRemove(ids)
         }
+        
+        let predicate = #Predicate<Capture> {
+            ids.contains($0.uuid)
+        }
+        try await database.delete(where: predicate)
+        try await database.save()
         return .result()
     }
 }
@@ -435,7 +497,7 @@ struct SyncCapturesIntent: AppIntent {
         let newCapture = Capture(
             uuid: content.id,
             state: capture.state,
-            type: .photo, //capture.type,
+            type: capture.type,
             isPhoto: capture.type == .photo,
             thumbnailUUID: capture.thumbnail.fileUUID,
             thumbnailAccessToken: capture.thumbnail.accessToken,
@@ -451,3 +513,104 @@ struct SyncCapturesIntent: AppIntent {
         case invalidContentType
     }
 }
+
+public struct CopyCaptureToClipboardIntent: AppIntent {
+    public static var title: LocalizedStringResource = "Save Capture to Clipboard"
+    public static var description: IntentDescription? = .init("Copies a specified Capture to the current Clipboard.", categoryName: "Captures")
+    public static var parameterSummary: some ParameterSummary {
+        Summary("Copy \(\.$capture) to Clipboard")
+    }
+    
+    @Parameter(title: "Capture")
+    public var capture: CaptureEntity
+    
+    public init(capture: CaptureEntity) {
+        self.capture = capture
+    }
+    
+    public init(capture: Capture) {
+        self.capture = CaptureEntity(from: capture)
+    }
+
+    public init() {}
+    
+    public static var openAppWhenRun: Bool = false
+    public static var isDiscoverable: Bool = true
+    
+    @Dependency
+    public var service: HumaneCenterService
+
+    public func perform() async throws -> some IntentResult {
+        return .result()
+    }
+}
+
+public struct SaveCaptureToCameraRollIntent: AppIntent {
+    public static var title: LocalizedStringResource = "Save Capture to Camera Roll"
+    public static var description: IntentDescription? = .init("Saves a specified Capture to the user's Camera Roll.", categoryName: "Captures")
+    public static var parameterSummary: some ParameterSummary {
+        Summary("Save \(\.$capture) to Camera Roll")
+    }
+    
+    @Parameter(title: "Capture")
+    public var capture: CaptureEntity
+    
+    public init(capture: CaptureEntity) {
+        self.capture = capture
+    }
+    
+    public init(capture: Capture) {
+        self.capture = CaptureEntity(from: capture)
+    }
+    
+    public init() {}
+    
+    public static var openAppWhenRun: Bool = false
+    public static var isDiscoverable: Bool = true
+    
+    @Dependency
+    public var service: HumaneCenterService
+
+    public func perform() async throws -> some IntentResult {
+        return .result()
+    }
+}
+//
+//public func copyToClipboard(capture: MemoryContentEnvelope) async {
+////        UIPasteboard.general.image = try? await image(for: capture)
+//}
+//
+//public func save(capture: MemoryContentEnvelope) async throws {
+////        if capture.get()?.video == nil {
+////            try await UIImageWriteToSavedPhotosAlbum(image(for: capture), nil, nil, nil)
+////        } else {
+////            try await saveVideo(capture: capture)
+////        }
+//}
+//
+//func saveVideo(capture: MemoryContentEnvelope) async throws {
+////        guard let url = capture.videoDownloadUrl(), let accessToken = (UserDefaults(suiteName: "group.com.ericlewis.Pin-Pal") ?? .standard).string(forKey: Constants.ACCESS_TOKEN) else { return }
+////        let tempDirectoryURL = URL(fileURLWithPath: NSTemporaryDirectory(), isDirectory: true)
+////        let targetURL = tempDirectoryURL.appendingPathComponent(capture.id.uuidString).appendingPathExtension("mp4")
+////        var req = URLRequest(url: url)
+////        req.setValue("Bearer \(accessToken)", forHTTPHeaderField: "Authorization")
+////        let (data, _) = try await URLSession.shared.data(for: req)
+////        try FileManager.default.createFile(atPath: targetURL.path(), contents: data)
+////        UISaveVideoAtPathToSavedPhotosAlbum(targetURL.path(), nil, nil, nil)
+//}
+//
+//func image(for capture: MemoryContentEnvelope) async throws -> UIImage {
+//    return UIImage()
+////        guard let cap: CaptureEnvelope = capture.get() else { return UIImage() }
+////        var req = URLRequest(url: URL(string: "https://webapi.prod.humane.cloud/capture/memory/\(capture.id)/file/\(cap.closeupAsset?.fileUUID ?? cap.thumbnail.fileUUID)/download")!.appending(queryItems: [
+////            .init(name: "token", value: cap.closeupAsset?.accessToken ?? cap.thumbnail.accessToken),
+////            .init(name: "rawData", value: "false")
+////        ]))
+////        req.setValue("Bearer \(service.accessToken!)", forHTTPHeaderField: "Authorization")
+////        let (data, _) = try await URLSession.shared.data(for: req)
+////        guard let image = UIImage(data: data) else {
+////            fatalError()
+////        }
+////        return image
+////        UIImage()
+//}

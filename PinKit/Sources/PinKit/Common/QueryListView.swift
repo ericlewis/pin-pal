@@ -41,7 +41,7 @@ struct QueryListView<Model: PersistentModel, Content: View, Placeholder: View>: 
     let placeholder: () -> Placeholder
 
     init(descriptor: FetchDescriptor<Model>, content: @escaping (Model) -> Content, placeholder: @escaping () -> Placeholder) {
-        self._data = .init(descriptor)
+        self._data = .init(descriptor, animation: .snappy)
         self.content = content
         self.placeholder = placeholder
     }
@@ -82,7 +82,7 @@ struct QueryGridView<Model: PersistentModel, Content: View, Placeholder: View>: 
     let placeholder: () -> Placeholder
 
     init(descriptor: FetchDescriptor<Model>, content: @escaping (Model) -> Content, placeholder: @escaping () -> Placeholder) {
-        self._data = .init(descriptor)
+        self._data = .init(descriptor, animation: .snappy)
         self.content = content
         self.placeholder = placeholder
     }
