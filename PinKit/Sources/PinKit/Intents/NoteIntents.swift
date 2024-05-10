@@ -725,7 +725,8 @@ public enum NoteFilterType: String, AppEnum {
 
 struct FilterNotesIntent: AppIntent {
     static var title: LocalizedStringResource = "Filter Notes"
-
+    static var isDiscoverable: Bool = false
+    
     @Dependency
     var app: AppState
     
@@ -753,6 +754,7 @@ struct FilterNotesIntent: AppIntent {
 
 struct SortNotesIntent: AppIntent {
     static var title: LocalizedStringResource = "Sort Notes"
+    static var isDiscoverable: Bool = false
 
     @Dependency
     var app: AppState
