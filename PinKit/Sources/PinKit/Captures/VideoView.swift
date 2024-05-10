@@ -4,13 +4,15 @@ import Models
 
 struct VideoView: View {
     
-    let id: UUID
-    let vidUrl: URL
+    let capture: Capture
     
     private static let aspectRatio: Double = 960 / 720
     
     @AppStorage(Constants.ACCESS_TOKEN)
     private var accessToken: String?
+    
+    @Environment(HumaneCenterService.self)
+    private var service
     
     @State
     private var player = AVPlayer()
@@ -19,18 +21,15 @@ struct VideoView: View {
         VideoPlayer(player: player)
             .aspectRatio(Self.aspectRatio, contentMode: .fit)
             .task {
-                let tempDirectoryURL = URL(fileURLWithPath: NSTemporaryDirectory(), isDirectory: true)
-                let targetURL = tempDirectoryURL.appendingPathComponent(id.uuidString).appendingPathExtension("mp4")
                 do {
-                    if try FileManager.default.fileExists(atPath: targetURL.path()) {
-                        player.replaceCurrentItem(with: .init(url: targetURL))
-                    } else {
-                        var req = URLRequest(url: vidUrl)
-                        req.setValue("Bearer \(accessToken!)", forHTTPHeaderField: "Authorization")
-                        let (data, _) = try await URLSession.shared.data(for: req)
-                        try FileManager.default.createFile(atPath: targetURL.path(), contents: data)
-                        player.replaceCurrentItem(with: .init(url: targetURL))
+                    let intent = GetVideoIntent(capture: capture)
+                    intent.service = service
+                    guard let result = try await intent.perform().value, let result else {
+                        return
                     }
+                    let targetURL = URL.temporaryDirectory.appending(path: result.filename)
+                    try FileManager.default.createFile(atPath: targetURL.path(), contents: result.data)
+                    player.replaceCurrentItem(with: .init(url: targetURL))
                     await player.seek(to: .zero)
                     player.isMuted = true
                     player.play()

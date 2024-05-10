@@ -141,6 +141,45 @@ public struct GetVideoIntent: AppIntent {
     }
 }
 
+public struct GetUnprocessedVideoIntent: AppIntent {
+    public static var title: LocalizedStringResource = "Get Unprocessed Video"
+    public static var description: IntentDescription? = .init("Returns the unprocessed video for a given capture, if it has one.",
+                                                              categoryName: "Captures",
+                                                              resultValueName: "Video"
+    )
+    public static var parameterSummary: some ParameterSummary {
+        Summary("Get unprocessed video from \(\.$capture)")
+    }
+    
+    @Parameter(title: "Capture")
+    public var capture: CaptureEntity
+
+    public init(capture: CaptureEntity) {
+        self.capture = capture
+    }
+    
+    public init(capture: Capture) {
+        self.capture = CaptureEntity(from: capture)
+    }
+    
+    public init() {}
+    
+    public static var openAppWhenRun: Bool = false
+    public static var isDiscoverable: Bool = true
+    
+    @Dependency
+    public var service: HumaneCenterService
+
+    public func perform() async throws -> some IntentResult & ReturnsValue<IntentFile?> {
+        let content = try await service.memory(capture.id)
+        guard let file = content.get()?.originalVideo ?? content.get()?.video else {
+            return .result(value: nil)
+        }
+        let data = try await service.download(capture.id, file)
+        return .result(value: .init(data: data, filename: "\(file.fileUUID).mp4"))
+    }
+}
+
 public struct GetBestPhotoIntent: AppIntent {
     public static var title: LocalizedStringResource = "Get Best Photo"
     public static var description: IntentDescription? = .init("Returns the best photo for a given capture.",
@@ -315,20 +354,7 @@ public struct FavoriteCapturesIntent: AppIntent {
     }
     
     private func process(_ content: MemoryContentEnvelope) async throws {
-        guard let capture: CaptureEnvelope = content.get() else {
-            throw Error.invalidContentType
-        }
-        let newCapture = Capture(
-            uuid: content.id,
-            state: capture.state,
-            type: capture.type,
-            isPhoto: capture.type == .photo,
-            thumbnailUUID: capture.thumbnail.fileUUID,
-            thumbnailAccessToken: capture.thumbnail.accessToken,
-            isFavorite: action == .add ? true : false,
-            createdAt: content.userCreatedAt,
-            modifiedAt: content.userLastModified
-        )
+        let newCapture = Capture(from: content)
         await self.database.insert(newCapture)
     }
     
@@ -504,20 +530,7 @@ struct SyncCapturesIntent: AppIntent {
     }
     
     private func process(_ content: MemoryContentEnvelope) async throws -> UUID {
-        guard let capture: CaptureEnvelope = content.get() else {
-            throw Error.invalidContentType
-        }
-        let newCapture = Capture(
-            uuid: content.id,
-            state: capture.state,
-            type: capture.type,
-            isPhoto: capture.type == .photo,
-            thumbnailUUID: capture.thumbnail.fileUUID,
-            thumbnailAccessToken: capture.thumbnail.accessToken,
-            isFavorite: content.favorite,
-            createdAt: content.userCreatedAt,
-            modifiedAt: content.userLastModified
-        )
+        let newCapture = Capture(from: content)
         await self.database.insert(newCapture)
         return newCapture.uuid
     }
@@ -612,7 +625,54 @@ public struct SaveCaptureToCameraRollIntent: AppIntent {
             let targetURL: URL = .temporaryDirectory.appending(path: filename)
             FileManager.default.createFile(atPath: targetURL.path(), contents: data)
             UISaveVideoAtPathToSavedPhotosAlbum(targetURL.path(), nil, nil, nil)
+        }
+        
+        return .result()
+    }
+    
+    enum Error: Swift.Error {
+        case invalidContent
+    }
+}
+
+public struct SaveUnprocessedVideoToCameraRollIntent: AppIntent {
+    public static var title: LocalizedStringResource = "Save Unprocessed Video to Camera Roll"
+    public static var description: IntentDescription? = .init("Saves a specified Capture's unprocessed video to the user's Camera Roll.", categoryName: "Captures")
+    public static var parameterSummary: some ParameterSummary {
+        Summary("Save unprocessed video for \(\.$capture) to Camera Roll")
+    }
+    
+    @Parameter(title: "Capture")
+    public var capture: CaptureEntity
+    
+    public init(capture: CaptureEntity) {
+        self.capture = capture
+    }
+    
+    public init(capture: Capture) {
+        self.capture = CaptureEntity(from: capture)
+    }
+    
+    public init() {}
+    
+    public static var openAppWhenRun: Bool = false
+    public static var isDiscoverable: Bool = true
+    
+    @Dependency
+    public var service: HumaneCenterService
+
+    public func perform() async throws -> some IntentResult {
+        switch capture.type {
+        case .photo:
             break
+        case .video:
+            let videoFile = try await GetUnprocessedVideoIntent(capture: capture).perform()
+            guard let video = videoFile.value, let filename = video?.filename, let data = video?.data else {
+                return .result()
+            }
+            let targetURL: URL = .temporaryDirectory.appending(path: filename)
+            FileManager.default.createFile(atPath: targetURL.path(), contents: data)
+            UISaveVideoAtPathToSavedPhotosAlbum(targetURL.path(), nil, nil, nil)
         }
         
         return .result()

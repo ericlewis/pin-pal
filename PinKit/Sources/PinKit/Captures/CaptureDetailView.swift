@@ -36,7 +36,7 @@ struct CaptureImageView: View {
 
 struct CaptureDetailView: View {
     
-    let capture: MemoryContentEnvelope
+    let capture: Capture
     
     @Environment(HumaneCenterService.self)
     private var service
@@ -51,6 +51,9 @@ struct CaptureDetailView: View {
     private var derivativePhotos: [FileAsset] = []
     
     @State
+    private var memory: MemoryContentEnvelope?
+    
+    @State
     private var locationName: String?
     
     @State
@@ -60,57 +63,53 @@ struct CaptureDetailView: View {
         List {
             Section {
                 VStack {
-                    if let vidUrl = capture.videoDownloadUrl() {
-                        VideoView(id: capture.id, vidUrl: vidUrl)
-                            .scaledToFill()
-                            .clipShape(RoundedRectangle(cornerRadius: 8))
+                    if capture.isVideo {
+                        VideoView(capture: capture)
                     } else {
-//                        CaptureImageView(capture: capture)
+                        CaptureImageView(capture: capture)
                     }
                     HStack {
-                        if capture.get()?.video == nil, originalPhotos.isEmpty, capture.get()?.state == .processed {
-                            RoundedRectangle(cornerRadius: 8)
-                                .fill(.bar)
-                                .aspectRatio(1.33333333333, contentMode: .fit)
-                                .overlay(ProgressView())
-                            RoundedRectangle(cornerRadius: 8)
-                                .fill(.bar)
-                                .aspectRatio(1.33333333333, contentMode: .fit)
-                                .overlay(ProgressView())
-                            RoundedRectangle(cornerRadius: 8)
-                                .fill(.bar)
-                                .aspectRatio(1.33333333333, contentMode: .fit)
-                                .overlay(ProgressView())
-                        } else if capture.get()?.video == nil {
-                            ForEach(originalPhotos, id: \.fileUUID) { photo in
-                                WebImage(url: makeThumbnailURL(
-                                    uuid: capture.id,
-                                    fileUUID: photo.fileUUID,
-                                    accessToken: photo.accessToken
-                                )) { image in
-                                    image
-                                        .resizable()
-                                        .aspectRatio(1.33333333333, contentMode: .fit)
-                                        .clipShape(RoundedRectangle(cornerRadius: 8))
-                                } placeholder: {
-                                    RoundedRectangle(cornerRadius: 8)
-                                        .fill(.bar)
-                                        .aspectRatio(1.33333333333, contentMode: .fit)
-                                        .overlay(ProgressView())
-                                }
+                        if !capture.isVideo, capture.state == .processed, originalPhotos.isEmpty  {
+                        RoundedRectangle(cornerRadius: 8)
+                            .fill(.bar)
+                            .aspectRatio(1.33333333333, contentMode: .fit)
+                            .overlay(ProgressView())
+                        RoundedRectangle(cornerRadius: 8)
+                            .fill(.bar)
+                            .aspectRatio(1.33333333333, contentMode: .fit)
+                            .overlay(ProgressView())
+                        RoundedRectangle(cornerRadius: 8)
+                            .fill(.bar)
+                            .aspectRatio(1.33333333333, contentMode: .fit)
+                            .overlay(ProgressView())
+                    } else if !capture.isVideo {
+                        ForEach(originalPhotos, id: \.fileUUID) { photo in
+                            WebImage(url: makeThumbnailURL(
+                                uuid: capture.uuid,
+                                fileUUID: photo.fileUUID,
+                                accessToken: photo.accessToken
+                            )) { image in
+                                image
+                                    .resizable()
+                                    .aspectRatio(1.33333333333, contentMode: .fit)
+                                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                            } placeholder: {
+                                RoundedRectangle(cornerRadius: 8)
+                                    .fill(.bar)
+                                    .aspectRatio(1.33333333333, contentMode: .fit)
+                                    .overlay(ProgressView())
                             }
                         }
+                    }
                     }
                 }
                 .listRowInsets(.init())
                 .listRowBackground(Color.clear)
             }
             Section {
-                if let state = capture.get()?.state {
-                    LabeledContent("Status", value: state.title)
-                }
+                LabeledContent("Status", value: capture.state.title)
                 LabeledContent("Created") {
-                    Text(capture.userCreatedAt, format: .dateTime)
+                    Text(capture.createdAt, format: .dateTime)
                 }
                 if let locationName {
                     LabeledContent("Location", value: locationName)
@@ -126,14 +125,14 @@ struct CaptureDetailView: View {
             }
         }
         .toolbar {
-            Menu("Options", systemImage: "ellipsis.circle") {
-//                CaptureMenuContents(capture: capture)
+            ToolbarItem(placement: .secondaryAction) {
+                CaptureMenuContents(capture: capture, isFavorite: capture.isFavorite)
             }
         }
         .navigationTitle("Capture")
         .task {
             do {
-                guard let capture: CaptureEnvelope = try await service.memory(self.capture.id).get() else {
+                guard let capture: CaptureEnvelope = try await service.memory(capture.uuid).get() else {
                     return
                 }
                 withAnimation {

@@ -97,7 +97,7 @@ struct CapturesView: View {
         let _ = descriptor.sortBy = [app.captureFilter.sort]
         QueryGridView(descriptor: descriptor) { capture in
             NavigationLink {
-                // CaptureDetailView(capture: capture)
+                CaptureDetailView(capture: capture)
             } label: {
                 CaptureCellView(capture: capture, isFavorite: capture.isFavorite)
             }

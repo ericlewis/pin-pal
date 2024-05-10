@@ -15,6 +15,7 @@ extension SchemaV1 {
         public let state: CaptureState
         public let type: RemoteCaptureType
         public let isPhoto: Bool
+        public let isVideo: Bool
 
         public let thumbnailUUID: UUID
         public let thumbnailAccessToken: String
@@ -23,16 +24,36 @@ extension SchemaV1 {
         public let createdAt: Date
         public let modifiedAt: Date
 
-        public init(uuid: UUID, state: CaptureState, type: RemoteCaptureType, isPhoto: Bool, thumbnailUUID: UUID, thumbnailAccessToken: String, isFavorite: Bool, createdAt: Date, modifiedAt: Date) {
+        public init(uuid: UUID, state: CaptureState, type: RemoteCaptureType, isPhoto: Bool, isVideo: Bool, thumbnailUUID: UUID, thumbnailAccessToken: String, isFavorite: Bool, createdAt: Date, modifiedAt: Date) {
             self.uuid = uuid
             self.state = state
             self.type = type
             self.isPhoto = isPhoto
+            self.isVideo = isVideo
             self.thumbnailUUID = thumbnailUUID
             self.thumbnailAccessToken = thumbnailAccessToken
             self.createdAt = createdAt
             self.isFavorite = isFavorite
             self.modifiedAt = modifiedAt
+        }
+        
+        public convenience init(from content: MemoryContentEnvelope) {
+            guard let capture: CaptureEnvelope = content.get() else {
+                fatalError()
+            }
+            
+            self.init(
+                uuid: content.id,
+                state: capture.state,
+                type: capture.type,
+                isPhoto: capture.type == .photo,
+                isVideo: capture.type == .video,
+                thumbnailUUID: capture.thumbnail.fileUUID,
+                thumbnailAccessToken: capture.thumbnail.accessToken,
+                isFavorite: content.favorite,
+                createdAt: content.userCreatedAt,
+                modifiedAt: content.userLastModified
+            )
         }
     }
 
