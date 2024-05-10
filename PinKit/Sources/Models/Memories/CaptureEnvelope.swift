@@ -11,8 +11,10 @@ public struct CaptureEnvelope: Codable, Hashable {
     public let thumbnail: FileAsset
     public let closeupAsset: FileAsset?
     public var memoryId: UUID?
-    public let video: VideoAsset?
-    
+    public let video: FileAsset?
+    public let originalVideo: FileAsset?
+    public let downloadVideo: FileAsset?
+
     let originalThumbnails: [FileAsset]?
     public let originals: [FileAsset]?
     public let derivatives: [FileAsset]?
@@ -25,11 +27,11 @@ public struct CaptureEnvelope: Codable, Hashable {
 public struct FileAsset: Codable, Hashable {
     public let fileUUID: UUID
     public let accessToken: String
-}
-
-public struct VideoAsset: Codable, Hashable {
-    public let fileUUID: UUID
-    public let accessToken: String
+    
+    public init(fileUUID: UUID, accessToken: String) {
+        self.fileUUID = fileUUID
+        self.accessToken = accessToken
+    }
 }
 
 public enum CaptureState: String, Codable, Hashable {

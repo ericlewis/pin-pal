@@ -125,13 +125,11 @@ public struct GetVideoIntent: AppIntent {
 
     public func perform() async throws -> some IntentResult & ReturnsValue<IntentFile?> {
         let content = try await service.memory(capture.id)
-        guard let url = content.videoDownloadUrl() else {
+        guard let file = content.get()?.downloadVideo ?? content.get()?.video else {
             return .result(value: nil)
         }
-        var req = URLRequest(url: url)
-        req.setValue("Bearer \(service.accessToken!)", forHTTPHeaderField: "Authorization")
-        let (d, _) = try await URLSession.shared.data(for: req)
-        return .result(value: .init(data: d, filename: "\(content.get()?.video?.fileUUID ?? .init()).mp4"))
+        let data = try await service.download(capture.id, file)
+        return .result(value: .init(data: data, filename: "\(file.fileUUID).mp4"))
     }
 }
 
@@ -593,11 +591,25 @@ public struct SaveCaptureToCameraRollIntent: AppIntent {
             throw Error.invalidContent
         }
         
-        let bestFile = capture.closeupAsset ?? capture.thumbnail
+        let bestFile: FileAsset = {
+            guard capture.type == .video, let video = capture.downloadVideo ?? capture.video else {
+                return capture.closeupAsset ?? capture.thumbnail
+            }
+            return .init(fileUUID: video.fileUUID, accessToken: video.accessToken)
+        }()
+        
         let data = try await service.download(memory.id, bestFile)
-
-        if capture.type == .photo, let image = UIImage(data: data) {
-             UIImageWriteToSavedPhotosAlbum(image, nil, nil, nil)
+        
+        switch capture.type {
+        case .photo:
+            if let image = UIImage(data: data) {
+                UIImageWriteToSavedPhotosAlbum(image, nil, nil, nil)
+            }
+        case .video:
+            let targetURL: URL = .temporaryDirectory.appending(path: "\(bestFile.fileUUID).mp4")
+            FileManager.default.createFile(atPath: targetURL.path(), contents: data)
+            UISaveVideoAtPathToSavedPhotosAlbum(targetURL.path(), nil, nil, nil)
+            break
         }
         
         return .result()
@@ -607,14 +619,3 @@ public struct SaveCaptureToCameraRollIntent: AppIntent {
         case invalidContent
     }
 }
-
-//func saveVideo(capture: MemoryContentEnvelope) async throws {
-////        guard let url = capture.videoDownloadUrl(), let accessToken = (UserDefaults(suiteName: "group.com.ericlewis.Pin-Pal") ?? .standard).string(forKey: Constants.ACCESS_TOKEN) else { return }
-////        let tempDirectoryURL = URL(fileURLWithPath: NSTemporaryDirectory(), isDirectory: true)
-////        let targetURL = tempDirectoryURL.appendingPathComponent(capture.id.uuidString).appendingPathExtension("mp4")
-////        var req = URLRequest(url: url)
-////        req.setValue("Bearer \(accessToken)", forHTTPHeaderField: "Authorization")
-////        let (data, _) = try await URLSession.shared.data(for: req)
-////        try FileManager.default.createFile(atPath: targetURL.path(), contents: data)
-////        UISaveVideoAtPathToSavedPhotosAlbum(targetURL.path(), nil, nil, nil)
-//}
