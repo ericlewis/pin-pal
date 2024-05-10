@@ -11,16 +11,16 @@ struct ToastViewModifier: ViewModifier {
             .overlay(alignment: .bottom) {
                 switch navigation.showToast {
                 case .captureSaved:
-                    ToastView("Capture saved to Camera Roll", systemImage: "checkmark")
+                    ToastView("Capture saved", systemImage: "checkmark")
                 case .error:
-                    ToastView("An error occurred, try again", systemImage: "xmark")
+                    ToastView("An error occurred", systemImage: "xmark")
                 case .favorited:
-                    ToastView("Favorited", systemImage: "heart")
+                    ToastView("Favorited Capture", systemImage: "heart")
                 case .unfavorited:
-                    ToastView("Unfavorited", systemImage: "heart")
+                    ToastView("Unfavorited Capture", systemImage: "heart")
                         .symbolVariant(.slash)
                 case .copiedToClipboard:
-                    ToastView("Copied", systemImage: "doc.on.doc")
+                    ToastView("Copied Capture", systemImage: "doc.on.doc")
                 case .downloadingCapture:
                     ToastView("Downloading Capture", systemImage: "slowmo", duration: nil)
                         .symbolEffect(.variableColor.reversing, options: .repeating)
