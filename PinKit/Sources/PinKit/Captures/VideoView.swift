@@ -2,24 +2,6 @@ import SwiftUI
 import AVKit
 import Models
 
-extension URL {
-    static func videoDownloadUrl(uuid: UUID, fileUUID: UUID, accessToken: String) -> URL? {
-        return URL(string: "https://webapi.prod.humane.cloud/capture/memory/\(uuid)/file/\(fileUUID)/download")?.appending(queryItems: [
-            URLQueryItem(name: "token", value: accessToken),
-            URLQueryItem(name: "rawData", value: "false")
-        ])
-    }
-}
-
-extension MemoryContentEnvelope {
-    public func videoDownloadUrl() -> URL? {
-        guard let cap: CaptureEnvelope = self.get(), let vid = cap.video else {
-            return nil
-        }
-        return URL.videoDownloadUrl(uuid: id, fileUUID: vid.fileUUID, accessToken: vid.accessToken)
-    }
-}
-
 struct VideoView: View {
     
     let id: UUID

@@ -140,4 +140,14 @@ enum API {
             body: FeatureFlagEnvelope(state: isEnabled ? .enabled : .disabled)
         )
     }
+    
+    static func download(memoryUUID: UUID, asset: FileAsset) -> Request<Data> {
+        .init(
+            url: memoryUrl.appending(path: "\(memoryUUID)/file/\(asset.fileUUID)/download"),
+            query: [
+                ("token", asset.accessToken),
+                ("rawData", "false")
+            ]
+        )
+    }
 }

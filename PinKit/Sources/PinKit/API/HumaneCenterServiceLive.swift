@@ -81,6 +81,9 @@ extension HumaneCenterService {
             },
             bulkRemove: {
                 try await client.send(API.delete(memoryUUIDs: $0)).value
+            },
+            download: {
+                try await client.send(API.download(memoryUUID: $0, asset: $1)).data
             }
         )
     }

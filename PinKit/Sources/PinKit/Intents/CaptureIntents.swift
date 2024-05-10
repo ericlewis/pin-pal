@@ -541,7 +541,23 @@ public struct CopyCaptureToClipboardIntent: AppIntent {
     public var service: HumaneCenterService
 
     public func perform() async throws -> some IntentResult {
+        let memory = try await service.memory(capture.id)
+        guard let capture: CaptureEnvelope = memory.get() else {
+            throw Error.invalidContent
+        }
+        
+        let bestFile = capture.closeupAsset ?? capture.thumbnail
+        let data = try await service.download(memory.id, bestFile)
+
+        if capture.type == .photo, let image = UIImage(data: data) {
+            UIPasteboard.general.image = image
+        }
+        
         return .result()
+    }
+    
+    enum Error: Swift.Error {
+        case invalidContent
     }
 }
 
@@ -572,22 +588,26 @@ public struct SaveCaptureToCameraRollIntent: AppIntent {
     public var service: HumaneCenterService
 
     public func perform() async throws -> some IntentResult {
+        let memory = try await service.memory(capture.id)
+        guard let capture: CaptureEnvelope = memory.get() else {
+            throw Error.invalidContent
+        }
+        
+        let bestFile = capture.closeupAsset ?? capture.thumbnail
+        let data = try await service.download(memory.id, bestFile)
+
+        if capture.type == .photo, let image = UIImage(data: data) {
+             UIImageWriteToSavedPhotosAlbum(image, nil, nil, nil)
+        }
+        
         return .result()
     }
+    
+    enum Error: Swift.Error {
+        case invalidContent
+    }
 }
-//
-//public func copyToClipboard(capture: MemoryContentEnvelope) async {
-////        UIPasteboard.general.image = try? await image(for: capture)
-//}
-//
-//public func save(capture: MemoryContentEnvelope) async throws {
-////        if capture.get()?.video == nil {
-////            try await UIImageWriteToSavedPhotosAlbum(image(for: capture), nil, nil, nil)
-////        } else {
-////            try await saveVideo(capture: capture)
-////        }
-//}
-//
+
 //func saveVideo(capture: MemoryContentEnvelope) async throws {
 ////        guard let url = capture.videoDownloadUrl(), let accessToken = (UserDefaults(suiteName: "group.com.ericlewis.Pin-Pal") ?? .standard).string(forKey: Constants.ACCESS_TOKEN) else { return }
 ////        let tempDirectoryURL = URL(fileURLWithPath: NSTemporaryDirectory(), isDirectory: true)
@@ -597,20 +617,4 @@ public struct SaveCaptureToCameraRollIntent: AppIntent {
 ////        let (data, _) = try await URLSession.shared.data(for: req)
 ////        try FileManager.default.createFile(atPath: targetURL.path(), contents: data)
 ////        UISaveVideoAtPathToSavedPhotosAlbum(targetURL.path(), nil, nil, nil)
-//}
-//
-//func image(for capture: MemoryContentEnvelope) async throws -> UIImage {
-//    return UIImage()
-////        guard let cap: CaptureEnvelope = capture.get() else { return UIImage() }
-////        var req = URLRequest(url: URL(string: "https://webapi.prod.humane.cloud/capture/memory/\(capture.id)/file/\(cap.closeupAsset?.fileUUID ?? cap.thumbnail.fileUUID)/download")!.appending(queryItems: [
-////            .init(name: "token", value: cap.closeupAsset?.accessToken ?? cap.thumbnail.accessToken),
-////            .init(name: "rawData", value: "false")
-////        ]))
-////        req.setValue("Bearer \(service.accessToken!)", forHTTPHeaderField: "Authorization")
-////        let (data, _) = try await URLSession.shared.data(for: req)
-////        guard let image = UIImage(data: data) else {
-////            fatalError()
-////        }
-////        return image
-////        UIImage()
 //}
