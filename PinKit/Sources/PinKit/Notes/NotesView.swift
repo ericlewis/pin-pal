@@ -1,13 +1,9 @@
 import SwiftUI
 import SwiftData
+import AppIntents
 
 struct NotesView: View {
-    
-    enum FilterType {
-        case all
-        case favorites
-    }
-    
+
     @Environment(AppState.self)
     private var app
     
@@ -28,21 +24,9 @@ struct NotesView: View {
     
     @State
     private var query = ""
-    
-    @State
-    private var filter = Note.all()
-    
-    @State
-    private var filterType = FilterType.all
-    
-    @State
-    private var sort = SortDescriptor<Note>(\.createdAt, order: .reverse)
-    
-    @State
-    private var order = SortOrder.reverse
-    
+
     var predicate: Predicate<Note> {
-        if filterType == .all {
+        if app.noteFilter.type == .all {
             return #Predicate<Note> { _ in
                 true
             }
@@ -55,8 +39,9 @@ struct NotesView: View {
 
     var body: some View {
         @Bindable var navigation = navigation
-        var filter = filter
-        let _ = filter.sortBy = [sort]
+        @Bindable var noteFilter = app.noteFilter
+        var filter = app.noteFilter.filter
+        let _ = filter.sortBy = [app.noteFilter.sort]
         let _ = filter.predicate = predicate
         NavigationStack {
             SearchableNotesListView(
@@ -80,25 +65,29 @@ struct NotesView: View {
                 }
                 ToolbarItemGroup(placement: .secondaryAction) {
                     Menu("Filter", systemImage: "line.3.horizontal.decrease.circle") {
-                        Toggle("All Items", systemImage: "note.text", isOn: toggle(filter: .all))
+                        Toggle(isOn: noteFilter.type == .all, intent: FilterNotesIntent(filter: .all)) {
+                            Label("All Items", systemImage: "note.text")
+                        }
                         Section {
-                            Toggle("Favorites", systemImage: "heart", isOn: toggle(filter: .favorites))
+                            Toggle(isOn: noteFilter.type == .favorites, intent: FilterNotesIntent(filter: .favorites)) {
+                                Label("Favorites", systemImage: "heart")
+                            }
                         }
                     }
-                    .symbolVariant(filterType == .all ? .none : .fill)
+                    .symbolVariant(noteFilter.type == .all ? .none : .fill)
                     Menu("Sort", systemImage: "arrow.up.arrow.down") {
-                        Toggle("Name", isOn: toggle(sortedBy: \.name))
-                        Toggle("Body", isOn: toggle(sortedBy: \.body))
-                        Toggle("Created At", isOn: toggle(sortedBy: \.createdAt))
-                        Toggle("Modified At", isOn: toggle(sortedBy: \.modifiedAt))
+                        SortNotesToggle("Name", sortBy: \.name)
+                        SortNotesToggle("Body", sortBy: \.body)
+                        SortNotesToggle("Created At", sortBy: \.createdAt)
+                        SortNotesToggle("Modified At", sortBy: \.modifiedAt)
                         Section("Order") {
-                            Picker("Order", selection: $order) {
+                            Picker("Order", selection: $noteFilter.order) {
                                 Label("Ascending", systemImage: "arrow.up").tag(SortOrder.forward)
                                 Label("Descending", systemImage: "arrow.down").tag(SortOrder.reverse)
                             }
-                            .onChange(of: order) {
+                            .onChange(of: noteFilter.order) {
                                 withAnimation(.snappy) {
-                                    sort.order = order
+                                    noteFilter.sort.order = noteFilter.order
                                 }
                             }
                         }
@@ -129,75 +118,32 @@ struct NotesView: View {
             }
         }
         .task(initial)
-        .task(id: query) {
-            do {
-                try await Task.sleep(for: .milliseconds(300))
-                let intent = SearchNotesIntent()
-                intent.query = query
-                intent.service = service
-                guard !query.isEmpty, let result = try await intent.perform().value else {
-                    filter = Note.all()
-                    return
-                }
-                let ids = result.map(\.id)
-                let predicate = #Predicate<Note> {
-                    ids.contains($0.parentUUID)
-                }
-                filter = FetchDescriptor(predicate: predicate)
-            } catch is CancellationError {
-                
-            } catch {
-                filter = Note.all()
-                print(error)
+        .task(id: query, search)
+    }
+    
+    func search() async {
+        do {
+            try await Task.sleep(for: .milliseconds(300))
+            let intent = SearchNotesIntent()
+            intent.query = query
+            intent.service = service
+            guard !query.isEmpty, let result = try await intent.perform().value else {
+                app.noteFilter.filter = Note.all()
+                return
             }
+            let ids = result.map(\.id)
+            let predicate = #Predicate<Note> {
+                ids.contains($0.parentUUID)
+            }
+            app.noteFilter.filter = FetchDescriptor(predicate: predicate)
+        } catch is CancellationError {
+            
+        } catch {
+            app.noteFilter.filter = Note.all()
+            print(error)
         }
     }
-    
-    func toggle(sortedBy: KeyPath<Note, String>) -> Binding<Bool> {
-        Binding(
-            get: { sort.keyPath == sortedBy  },
-            set: {
-                if $0 {
-                    withAnimation(.snappy) {
-                        sort = SortDescriptor<Note>(sortedBy, order: order)
-                    }
-                }
-            }
-        )
-    }
-    
-    func toggle(sortedBy: KeyPath<Note, Date>) -> Binding<Bool> {
-        Binding(
-            get: { sort.keyPath == sortedBy  },
-            set: {
-                if $0 {
-                    withAnimation(.snappy) {
-                        sort = SortDescriptor<Note>(sortedBy, order: order)
-                    }
-                }
-            }
-        )
-    }
-    
-    func toggle(filter: FilterType) -> Binding<Bool> {
-        Binding(
-            get: {
-                filterType == filter
-            },
-            set: { isOn in
-                if isOn, filterType != filter {
-                    withAnimation(.snappy) {
-                        self.filterType = filter
-                    }
-                } else {
-                    withAnimation(.snappy) {
-                        self.filterType = .all
-                    }
-                }
-            }
-        )
-    }
-    
+ 
     func initial() async {
         guard !isLoading, isFirstLoad else { return }
         Task.detached {
@@ -221,6 +167,32 @@ struct NotesView: View {
     }
 }
 
-protocol Sortable {}
+struct SortNotesToggle: View {
+    
+    let name: LocalizedStringKey
+    let sortBy: KeyPath<Note, String>?
+    let sortBy2: KeyPath<Note, Date>?
 
-extension Date: Sortable {}
+    init(_ name: LocalizedStringKey, sortBy: KeyPath<Note, String>) {
+        self.name = name
+        self.sortBy = sortBy
+        self.sortBy2 = nil
+    }
+    
+    init(_ name: LocalizedStringKey, sortBy: KeyPath<Note, Date>) {
+        self.name = name
+        self.sortBy = nil
+        self.sortBy2 = sortBy
+    }
+    
+    @Environment(AppState.self)
+    private var app
+    
+    var body: some View {
+        if let sortBy2 {
+            Toggle(name, isOn: app.noteFilter.sort.keyPath == sortBy, intent: SortNotesIntent(sortBy: sortBy2))
+        } else if let sortBy {
+            Toggle(name, isOn: app.noteFilter.sort.keyPath == sortBy, intent: SortNotesIntent(sortBy: sortBy))
+        }
+    }
+}

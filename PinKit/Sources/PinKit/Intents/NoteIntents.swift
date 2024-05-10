@@ -710,3 +710,76 @@ struct SyncNotesIntent: AppIntent {
         case invalidContentType
     }
 }
+
+
+public enum NoteFilterType: String, AppEnum {
+    case all
+    case favorites
+    
+    public static var typeDisplayRepresentation: TypeDisplayRepresentation = .init(name: "Note Filter")
+    public static var caseDisplayRepresentations: [NoteFilterType: DisplayRepresentation] = [
+        .all: "All Items",
+        .favorites: "Favorites",
+    ]
+}
+
+struct FilterNotesIntent: AppIntent {
+    static var title: LocalizedStringResource = "Filter Notes"
+
+    @Dependency
+    var app: AppState
+    
+    var filter: NoteFilterType
+    
+    init(filter: NoteFilterType) {
+        self.filter = filter
+    }
+    
+    init() {
+        self.filter = .all
+    }
+    
+    func perform() async throws -> some IntentResult {
+        withAnimation {
+            if self.filter.rawValue == app.noteFilter.type.rawValue {
+                app.noteFilter.type = .all
+            } else {
+                app.noteFilter.type = .init(rawValue: self.filter.rawValue) ?? .all
+            }
+        }
+        return .result()
+    }
+}
+
+struct SortNotesIntent: AppIntent {
+    static var title: LocalizedStringResource = "Sort Notes"
+
+    @Dependency
+    var app: AppState
+
+    var sortBy: KeyPath<Note, String>?
+    var sortBy2: KeyPath<Note, Date>?
+
+    init(sortBy: KeyPath<Note, String>) {
+        self.sortBy = sortBy
+    }
+    
+    init(sortBy: KeyPath<Note, Date>) {
+        self.sortBy2 = sortBy
+    }
+    
+    init() {
+        self.sortBy2 = \.createdAt
+    }
+    
+    func perform() async throws -> some IntentResult {
+        withAnimation(.snappy) {
+            if let sortBy2 {
+                app.noteFilter.sort = SortDescriptor<Note>(sortBy2, order: app.noteFilter.order)
+            } else if let sortBy {
+                app.noteFilter.sort = SortDescriptor<Note>(sortBy, order: app.noteFilter.order)
+            }
+        }
+        return .result()
+    }
+}

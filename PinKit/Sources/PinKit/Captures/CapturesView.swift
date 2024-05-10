@@ -181,7 +181,10 @@ struct CapturesView: View {
         isLoading = false
         isFirstLoad = false
     }
+}
 
+extension CapturesView {
+    
     func toggle(sortedBy: KeyPath<Capture, Date>) -> Binding<Bool> {
         Binding(
             get: { sort.keyPath == sortedBy  },
@@ -213,4 +216,5 @@ struct CapturesView: View {
             }
         )
     }
+    
 }
