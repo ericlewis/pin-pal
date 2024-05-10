@@ -334,6 +334,9 @@ public struct FavoriteCapturesIntent: AppIntent {
     
     @Dependency
     public var database: any Database
+    
+    @Dependency
+    public var navigation: Navigation
 
     public func perform() async throws -> some IntentResult {
         let ids = captures.map(\.id)
@@ -350,6 +353,7 @@ public struct FavoriteCapturesIntent: AppIntent {
             }
         }
         try await self.database.save()
+        navigation.show(toast: action == .add ? .favorited : .unfavorited)
         return .result()
     }
     
@@ -565,6 +569,9 @@ public struct CopyCaptureToClipboardIntent: AppIntent {
     
     @Dependency
     public var service: HumaneCenterService
+    
+    @Dependency
+    public var navigation: Navigation
 
     public func perform() async throws -> some IntentResult {
         
@@ -574,7 +581,7 @@ public struct CopyCaptureToClipboardIntent: AppIntent {
             }
             UIPasteboard.general.image = UIImage(data: data)
         }
-        
+        navigation.show(toast: .copiedToClipboard)
         return .result()
     }
     

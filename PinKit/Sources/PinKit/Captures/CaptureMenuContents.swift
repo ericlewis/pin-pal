@@ -7,7 +7,9 @@ struct CaptureMenuContents: View {
     
     var body: some View {
         Section {
-            Button("Copy", systemImage: "doc.on.doc", intent: CopyCaptureToClipboardIntent(capture: capture))
+            if capture.isPhoto {
+                Button("Copy", systemImage: "doc.on.doc", intent: CopyCaptureToClipboardIntent(capture: capture))
+            }
             if capture.isVideo {
                 Button("Save Unprocessed Video", systemImage: "film", intent: SaveUnprocessedVideoToCameraRollIntent(capture: capture))
             }

@@ -5,6 +5,9 @@ public enum Toast {
     case captureSaved
     case downloadingCapture
     case error
+    case favorited
+    case unfavorited
+    case copiedToClipboard
 }
 
 struct ToastView: View {
@@ -25,7 +28,6 @@ struct ToastView: View {
     var body: some View {
         Label(title, systemImage: systemImage)
             .font(.footnote.bold())
-            .symbolVariant(.circle)
             .padding()
             .background(RoundedRectangle(cornerRadius: 15).fill(.bar))
             .padding(.bottom, 70)
