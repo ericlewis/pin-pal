@@ -15,7 +15,8 @@ let package = Package(
     dependencies: [
         .package(url: "https://github.com/SDWebImage/SDWebImageSwiftUI", from: "3.0.4"),
         .package(url: "https://github.com/ericlewis/CollectionConcurrencyKit", branch: "main"),
-        .package(url: "https://github.com/apple/swift-collections.git", .upToNextMinor(from: "1.1.0"))
+        .package(url: "https://github.com/apple/swift-collections.git", .upToNextMinor(from: "1.1.0")),
+        .package(url: "https://github.com/kean/Get", .upToNextMinor(from: "2.2.0"))
     ],
     targets: [
         // Targets are the basic building blocks of a package, defining a module or a test suite.
@@ -25,6 +26,7 @@ let package = Package(
             dependencies: [
                 "SDWebImageSwiftUI",
                 "CollectionConcurrencyKit",
+                "Get",
                 .product(name: "Collections", package: "swift-collections")
             ]),
         .testTarget(

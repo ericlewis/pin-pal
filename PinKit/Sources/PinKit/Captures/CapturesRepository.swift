@@ -69,7 +69,7 @@ extension CapturesRepository {
                 let _ = self.contentSet.remove(at: i)
                 return self.content.remove(at: i)
             }
-            try await api.delete(capture)
+            // try await api.delete(capture)
         } catch {
             logger.debug("\(error)")
         }
@@ -82,7 +82,7 @@ extension CapturesRepository {
                     let _ = self.contentSet.remove(at: i)
                     return content.remove(at: i)
                 }
-                try await api.delete(capture)
+                // try await api.delete(capture)
             }
         } catch {
             logger.debug("\(error)")
@@ -92,9 +92,9 @@ extension CapturesRepository {
     public func toggleFavorite(content: ContentEnvelope) async {
         do {
             if content.favorite {
-                try await api.unfavorite(content)
+                // try await api.unfavorite(content)
             } else {
-                try await api.favorite(content)
+                // try await api.favorite(content)
             }
             guard let idx = self.content.firstIndex(where: { $0.uuid == content.uuid }) else {
                 return
