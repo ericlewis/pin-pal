@@ -76,7 +76,7 @@ enum API {
     }
     
     static func update(note: NoteEnvelope) -> Request<MemoryContentEnvelope> {
-        .init(url: API.noteUrl.appending(path: note.memoryId!.uuidString), method: .post, body: note)
+        .init(url: API.noteUrl.appending(path: note.id!.uuidString), method: .post, body: note)
     }
     
     static func subscription() -> Request<Subscription> {
