@@ -43,7 +43,10 @@ struct AiMicListView: View {
         .environment(\.isLoading, isLoading)
         .environment(\.isFirstLoad, isFirstLoad)
         .overlay(alignment: .bottom) {
-            AiMicSyncStatusView()
+            SyncStatusView(
+                current: \.numberOfAiMicEventsSynced,
+                total: \.totalAiMicEventsToSync
+            )
         }
         .refreshable(action: load)
         .task(initial)
@@ -69,20 +72,5 @@ struct AiMicListView: View {
         }
         isLoading = false
         isFirstLoad = false
-    }
-}
-
-struct AiMicSyncStatusView: View {
-    
-    @Environment(AppState.self)
-    private var app
-    
-    var body: some View {
-        if app.totalAiMicEventsToSync > 0, app.numberOfAiMicEventsSynced > 0 {
-            let current = Double(app.numberOfAiMicEventsSynced)
-            let total = Double(app.totalAiMicEventsToSync)
-            ProgressView(value:  current / total)
-                .padding(.horizontal, -5)
-        }
     }
 }

@@ -43,7 +43,10 @@ struct TranslationEventListView: View {
         .environment(\.isLoading, isLoading)
         .environment(\.isFirstLoad, isFirstLoad)
         .overlay(alignment: .bottom) {
-            TranslationEventSyncStatusView()
+            SyncStatusView(
+                current: \.numberOfTranslationEventsSynced,
+                total: \.totalTranslationEventsToSync
+            )
         }
         .refreshable(action: load)
         .task(initial)
@@ -69,20 +72,5 @@ struct TranslationEventListView: View {
         }
         isLoading = false
         isFirstLoad = false
-    }
-}
-
-struct TranslationEventSyncStatusView: View {
-    
-    @Environment(AppState.self)
-    private var app
-        
-    var body: some View {
-        if app.totalTranslationEventsToSync > 0, app.numberOfTranslationEventsSynced > 0 {
-            let current = Double(app.numberOfTranslationEventsSynced)
-            let total = Double(app.totalTranslationEventsToSync)
-            ProgressView(value:  current / total)
-                .padding(.horizontal, -5)
-        }
     }
 }
