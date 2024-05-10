@@ -1,6 +1,7 @@
 import AppIntents
 import PinKit
 import SwiftUI
+import Models
 
 public struct NoteEntity: Identifiable {
     

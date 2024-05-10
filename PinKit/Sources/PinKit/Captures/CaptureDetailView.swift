@@ -1,6 +1,7 @@
 import SwiftUI
 import SDWebImageSwiftUI
 import MapKit
+import Models
 
 struct CaptureImageView: View {
     
@@ -60,7 +61,7 @@ struct CaptureDetailView: View {
             Section {
                 VStack {
                     if let vidUrl = capture.videoDownloadUrl() {
-                        VideoView(id: capture.uuid, vidUrl: vidUrl)
+                        VideoView(id: capture.id, vidUrl: vidUrl)
                             .scaledToFill()
                             .clipShape(RoundedRectangle(cornerRadius: 8))
                     } else {
@@ -83,7 +84,7 @@ struct CaptureDetailView: View {
                         } else if capture.get()?.video == nil {
                             ForEach(originalPhotos, id: \.fileUUID) { photo in
                                 WebImage(url: makeThumbnailURL(
-                                    uuid: capture.uuid,
+                                    uuid: capture.id,
                                     fileUUID: photo.fileUUID,
                                     accessToken: photo.accessToken
                                 )) { image in
@@ -132,7 +133,7 @@ struct CaptureDetailView: View {
         .navigationTitle("Capture")
         .task {
             do {
-                guard let capture: CaptureEnvelope = try await service.memory(self.capture.uuid).get() else {
+                guard let capture: CaptureEnvelope = try await service.memory(self.capture.id).get() else {
                     return
                 }
                 withAnimation {
@@ -150,7 +151,7 @@ struct CaptureDetailView: View {
     }
     
     func makeThumbnailURL(content: MemoryContentEnvelope, capture: CaptureEnvelope) -> URL? {
-        makeThumbnailURL(uuid: content.uuid, fileUUID: capture.thumbnail.fileUUID, accessToken: capture.thumbnail.accessToken)
+        makeThumbnailURL(uuid: content.id, fileUUID: capture.thumbnail.fileUUID, accessToken: capture.thumbnail.accessToken)
     }
     
     func makeThumbnailURL(uuid: UUID, fileUUID: UUID, accessToken: String) -> URL? {

@@ -1,5 +1,6 @@
 import SwiftData
 import Foundation
+import Models
 
 public typealias AiMicEvent = SchemaV1.AiMicEvent
 

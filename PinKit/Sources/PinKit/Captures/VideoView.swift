@@ -1,5 +1,6 @@
 import SwiftUI
 import AVKit
+import Models
 
 extension URL {
     static func videoDownloadUrl(uuid: UUID, fileUUID: UUID, accessToken: String) -> URL? {
@@ -15,7 +16,7 @@ extension MemoryContentEnvelope {
         guard let cap: CaptureEnvelope = self.get(), let vid = cap.video else {
             return nil
         }
-        return URL.videoDownloadUrl(uuid: uuid, fileUUID: vid.fileUUID, accessToken: vid.accessToken)
+        return URL.videoDownloadUrl(uuid: id, fileUUID: vid.fileUUID, accessToken: vid.accessToken)
     }
 }
 

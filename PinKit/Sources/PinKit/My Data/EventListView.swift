@@ -19,11 +19,12 @@ struct EventListView<A: PersistentModel, Content: View>: View {
     private var isFirstLoad = true
 
     var intent: any SyncIntent
+    var descriptor: FetchDescriptor<A>
     var predicate: () -> Predicate<A>
     var content: (A) -> Content
     
     var body: some View {
-        var descriptor = FetchDescriptor<A>(sortBy: [])
+        var descriptor = descriptor
         let _ = descriptor.predicate = predicate()
         QueryListView(descriptor: descriptor) { event in
             content(event)

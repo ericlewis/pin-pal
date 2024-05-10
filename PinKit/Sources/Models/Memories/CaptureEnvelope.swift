@@ -1,8 +1,13 @@
 import Foundation
 
+public enum RemoteCaptureType: String, Codable {
+    case photo = "PHOTO"
+    case video = "VIDEO"
+}
+
 public struct CaptureEnvelope: Codable, Hashable {
     let uuid: UUID
-    public let type: CaptureType
+    public let type: RemoteCaptureType
     public let thumbnail: FileAsset
     public let closeupAsset: FileAsset?
     public var memoryId: UUID?
@@ -11,9 +16,9 @@ public struct CaptureEnvelope: Codable, Hashable {
     let originalThumbnails: [FileAsset]?
     public let originals: [FileAsset]?
     public let derivatives: [FileAsset]?
-    let location: String?
-    let latitude: Double?
-    let longitude: Double?
+    public let location: String?
+    public let latitude: Double?
+    public let longitude: Double?
     public let state: CaptureState
 }
 
@@ -32,7 +37,7 @@ public enum CaptureState: String, Codable, Hashable {
     case processed = "PROCESSED"
     case processing = "PROCESSING"
     
-    var title: String {
+    public var title: String {
         switch self {
         case .pending:
             "Pending upload"

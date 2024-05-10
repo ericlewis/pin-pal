@@ -1,5 +1,6 @@
 import SwiftData
 import Foundation
+import Models
 
 public typealias Capture = SchemaV1.Capture
 
@@ -12,7 +13,7 @@ extension SchemaV1 {
         public var uuid: UUID
         
         public let state: CaptureState
-        public let type: CaptureType
+        public let type: RemoteCaptureType
         public let isPhoto: Bool
 
         public let thumbnailUUID: UUID
@@ -22,7 +23,7 @@ extension SchemaV1 {
         public let createdAt: Date
         public let modifiedAt: Date
 
-        public init(uuid: UUID, state: CaptureState, type: CaptureType, isPhoto: Bool, thumbnailUUID: UUID, thumbnailAccessToken: String, isFavorite: Bool, createdAt: Date, modifiedAt: Date) {
+        public init(uuid: UUID, state: CaptureState, type: RemoteCaptureType, isPhoto: Bool, thumbnailUUID: UUID, thumbnailAccessToken: String, isFavorite: Bool, createdAt: Date, modifiedAt: Date) {
             self.uuid = uuid
             self.state = state
             self.type = type

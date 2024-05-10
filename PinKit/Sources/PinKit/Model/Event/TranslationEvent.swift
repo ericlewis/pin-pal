@@ -1,5 +1,6 @@
 import SwiftData
 import Foundation
+import Models
 
 public typealias TranslationEvent = SchemaV1.TranslationEvent
 

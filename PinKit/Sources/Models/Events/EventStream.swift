@@ -102,7 +102,7 @@ struct Event: Codable {
     let eventCreationTime: Date
     let originatorIdentifier: Origin
     let eventType: EventType
-    let feedbackUUID: UUID?
+    public let feedbackUUID: UUID?
     let feedbackCategory: String?
 }
 

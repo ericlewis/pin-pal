@@ -6,7 +6,7 @@ struct AiMicListView: View {
     var query: String
     
     var body: some View {
-        EventListView(intent: SyncAiMicEventsIntent()) {
+        EventListView(intent: SyncAiMicEventsIntent(), descriptor: AiMicEvent.all()) {
             #Predicate<AiMicEvent> {
                 if query.isEmpty {
                     true

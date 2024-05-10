@@ -1,4 +1,5 @@
 import Foundation
+import Models
 
 extension FileAsset {
     public func makeImageURL(memoryUUID: UUID) -> URL? {

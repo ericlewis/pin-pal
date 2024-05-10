@@ -6,7 +6,7 @@ struct MusicEventListView: View {
     var query: String
 
     var body: some View {
-        EventListView(intent: SyncMusicEventsIntent()) {
+        EventListView(intent: SyncMusicEventsIntent(), descriptor: MusicEvent.all()) {
             #Predicate<MusicEvent> {
                 if query.isEmpty {
                     true

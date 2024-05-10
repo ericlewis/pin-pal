@@ -1,4 +1,5 @@
 import Foundation
+import Models
 
 public enum FeatureFlag: String, Codable {
     case visionAccess

@@ -1,6 +1,7 @@
 import SwiftUI
 import OSLog
 import OrderedCollections
+import Models
 
 @Observable public class CapturesRepository {
     let logger = Logger()
@@ -62,7 +63,7 @@ extension CapturesRepository {
     
     public func remove(content: MemoryContentEnvelope) async {
         do {
-            guard let i = self.content.firstIndex(where: { $0.uuid == content.uuid }) else {
+            guard let i = self.content.firstIndex(where: { $0.id == content.id }) else {
                 return
             }
             let capture = withAnimation {
@@ -96,7 +97,7 @@ extension CapturesRepository {
             } else {
                 // try await api.favorite(content)
             }
-            guard let idx = self.content.firstIndex(where: { $0.uuid == content.uuid }) else {
+            guard let idx = self.content.firstIndex(where: { $0.id == content.id }) else {
                 return
             }
             self.content[idx].favorite = !content.favorite
@@ -127,7 +128,7 @@ extension CapturesRepository {
                 throw CancellationError()
             }
             var fetchedResults: [MemoryContentEnvelope] = await try searchIds.concurrentCompactMap { id in
-                if let localContent = self.content.first(where: { $0.uuid == id }) {
+                if let localContent = self.content.first(where: { $0.id == id }) {
                     return localContent
                 } else {
                     try Task.checkCancellation()
@@ -154,7 +155,7 @@ extension CapturesRepository {
     func saveVideo(capture: MemoryContentEnvelope) async throws {
         guard let url = capture.videoDownloadUrl(), let accessToken = (UserDefaults(suiteName: "group.com.ericlewis.Pin-Pal") ?? .standard).string(forKey: Constants.ACCESS_TOKEN) else { return }
         let tempDirectoryURL = URL(fileURLWithPath: NSTemporaryDirectory(), isDirectory: true)
-        let targetURL = tempDirectoryURL.appendingPathComponent(capture.uuid.uuidString).appendingPathExtension("mp4")
+        let targetURL = tempDirectoryURL.appendingPathComponent(capture.id.uuidString).appendingPathExtension("mp4")
         var req = URLRequest(url: url)
         req.setValue("Bearer \(accessToken)", forHTTPHeaderField: "Authorization")
         let (data, _) = try await URLSession.shared.data(for: req)
@@ -164,7 +165,7 @@ extension CapturesRepository {
     
     func image(for capture: MemoryContentEnvelope) async throws -> UIImage {
         guard let cap: CaptureEnvelope = capture.get() else { return UIImage() }
-        var req = URLRequest(url: URL(string: "https://webapi.prod.humane.cloud/capture/memory/\(capture.uuid)/file/\(cap.closeupAsset?.fileUUID ?? cap.thumbnail.fileUUID)/download")!.appending(queryItems: [
+        var req = URLRequest(url: URL(string: "https://webapi.prod.humane.cloud/capture/memory/\(capture.id)/file/\(cap.closeupAsset?.fileUUID ?? cap.thumbnail.fileUUID)/download")!.appending(queryItems: [
             .init(name: "token", value: cap.closeupAsset?.accessToken ?? cap.thumbnail.accessToken),
             .init(name: "rawData", value: "false")
         ]))

@@ -1,5 +1,6 @@
 import Foundation
 import Get
+import Models
 
 extension HumaneCenterService {
     public static func live() -> Self {

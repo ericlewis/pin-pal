@@ -2,6 +2,7 @@ import AppIntents
 import Foundation
 import PinKit
 import SwiftUI
+import Models
 
 public protocol SyncIntent: AppIntent {
     var currentKeyPath: KeyPath<AppState, Int> { get }

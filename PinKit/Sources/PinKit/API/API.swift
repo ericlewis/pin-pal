@@ -1,5 +1,6 @@
 import Foundation
 import Get
+import Models
 
 enum API {
     

@@ -1,5 +1,6 @@
 import SwiftData
 import Foundation
+import Models
 
 public typealias PhonePeer = SchemaV1.PhonePeer
 

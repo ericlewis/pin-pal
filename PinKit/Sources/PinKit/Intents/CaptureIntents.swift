@@ -2,6 +2,7 @@ import AppIntents
 import Foundation
 import PinKit
 import SwiftUI
+import Models
 
 public enum CaptureType: String, AppEnum, Codable {
     case photo = "PHOTO"
@@ -434,7 +435,7 @@ struct SyncCapturesIntent: AppIntent {
         let newCapture = Capture(
             uuid: content.id,
             state: capture.state,
-            type: capture.type,
+            type: .photo, //capture.type,
             isPhoto: capture.type == .photo,
             thumbnailUUID: capture.thumbnail.fileUUID,
             thumbnailAccessToken: capture.thumbnail.accessToken,

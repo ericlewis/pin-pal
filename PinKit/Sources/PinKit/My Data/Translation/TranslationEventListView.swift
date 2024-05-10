@@ -7,7 +7,7 @@ struct TranslationEventListView: View {
     var query: String
 
     var body: some View {
-        EventListView(intent: SyncTranslationEventsIntent()) {
+        EventListView(intent: SyncTranslationEventsIntent(), descriptor: TranslationEvent.all()) {
             #Predicate<TranslationEvent> {
                 if query.isEmpty {
                     true

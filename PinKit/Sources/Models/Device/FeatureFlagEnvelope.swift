@@ -6,7 +6,11 @@ public struct FeatureFlagEnvelope: Codable {
         case disabled
     }
     
-    var state: State
+    public init(state: State) {
+        self.state = state
+    }
+    
+    public var state: State
     public var isEnabled: Bool {
         get {
             switch state {

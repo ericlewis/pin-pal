@@ -1,4 +1,5 @@
 import Foundation
+import Models
 
 extension VideoAsset {
     public func videoDownloadUrl(memoryUUID: UUID) -> URL? {

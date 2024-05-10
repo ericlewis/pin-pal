@@ -1,4 +1,5 @@
 import Foundation
+import Models
 
 extension CaptureEnvelope {
     public func makeThumbnailURL() -> URL? {

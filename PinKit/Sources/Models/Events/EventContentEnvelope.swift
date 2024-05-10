@@ -31,9 +31,9 @@ public struct EventContentEnvelope: Codable {
     }
     
     let originatorIdentifier: String
-    let feedbackUUID: UUID?
+    public let feedbackUUID: UUID?
     public let eventCreationTime: Date
-    let feedbackCategory: FeedbackCategory?
+    public let feedbackCategory: FeedbackCategory?
     let eventType: String
     public let eventIdentifier: UUID
     public let eventData: DataEnvelope

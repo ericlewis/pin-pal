@@ -3,6 +3,7 @@ import Foundation
 import PinKit
 import SwiftUI
 import CollectionConcurrencyKit
+import Models
 
 public struct AiMicEntity: Identifiable {
     public let id: UUID

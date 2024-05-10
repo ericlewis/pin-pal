@@ -70,15 +70,6 @@ enum MyDataFilter {
             "bubble.left.and.text.bubble.right"
         }
     }
-    
-    var domain: EventDomain {
-        switch self {
-        case .aiMic: .aiMic
-        case .calls: .calls
-        case .music: .music
-        case .translations: .translation
-        }
-    }
 }
 
 extension MyDataFilter: CaseIterable {}
