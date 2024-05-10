@@ -25,7 +25,7 @@ struct AiMicCellView: View {
         .foregroundStyle(.primary)
         .textSelection(.enabled)
         .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-            DeleteAiMicEventButton(event: event)
+            DeleteEventButton(event: event)
         }
     }
 }
@@ -76,20 +76,5 @@ struct AiMicFeedbackButton: View {
         }
         .font(.caption)
         .foregroundStyle(.tertiary)
-    }
-}
-
-struct DeleteAiMicEventButton: View {
-    
-    let event: AiMicEvent
-    
-    var body: some View {
-        Button(
-            "Delete",
-            systemImage: "trash",
-            role: .destructive,
-            intent: DeleteAiMicEventsIntent(entities: [event], confirmBeforeDeleting: false)
-        )
-        .tint(.red)
     }
 }

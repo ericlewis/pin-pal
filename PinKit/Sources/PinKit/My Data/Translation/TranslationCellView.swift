@@ -29,5 +29,8 @@ struct TranslationCellView: View {
             }
         }
         .textSelection(.enabled)
+        .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+            DeleteEventButton(event: event)
+        }
     }
 }

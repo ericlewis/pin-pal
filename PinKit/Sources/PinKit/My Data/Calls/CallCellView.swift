@@ -24,5 +24,8 @@ struct CallCellView: View {
             }
         }
         .textSelection(.enabled)
+        .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+            DeleteEventButton(event: event)
+        }
     }
 }

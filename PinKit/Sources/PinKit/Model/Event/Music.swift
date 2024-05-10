@@ -4,10 +4,13 @@ import Models
 
 public typealias MusicEvent = SchemaV1.MusicEvent
 
+extension MusicEvent: EventDecodable {}
+extension MusicEvent: DeletableEvent {}
+
 extension SchemaV1 {
     
     @Model
-    public final class MusicEvent: EventDecodable {
+    public final class MusicEvent {
         
         @Attribute(.unique)
         public var uuid: UUID

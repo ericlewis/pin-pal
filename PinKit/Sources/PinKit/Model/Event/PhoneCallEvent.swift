@@ -5,6 +5,7 @@ import Models
 public typealias PhoneCallEvent = SchemaV1._PhoneCallEvent
 
 extension PhoneCallEvent: EventDecodable {}
+extension PhoneCallEvent: DeletableEvent {}
 
 extension SchemaV1 {
     

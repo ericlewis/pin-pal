@@ -5,6 +5,7 @@ import Models
 public typealias TranslationEvent = SchemaV1.TranslationEvent
 
 extension TranslationEvent: EventDecodable {}
+extension TranslationEvent: DeletableEvent {}
 
 extension SchemaV1 {
     

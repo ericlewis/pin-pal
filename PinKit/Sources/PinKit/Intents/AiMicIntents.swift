@@ -4,6 +4,11 @@ import PinKit
 import SwiftUI
 import CollectionConcurrencyKit
 import Models
+import SwiftData
+
+public protocol DeletableEvent: Sendable, PersistentModel {
+    var uuid: UUID { get }
+}
 
 public struct AiMicEntity: Identifiable {
     public let id: UUID
@@ -145,6 +150,42 @@ public struct DeleteAiMicEventsIntent: DeleteIntent {
         } else {
             try await delete()
         }
+        
+        return .result()
+    }
+}
+
+public struct DeleteEventsIntent: AppIntent {
+    
+    public static var openAppWhenRun: Bool = false
+    public static var isDiscoverable: Bool = false
+    
+    public static var title: LocalizedStringResource = "Delete Events"
+    public static var description: IntentDescription? = .init("Deletes the specified event.", categoryName: "My Data")
+    
+    public var entities: [any DeletableEvent]
+
+    public init(entities: [any DeletableEvent]) {
+        self.entities = entities
+    }
+    
+    public init() {
+        self.entities = []
+    }
+
+    @Dependency
+    public var service: HumaneCenterService
+    
+    @Dependency
+    public var database: any Database
+
+    public func perform() async throws -> some IntentResult {        
+        for entity in entities {
+            try? await service.deleteEvent(entity.uuid)
+            await database.delete(entity)
+        }
+        
+        try await database.save()
         
         return .result()
     }

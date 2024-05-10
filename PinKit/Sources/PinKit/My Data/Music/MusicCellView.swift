@@ -73,38 +73,43 @@ struct MusicCellView: View {
     private var openURL
     
     var body: some View {
-        /* if let playlist = event.generatedPlaylist {
-            NavigationLink {
-                SmartPlaylistView(playlist: playlist, event: event)
-            } label: {
-                LabeledContent {} label: {
-                    if let title = event.prompt {
-                        Text(title)
-                            .font(.headline)
-                            .foregroundStyle(accentColor)
-                    }
-                    if let length = event.length, let lengthCount = Int(length) {
-                        Text("^[\(lengthCount) track](inflect: true)")
-                    }
-                    LabeledContent {
-                        
-                    } label: {
-                        DateTextView(date: createdAt)
-                            .foregroundStyle(.tertiary)
-                            .font(.caption)
-                    }
-                }
-            }
-         } else */ if let trackId = event.sourceTrackId, event.sourceService == "TIDAL" {
-            Button {
-                if let trackUrl = makeTidalTrackURL(trackID: trackId) {
-                    openURL(trackUrl)
-                }
-            } label: {
-                MusicCellContent(event: event)
-            }
-        } else {
-            MusicCellContent(event: event)
+        Group {
+            /* if let playlist = event.generatedPlaylist {
+             NavigationLink {
+             SmartPlaylistView(playlist: playlist, event: event)
+             } label: {
+             LabeledContent {} label: {
+             if let title = event.prompt {
+             Text(title)
+             .font(.headline)
+             .foregroundStyle(accentColor)
+             }
+             if let length = event.length, let lengthCount = Int(length) {
+             Text("^[\(lengthCount) track](inflect: true)")
+             }
+             LabeledContent {
+             
+             } label: {
+             DateTextView(date: createdAt)
+             .foregroundStyle(.tertiary)
+             .font(.caption)
+             }
+             }
+             }
+             } else */ if let trackId = event.sourceTrackId, event.sourceService == "TIDAL" {
+                 Button {
+                     if let trackUrl = makeTidalTrackURL(trackID: trackId) {
+                         openURL(trackUrl)
+                     }
+                 } label: {
+                     MusicCellContent(event: event)
+                 }
+             } else {
+                 MusicCellContent(event: event)
+             }
+        }
+        .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+            DeleteEventButton(event: event)
         }
     }
     
