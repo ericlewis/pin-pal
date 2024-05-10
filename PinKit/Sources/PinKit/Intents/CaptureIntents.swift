@@ -115,6 +115,14 @@ public struct GetVideoIntent: AppIntent {
     @Parameter(title: "Capture")
     public var capture: CaptureEntity
 
+    public init(capture: CaptureEntity) {
+        self.capture = capture
+    }
+    
+    public init(capture: Capture) {
+        self.capture = CaptureEntity(from: capture)
+    }
+    
     public init() {}
     
     public static var openAppWhenRun: Bool = false
@@ -146,6 +154,14 @@ public struct GetBestPhotoIntent: AppIntent {
     @Parameter(title: "Capture")
     public var capture: CaptureEntity
 
+    public init(capture: CaptureEntity) {
+        self.capture = capture
+    }
+    
+    public init(capture: Capture) {
+        self.capture = CaptureEntity(from: capture)
+    }
+    
     public init() {}
     
     public static var openAppWhenRun: Bool = false
@@ -155,13 +171,12 @@ public struct GetBestPhotoIntent: AppIntent {
     var service: HumaneCenterService
 
     public func perform() async throws -> some IntentResult & ReturnsValue<IntentFile?> {
-        guard let cap: CaptureEnvelope = try await service.memory(capture.id).get(), let url = cap.thumbnail.makeImageURL(memoryUUID: capture.id) else {
+        let content = try await service.memory(capture.id)
+        guard let file = content.get()?.closeupAsset ?? content.get()?.thumbnail else {
             return .result(value: nil)
         }
-        var req = URLRequest(url: url)
-        req.setValue("Bearer \(service.accessToken!)", forHTTPHeaderField: "Authorization")
-        let (d, _) = try await URLSession.shared.data(for: req)
-        return .result(value: .init(data: d, filename: "\(capture.id).png"))
+        let data = try await service.download(capture.id, file)
+        return .result(value: .init(data: data, filename: "\(file.fileUUID).jpg"))
     }
 }
 
@@ -539,16 +554,12 @@ public struct CopyCaptureToClipboardIntent: AppIntent {
     public var service: HumaneCenterService
 
     public func perform() async throws -> some IntentResult {
-        let memory = try await service.memory(capture.id)
-        guard let capture: CaptureEnvelope = memory.get() else {
-            throw Error.invalidContent
-        }
         
-        let bestFile = capture.closeupAsset ?? capture.thumbnail
-        let data = try await service.download(memory.id, bestFile)
-
-        if capture.type == .photo, let image = UIImage(data: data) {
-            UIPasteboard.general.image = image
+        if capture.type == .photo {
+            guard let data = try await GetBestPhotoIntent(capture: capture).perform().value??.data else {
+                return .result()
+            }
+            UIPasteboard.general.image = UIImage(data: data)
         }
         
         return .result()
@@ -586,27 +597,19 @@ public struct SaveCaptureToCameraRollIntent: AppIntent {
     public var service: HumaneCenterService
 
     public func perform() async throws -> some IntentResult {
-        let memory = try await service.memory(capture.id)
-        guard let capture: CaptureEnvelope = memory.get() else {
-            throw Error.invalidContent
-        }
-        
-        let bestFile: FileAsset = {
-            guard capture.type == .video, let video = capture.downloadVideo ?? capture.video else {
-                return capture.closeupAsset ?? capture.thumbnail
-            }
-            return .init(fileUUID: video.fileUUID, accessToken: video.accessToken)
-        }()
-        
-        let data = try await service.download(memory.id, bestFile)
-        
         switch capture.type {
         case .photo:
-            if let image = UIImage(data: data) {
-                UIImageWriteToSavedPhotosAlbum(image, nil, nil, nil)
+            let file = try await GetBestPhotoIntent(capture: capture).perform()
+            guard let photo = file.value, let filename = photo?.filename, let data = photo?.data, let image = UIImage(data: data) else {
+                return .result()
             }
+            UIImageWriteToSavedPhotosAlbum(image, nil, nil, nil)
         case .video:
-            let targetURL: URL = .temporaryDirectory.appending(path: "\(bestFile.fileUUID).mp4")
+            let videoFile = try await GetVideoIntent(capture: capture).perform()
+            guard let video = videoFile.value, let filename = video?.filename, let data = video?.data else {
+                return .result()
+            }
+            let targetURL: URL = .temporaryDirectory.appending(path: filename)
             FileManager.default.createFile(atPath: targetURL.path(), contents: data)
             UISaveVideoAtPathToSavedPhotosAlbum(targetURL.path(), nil, nil, nil)
             break
