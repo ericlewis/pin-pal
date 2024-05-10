@@ -400,8 +400,6 @@ public struct DeleteAllNotesIntent: AppIntent {
     public init() {}
     
     public static var openAppWhenRun: Bool = false
-    
-    // TODO: review if we should expose this... it's kinda dangerous
     public static var isDiscoverable: Bool = false
     
     @Dependency
@@ -430,9 +428,7 @@ public struct _DeleteAllNotesIntent: AppIntent {
 
     public init() {}
     
-    public static var openAppWhenRun: Bool = false
-    
-    // TODO: review if we should expose this... it's kinda dangerous
+    public static var openAppWhenRun: Bool = false    
     public static var isDiscoverable: Bool = false
     
     @Dependency
@@ -564,8 +560,6 @@ public struct OpenFileImportIntent: AppIntent {
         return .result()
     }
 }
-
-// TODO: used by composer internally
 
 public struct UpdateNoteIntent: AppIntent {
     public static var title: LocalizedStringResource = "Update Note"

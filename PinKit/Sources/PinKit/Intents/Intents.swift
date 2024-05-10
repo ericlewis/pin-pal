@@ -3,13 +3,72 @@ import Foundation
 import PinKit
 import SwiftUI
 import Models
+import SwiftData
 
-public protocol SyncIntent: AppIntent {
-    var currentKeyPath: KeyPath<AppState, Int> { get }
-    var totalKeyPath: KeyPath<AppState, Int> { get }
-    var database: any Database { get set }
-    var service: HumaneCenterService { get set }
+public protocol SyncManager: AppIntent {
+    
+    associatedtype Event: EventDecodable
+        
+    var currentKeyPath: WritableKeyPath<AppState, Int> { get }
+    var totalKeyPath: WritableKeyPath<AppState, Int> { get }
+    var domain: EventDomain { get }
+
     var app: AppState { get set }
+    var service: HumaneCenterService { get set }
+    var database: any Database { get set }
+
+    func process<S: EventDecodable>(
+        type: S.Type,
+        domain: EventDomain
+    ) async throws
+}
+
+extension SyncManager {
+    public func process<S: EventDecodable>(
+        type: S.Type,
+        domain: EventDomain
+    ) async throws {
+        let chunkSize = 100
+        let total = try await service.events(domain, 0, 1).totalElements
+        let totalPages = (total + chunkSize - 1) / chunkSize
+        
+        await MainActor.run {
+            withAnimation {
+                app.totalMusicEventsToSync = total
+            }
+        }
+        
+        // TODO: do cleanup too
+        try await (0..<totalPages).concurrentForEach { page in
+            let data = try await service.events(domain, page, chunkSize)
+            let result = await data.content.concurrentMap {
+                let event = type.init(from: $0)
+                await database.insert(event)
+                return event.uuid
+            }
+                        
+            await MainActor.run {
+                withAnimation {
+                    app.numberOfMusicEventsSynced += result.count
+                }
+            }
+        }
+                        
+        try await database.save()
+
+        await MainActor.run {
+            app.totalMusicEventsToSync = 0
+            app.numberOfMusicEventsSynced = 0
+        }
+    }
+    
+    public func perform() async throws -> some IntentResult {
+        try await process(
+             type: Event.self,
+             domain: domain
+        )
+        return .result()
+    }
 }
 
 struct PinPalShortcuts: AppShortcutsProvider {
@@ -273,37 +332,6 @@ public struct ShowSettingsIntent: AppIntent {
 }
 
 // MARK: Util
-
-protocol DateSortable {
-    var createdAt: Date { get }
-    var modifiedAt: Date { get }
-}
-
-func filter<E: DateSortable>(content: [MemoryContentEnvelope], predicate: NSPredicate, sortedBy: [EntityQuerySort<E>]) -> [MemoryContentEnvelope] {
-    Array(((content as NSArray).filtered(using: predicate) as NSArray).sortedArray(using: sortedBy.map({
-        switch $0.by {
-        case \E.createdAt:
-            NSSortDescriptor(key: "userCreatedAt", ascending: $0.order.ascending)
-        case \E.modifiedAt:
-            NSSortDescriptor(key: "userLastModified", ascending: $0.order.ascending)
-        default:
-            NSSortDescriptor(key: "userCreatedAt", ascending: $0.order.ascending)
-        }
-    }))) as? [MemoryContentEnvelope] ?? []
-}
-
-// TODO: delete
-extension EntityQuerySort.Ordering {
-    /// Convert sort information from `EntityQuerySort` to  Foundation's `SortOrder`.
-    var ascending: Bool {
-        switch self {
-        case .ascending:
-            true
-        case .descending:
-            false
-        }
-    }
-}
 
 extension EntityQuerySort.Ordering {
     /// Convert sort information from `EntityQuerySort` to  Foundation's `SortOrder`.

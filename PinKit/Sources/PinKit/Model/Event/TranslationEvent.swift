@@ -4,6 +4,8 @@ import Models
 
 public typealias TranslationEvent = SchemaV1.TranslationEvent
 
+extension TranslationEvent: EventDecodable {}
+
 extension SchemaV1 {
     
     @Model

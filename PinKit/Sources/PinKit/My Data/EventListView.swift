@@ -18,7 +18,7 @@ struct EventListView<A: PersistentModel, Content: View>: View {
     @State
     private var isFirstLoad = true
 
-    var intent: any SyncIntent
+    var intent: any SyncManager
     var descriptor: FetchDescriptor<A>
     var predicate: () -> Predicate<A>
     var content: (A) -> Content

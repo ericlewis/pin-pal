@@ -1,6 +1,6 @@
 import Foundation
 
-public enum EventDomain: String {
+public enum EventDomain: String, Sendable {
     case aiMic = "Ai Mic"
     case calls = "Calls"
     case translation = "Translation"

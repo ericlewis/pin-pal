@@ -152,10 +152,13 @@ public struct DeleteAiMicEventsIntent: DeleteIntent {
 
 extension KeyPath: @unchecked Sendable {}
 
-struct SyncAiMicEventsIntent: AppIntent, SyncIntent {
+struct SyncAiMicEventsIntent: AppIntent, SyncManager {
     
-    var currentKeyPath: KeyPath<AppState, Int> = \.numberOfAiMicEventsSynced
-    var totalKeyPath: KeyPath<AppState, Int> = \.totalAiMicEventsToSync
+    typealias Event = AiMicEvent
+    
+    var currentKeyPath: WritableKeyPath<AppState, Int> = \.numberOfAiMicEventsSynced
+    var totalKeyPath: WritableKeyPath<AppState, Int> = \.totalAiMicEventsToSync
+    var domain: EventDomain = .aiMic
     
     public static var title: LocalizedStringResource = "Full Sync Ai Mic Requests"
 
@@ -172,56 +175,16 @@ struct SyncAiMicEventsIntent: AppIntent, SyncIntent {
     
     @Dependency
     public var app: AppState
-    
-    public func perform() async throws -> some IntentResult {
-        let chunkSize = 100
-        let total = try await service.events(.aiMic, 0, 1).totalElements
-        let totalPages = (total + chunkSize - 1) / chunkSize
-        
-        await MainActor.run {
-            withAnimation {
-                app.totalAiMicEventsToSync = total
-            }
-        }
-        
-        // TODO: do cleanup too
-        try await (0..<totalPages).concurrentForEach { page in
-            let data = try await service.events(.aiMic, page, chunkSize)
-            let result = try await data.content.concurrentMap(process)
-                        
-            await MainActor.run {
-                withAnimation {
-                    app.numberOfAiMicEventsSynced += result.count
-                }
-            }
-        }
-                        
-        try await self.database.save()
-
-        await MainActor.run {
-            app.totalAiMicEventsToSync = 0
-            app.numberOfAiMicEventsSynced = 0
-        }
-
-        return .result()
-    }
-    
-    private func process(_ content: EventContentEnvelope) async throws -> UUID {
-        let event = AiMicEvent(from: content)
-        await self.database.insert(event)
-        return event.uuid
-    }
-    
-    enum Error: Swift.Error {
-        case invalidContentType
-    }
 }
 
-struct SyncCallEventsIntent: AppIntent, SyncIntent {
+struct SyncCallEventsIntent: AppIntent, SyncManager {
     
-    var currentKeyPath: KeyPath<AppState, Int> = \.numberOfCallEventsSynced
-    var totalKeyPath: KeyPath<AppState, Int> = \.totalCallEventsToSync
-    
+    typealias Event = PhoneCallEvent
+
+    var currentKeyPath: WritableKeyPath<AppState, Int> = \.numberOfCallEventsSynced
+    var totalKeyPath: WritableKeyPath<AppState, Int> = \.totalCallEventsToSync
+    var domain: EventDomain = .calls
+
     public static var title: LocalizedStringResource = "Full Sync Phone Call Events"
 
     public init() {}
@@ -237,55 +200,15 @@ struct SyncCallEventsIntent: AppIntent, SyncIntent {
     
     @Dependency
     public var app: AppState
-    
-    public func perform() async throws -> some IntentResult {
-        let chunkSize = 100
-        let total = try await service.events(.calls, 0, 1).totalElements
-        let totalPages = (total + chunkSize - 1) / chunkSize
-        
-        await MainActor.run {
-            withAnimation {
-                app.totalCallEventsToSync = total
-            }
-        }
-        
-        // TODO: do cleanup too
-        try await (0..<totalPages).concurrentForEach { page in
-            let data = try await service.events(.calls, page, chunkSize)
-            let result = try await data.content.concurrentMap(process)
-                        
-            await MainActor.run {
-                withAnimation {
-                    app.numberOfCallEventsSynced += result.count
-                }
-            }
-        }
-                        
-        try await self.database.save()
-
-        await MainActor.run {
-            app.totalCallEventsToSync = 0
-            app.numberOfCallEventsSynced = 0
-        }
-
-        return .result()
-    }
-    
-    private func process(_ content: EventContentEnvelope) async throws -> UUID {
-        let event = PhoneCallEvent(from: content)
-        await self.database.insert(event)
-        return event.uuid
-    }
-    
-    enum Error: Swift.Error {
-        case invalidContentType
-    }
 }
 
-struct SyncTranslationEventsIntent: AppIntent, SyncIntent {
+struct SyncTranslationEventsIntent: AppIntent, SyncManager {
     
-    var currentKeyPath: KeyPath<AppState, Int> = \.numberOfTranslationEventsSynced
-    var totalKeyPath: KeyPath<AppState, Int> = \.totalTranslationEventsToSync
+    typealias Event = TranslationEvent
+    
+    var currentKeyPath: WritableKeyPath<AppState, Int> = \.numberOfTranslationEventsSynced
+    var totalKeyPath: WritableKeyPath<AppState, Int> = \.totalTranslationEventsToSync
+    var domain: EventDomain = .translation
     
     public static var title: LocalizedStringResource = "Full Sync Translation Events"
 
@@ -302,57 +225,17 @@ struct SyncTranslationEventsIntent: AppIntent, SyncIntent {
     
     @Dependency
     public var app: AppState
-    
-    public func perform() async throws -> some IntentResult {
-        let chunkSize = 100
-        let total = try await service.events(.translation, 0, 1).totalElements
-        let totalPages = (total + chunkSize - 1) / chunkSize
-        
-        await MainActor.run {
-            withAnimation {
-                app.totalTranslationEventsToSync = total
-            }
-        }
-        
-        // TODO: do cleanup too
-        try await (0..<totalPages).concurrentForEach { page in
-            let data = try await service.events(.translation, page, chunkSize)
-            let result = try await data.content.concurrentMap(process)
-                        
-            await MainActor.run {
-                withAnimation {
-                    app.numberOfTranslationEventsSynced += result.count
-                }
-            }
-        }
-                        
-        try await self.database.save()
-
-        await MainActor.run {
-            app.totalTranslationEventsToSync = 0
-            app.numberOfTranslationEventsSynced = 0
-        }
-
-        return .result()
-    }
-    
-    private func process(_ content: EventContentEnvelope) async throws -> UUID {
-        let event = TranslationEvent(from: content)
-        await self.database.insert(event)
-        return event.uuid
-    }
-    
-    enum Error: Swift.Error {
-        case invalidContentType
-    }
 }
 
 
-struct SyncMusicEventsIntent: AppIntent, SyncIntent {
+struct SyncMusicEventsIntent: AppIntent, SyncManager {
     
-    var currentKeyPath: KeyPath<AppState, Int> = \.numberOfMusicEventsSynced
-    var totalKeyPath: KeyPath<AppState, Int> = \.totalMusicEventsToSync
+    typealias Event = MusicEvent
     
+    var currentKeyPath: WritableKeyPath<AppState, Int> = \.numberOfMusicEventsSynced
+    var totalKeyPath: WritableKeyPath<AppState, Int> = \.totalMusicEventsToSync
+    var domain: EventDomain = .music
+
     public static var title: LocalizedStringResource = "Full Sync Music Events"
 
     public init() {}
@@ -368,47 +251,4 @@ struct SyncMusicEventsIntent: AppIntent, SyncIntent {
     
     @Dependency
     public var app: AppState
-    
-    public func perform() async throws -> some IntentResult {
-        let chunkSize = 100
-        let total = try await service.events(.music, 0, 1).totalElements
-        let totalPages = (total + chunkSize - 1) / chunkSize
-        
-        await MainActor.run {
-            withAnimation {
-                app.totalMusicEventsToSync = total
-            }
-        }
-        
-        // TODO: do cleanup too
-        try await (0..<totalPages).concurrentForEach { page in
-            let data = try await service.events(.music, page, chunkSize)
-            let result = try await data.content.concurrentMap(process)
-                        
-            await MainActor.run {
-                withAnimation {
-                    app.numberOfMusicEventsSynced += result.count
-                }
-            }
-        }
-                        
-        try await self.database.save()
-
-        await MainActor.run {
-            app.totalMusicEventsToSync = 0
-            app.numberOfMusicEventsSynced = 0
-        }
-
-        return .result()
-    }
-    
-    private func process(_ content: EventContentEnvelope) async throws -> UUID {
-        let event = MusicEvent(from: content)
-        await self.database.insert(event)
-        return event.uuid
-    }
-    
-    enum Error: Swift.Error {
-        case invalidContentType
-    }
 }

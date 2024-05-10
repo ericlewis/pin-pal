@@ -4,6 +4,8 @@ import Models
 
 public typealias AiMicEvent = SchemaV1.AiMicEvent
 
+extension AiMicEvent: EventDecodable {}
+
 extension SchemaV1 {
     
     @Model

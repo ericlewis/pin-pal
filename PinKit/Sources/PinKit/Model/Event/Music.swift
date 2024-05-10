@@ -7,7 +7,7 @@ public typealias MusicEvent = SchemaV1.MusicEvent
 extension SchemaV1 {
     
     @Model
-    public final class MusicEvent {
+    public final class MusicEvent: EventDecodable {
         
         @Attribute(.unique)
         public var uuid: UUID
