@@ -62,6 +62,9 @@ struct NotesView: View {
         )
         .task(initial)
         .task(id: query, search)
+        .task(id: service.isLoggedIn()) {
+            await load()
+        }
     }
     
     var predicate: Predicate<Note> {
