@@ -255,7 +255,16 @@ struct DangerZoneSection: View {
         } header: {
             Text("Danger Zone")
         } footer: {
-            Text(version())
+            Link(destination: URL(string: "https://www.youtube.com/watch?v=TC1oURSaYoQ&t=24s")!) {
+                VStack {
+                    Text("Made with 🍑 in Georgia")
+                        .font(.footnote.weight(.bold))
+                    Text("Version \(version())")
+                        .font(.footnote.weight(.medium))
+                }
+                .frame(maxWidth: .infinity)
+                .padding(.vertical)
+            }
         }
     }
     
@@ -347,9 +356,4 @@ extension String {
     func telephoneUrl() -> URL? {
         URL(string: "tel://\(self)")
     }
-}
-
-#Preview {
-    SettingsView()
-        .environment(HumaneCenterService.live())
 }
