@@ -41,6 +41,7 @@
 		6897F2A52BEA7E2700224555 /* NoteIntents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NoteIntents.swift; path = ../../PinKit/Sources/PinKit/Intents/NoteIntents.swift; sourceTree = "<group>"; };
 		6897F2A72BEA7E4E00224555 /* CaptureIntents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = CaptureIntents.swift; path = ../../PinKit/Sources/PinKit/Intents/CaptureIntents.swift; sourceTree = "<group>"; };
 		6897F2A92BEAC34D00224555 /* AiMicIntents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AiMicIntents.swift; path = ../../PinKit/Sources/PinKit/Intents/AiMicIntents.swift; sourceTree = "<group>"; };
+		68DB7B292BEF9950004571C1 /* ci_post_xcodebuild.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = ci_post_xcodebuild.sh; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -58,6 +59,7 @@
 		6819B7E92BD85431009255A0 = {
 			isa = PBXGroup;
 			children = (
+				68DB7B282BEF991A004571C1 /* ci_scripts */,
 				6819B7F42BD85431009255A0 /* Sources */,
 				6819B7F32BD85431009255A0 /* Products */,
 				6819B8292BDB5451009255A0 /* Frameworks */,
@@ -110,6 +112,14 @@
 				6819B82C2BDB5468009255A0 /* Ai-Pin-Info.plist */,
 			);
 			path = Resources;
+			sourceTree = "<group>";
+		};
+		68DB7B282BEF991A004571C1 /* ci_scripts */ = {
+			isa = PBXGroup;
+			children = (
+				68DB7B292BEF9950004571C1 /* ci_post_xcodebuild.sh */,
+			);
+			path = ci_scripts;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
