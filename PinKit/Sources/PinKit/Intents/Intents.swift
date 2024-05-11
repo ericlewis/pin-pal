@@ -50,7 +50,7 @@ extension SyncManager {
                     app[keyPath: currentKeyPath] += 1
                 }
             }
-            return event.uuid
+            return item.id
         }
 
         try await self.database.save()
@@ -63,7 +63,7 @@ extension SyncManager {
                 let result = await data.content.concurrentMap { item -> UUID in
                     let event = type.init(from: item)
                     await database.insert(event)
-                    return event.uuid
+                    return item.id
                 }
                 
                 await MainActor.run {

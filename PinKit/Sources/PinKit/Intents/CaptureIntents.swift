@@ -536,7 +536,7 @@ struct SyncCapturesIntent: AppIntent {
     private func process(_ content: MemoryContentEnvelope) async throws -> UUID {
         let newCapture = Capture(from: content)
         await self.database.insert(newCapture)
-        return newCapture.uuid
+        return content.id
     }
     
     enum Error: Swift.Error {
