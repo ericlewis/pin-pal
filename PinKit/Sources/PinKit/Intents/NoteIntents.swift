@@ -697,7 +697,7 @@ struct SyncNotesIntent: AppIntent {
             modifedAt: content.userLastModified
         )
         await self.database.insert(newNote)
-        return newNote.parentUUID
+        return content.id
     }
     
     enum Error: Swift.Error {
