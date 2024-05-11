@@ -98,7 +98,12 @@ struct CapturesView: View {
             NavigationLink {
                 CaptureDetailView(capture: capture)
             } label: {
-                CaptureCellView(capture: capture, isFavorite: capture.isFavorite)
+                CaptureCellView(
+                    capture: capture,
+                    isFavorite: capture.isFavorite,
+                    state: capture.state,
+                    type: capture.type
+                )
             }
             .contextMenu {
                 CaptureMenuContents(capture: capture, isFavorite: capture.isFavorite)
