@@ -14,7 +14,7 @@ struct CallEventListView: View {
     var body: some View {
         var descriptor = PhoneCallEvent.all()
         let _ = descriptor.sortBy = [SortDescriptor<PhoneCallEvent>(sortBy, order: order)]
-        EventListView(intent: SyncMusicEventsIntent(), descriptor: descriptor) {
+        EventListView(intent: SyncCallEventsIntent(), descriptor: descriptor) {
             #Predicate<PhoneCallEvent> {
                 if query.isEmpty {
                     true
