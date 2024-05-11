@@ -15,6 +15,9 @@ struct NotesView: View {
     
     @Environment(HumaneCenterService.self)
     private var service
+    
+    @AppStorage("wtf")
+    private var a: Int = 0
 
     @State
     private var isLoading = false
@@ -62,7 +65,7 @@ struct NotesView: View {
         )
         .task(initial)
         .task(id: query, search)
-        .task(id: service.isLoggedIn()) {
+        .task(id: a) {
             await load()
         }
     }

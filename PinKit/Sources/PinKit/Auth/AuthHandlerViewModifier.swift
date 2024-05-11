@@ -8,6 +8,9 @@ public struct AuthHandlerViewModifier: ViewModifier {
     @Environment(HumaneCenterService.self)
     private var api
     
+    @AppStorage("wtf")
+    private var a: Int = 0
+    
     @State
     private var authenticationWebView = AuthenticationWebViewModel()
     
@@ -25,6 +28,7 @@ public struct AuthHandlerViewModifier: ViewModifier {
                         webView.load(url: URL(string: "https://humane.center/")!)
                         webView.dismissed = {
                             self.navigation.authenticationPresented = false
+                            a = 1337
                         }
                     }
                     .interactiveDismissDisabled()
