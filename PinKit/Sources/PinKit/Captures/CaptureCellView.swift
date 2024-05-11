@@ -1,5 +1,6 @@
 import SwiftUI
 import SDWebImageSwiftUI
+import Models
 
 struct CaptureCellView: View {
     
@@ -8,6 +9,8 @@ struct CaptureCellView: View {
     
     var capture: Capture
     var isFavorite: Bool
+    var state: CaptureState
+    var type: RemoteCaptureType
 
     var body: some View {
         WebImage(url: makeThumbnailURL(capture: capture)) { image in
@@ -32,7 +35,7 @@ struct CaptureCellView: View {
             VStack {
                 HStack {
                     Spacer()
-                    switch capture.state {
+                    switch state {
                     case .pending:
                         Image(systemName: "icloud.and.arrow.up")
                     case .processed:
@@ -47,7 +50,7 @@ struct CaptureCellView: View {
                         Image(systemName: "heart")
                     }
                     Spacer()
-                    if capture.type == .video {
+                    if type == .video {
                         Image(systemName: "play")
                     }
                 }
