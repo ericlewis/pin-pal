@@ -56,13 +56,22 @@ struct PinPalApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .environment(sceneNavigationStore)
+                .environment(sceneService)
+                .environment(sceneAppState)
+                .environment(\.database, sceneDatabase)
+                .defaultAppStorage(.init(suiteName: "group.com.ericlewis.Pin-Pal") ?? .standard)
+                .modelContainer(sceneModelContainer)
+                .onChange(of: phase) { oldPhase, newPhase in
+                    switch (oldPhase, newPhase) {
+                    case (.inactive, .background):
+                        requestRefreshBackgroundTask(for: .notes)
+                        requestRefreshBackgroundTask(for: .captures)
+                        requestRefreshBackgroundTask(for: .myData)
+                    default: break
+                    }
+                }
         }
-        .environment(sceneNavigationStore)
-        .environment(sceneService)
-        .environment(sceneAppState)
-        .environment(\.database, sceneDatabase)
-        .defaultAppStorage(.init(suiteName: "group.com.ericlewis.Pin-Pal") ?? .standard)
-        .modelContainer(sceneModelContainer)
         .backgroundTask(.appRefresh(Constants.taskId(for: .notes))) {
             await handleNotesRefresh()
         }
@@ -71,15 +80,6 @@ struct PinPalApp: App {
         }
         .backgroundTask(.appRefresh(Constants.taskId(for: .myData))) {
             await handleMyDataRefresh()
-        }
-        .onChange(of: phase) { oldPhase, newPhase in
-            switch (oldPhase, newPhase) {
-            case (.inactive, .background):
-                requestRefreshBackgroundTask(for: .notes)
-                requestRefreshBackgroundTask(for: .captures)
-                requestRefreshBackgroundTask(for: .myData)
-            default: break
-            }
         }
     }
 }
