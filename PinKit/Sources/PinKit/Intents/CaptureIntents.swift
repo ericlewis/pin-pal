@@ -3,6 +3,7 @@ import Foundation
 import PinKit
 import SwiftUI
 import Models
+import Photos
 
 public enum CaptureType: String, AppEnum, Codable {
     case photo = "PHOTO"
@@ -624,11 +625,16 @@ public struct SaveCaptureToCameraRollIntent: AppIntent {
         switch capture.type {
         case .photo:
             let file = try await GetBestPhotoIntent(capture: capture).perform()
-            guard let photo = file.value, let data = photo?.data, let image = UIImage(data: data) else {
+            guard let photo = file.value, let name = photo?.filename, let data = photo?.data else {
                 navigation.show(toast: .error)
                 return .result()
             }
-            UIImageWriteToSavedPhotosAlbum(image, nil, nil, nil)
+            let targetURL: URL = .temporaryDirectory.appending(path: name)
+            try data.write(to: targetURL)
+            try await PHPhotoLibrary.shared().performChanges {
+                let request = PHAssetChangeRequest.creationRequestForAssetFromImage(atFileURL: targetURL)
+                request?.creationDate = Date()
+            }
         case .video:
             let videoFile = try await GetVideoIntent(capture: capture).perform()
             guard let video = videoFile.value, let filename = video?.filename, let data = video?.data else {
@@ -636,8 +642,11 @@ public struct SaveCaptureToCameraRollIntent: AppIntent {
                 return .result()
             }
             let targetURL: URL = .temporaryDirectory.appending(path: filename)
-            FileManager.default.createFile(atPath: targetURL.path(), contents: data)
-            UISaveVideoAtPathToSavedPhotosAlbum(targetURL.path(), nil, nil, nil)
+            try data.write(to: targetURL)
+            try await PHPhotoLibrary.shared().performChanges {
+                let request = PHAssetChangeRequest.creationRequestForAssetFromVideo(atFileURL: targetURL)
+                request?.creationDate = Date()
+            }
         }
         navigation.show(toast: .captureSaved)
         return .result()
@@ -689,8 +698,11 @@ public struct SaveUnprocessedVideoToCameraRollIntent: AppIntent {
                 return .result()
             }
             let targetURL: URL = .temporaryDirectory.appending(path: filename)
-            FileManager.default.createFile(atPath: targetURL.path(), contents: data)
-            UISaveVideoAtPathToSavedPhotosAlbum(targetURL.path(), nil, nil, nil)
+            try data.write(to: targetURL)
+            try await PHPhotoLibrary.shared().performChanges {
+                let request = PHAssetChangeRequest.creationRequestForAssetFromVideo(atFileURL: targetURL)
+                request?.creationDate = Date()
+            }
         }
         navigation.show(toast: .captureSaved)
         return .result()
