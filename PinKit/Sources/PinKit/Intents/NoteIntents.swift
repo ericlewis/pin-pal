@@ -497,9 +497,26 @@ public struct ReplaceNoteBodyIntent: AppIntent {
     
     @Dependency
     public var service: HumaneCenterService
+    
+    @Dependency
+    public var database: any Database
 
     public func perform() async throws -> some IntentResult & ReturnsValue<NoteEntity> {
-        try await .result(value: .init(from: service.update(.init(uuid: note.id, text: body, title: note.title))))
+        let content = try await service.update(.init(uuid: note.id, text: body, title: note.title))
+        let note: NoteEnvelope = content.get()!
+        await database.insert(
+            Note(
+                uuid: note.id ?? .init(),
+                parentUUID: content.id,
+                name: note.title,
+                body: note.text,
+                isFavorite: content.favorite,
+                createdAt: content.userCreatedAt,
+                modifedAt: content.userLastModified
+            )
+        )
+        try await database.save()
+        return .result(value: .init(from: content))
     }
 }
 
@@ -593,22 +610,13 @@ public struct UpdateNoteIntent: AppIntent {
     @Dependency
     public var database: any Database
     
-    public func perform() async throws -> some IntentResult & ReturnsValue<String> {
-        guard !title.isEmpty else {
-            throw $title.needsValueError("What would you like to update the title to?")
-        }
-        guard !text.isEmpty else {
-            throw $text.needsValueError("What would you like to update the content to?")
-        }
-        guard let memoryId = UUID(uuidString: self.identifier) else {
-            throw $identifier.needsValueError("What is identifier of the note to update?")
-        }
+    public func perform() async throws -> some IntentResult {
         navigation.savingNote = true
         let content = try await service.update(.init(uuid: UUID(uuidString: identifier), text: text, title: title))
         let note: NoteEnvelope = content.get()!
         await database.insert(
             Note(
-                uuid: note.id!,
+                uuid: note.id ?? .init(),
                 parentUUID: content.id,
                 name: note.title,
                 body: note.text,
@@ -620,7 +628,7 @@ public struct UpdateNoteIntent: AppIntent {
         try await database.save()
         navigation.activeNote = nil
         navigation.savingNote = false
-        return .result(value: memoryId.uuidString)
+        return .result()
     }
 }
 
