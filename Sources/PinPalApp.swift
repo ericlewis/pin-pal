@@ -51,6 +51,13 @@ struct PinPalApp: App {
         AppDependencyManager.shared.add(dependency: navigationStore)
         AppDependencyManager.shared.add(dependency: service)
         AppDependencyManager.shared.add(dependency: database)
+        
+        /**
+         Call `updateAppShortcutParameters` on `AppShortcutsProvider` so that the system updates the App Shortcut phrases with any changes to
+         the app's intent parameters. The app needs to call this function during its launch, in addition to any time the parameter values for
+         the shortcut phrases change.
+         */
+        PinPalShortcuts.updateAppShortcutParameters()
     }
     
     var body: some Scene {
