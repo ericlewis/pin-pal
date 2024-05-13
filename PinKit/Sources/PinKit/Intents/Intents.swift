@@ -5,7 +5,21 @@ import SwiftUI
 import Models
 import SwiftData
 
-public protocol SyncManager: AppIntent {
+public protocol DatabaseIntent {
+    var database: any Database { get set }
+}
+
+public protocol ServiceIntent {
+    var service: HumaneCenterService { get set }
+}
+
+public protocol AppStateIntent {
+    var app: AppState { get set }
+}
+
+public typealias TaskableIntent = DatabaseIntent & ServiceIntent & AppStateIntent
+
+public protocol SyncManager: AppIntent, TaskableIntent {
     
     associatedtype Event: EventDecodable
         
@@ -402,7 +416,7 @@ extension EntityQuerySort.Ordering {
 
 // MARK: Device
 
-public struct FetchDeviceInfoIntent: AppIntent {
+public struct FetchDeviceInfoIntent: AppIntent, TaskableIntent {
     public static var title: LocalizedStringResource = "Fetch Device Info"
 
     public init() {}
@@ -415,6 +429,9 @@ public struct FetchDeviceInfoIntent: AppIntent {
     
     @Dependency
     public var database: any Database
+    
+    @Dependency
+    public var app: AppState
 
     public func perform() async throws -> some IntentResult {
         

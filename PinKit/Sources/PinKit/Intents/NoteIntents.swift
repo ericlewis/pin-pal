@@ -632,7 +632,11 @@ public struct UpdateNoteIntent: AppIntent {
     }
 }
 
-struct SyncNotesIntent: AppIntent {
+struct SyncNotesIntent: AppIntent, TaskableIntent {
+    
+    var currentKeyPath: ReferenceWritableKeyPath<PinKit.AppState, Int> = \.numberOfNotesSynced
+    var totalKeyPath: ReferenceWritableKeyPath<PinKit.AppState, Int> = \.totalNotesToSync
+    
     public static var title: LocalizedStringResource = "Load Notes"
 
     public init() {}

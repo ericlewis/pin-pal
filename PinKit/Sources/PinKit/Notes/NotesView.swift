@@ -39,7 +39,7 @@ struct NotesView: View {
                 isLoading: isLoading,
                 isFirstLoad: isFirstLoad
             )
-            .refreshable(action: load)
+            .refreshable(intent: SyncNotesIntent())
             .searchable(text: $query)
             .overlay(alignment: .bottom) {
                 SyncStatusView(
@@ -60,7 +60,7 @@ struct NotesView: View {
             allowedContentTypes: [.plainText],
             onCompletion: handleImport
         )
-        .task(initial)
+        .task(intent: SyncNotesIntent())
         .task(id: query, search)
     }
     
@@ -147,29 +147,7 @@ extension NotesView {
             
         }
     }
- 
-    func initial() async {
-        guard !isLoading, isFirstLoad else { return }
-        Task.detached {
-            await load()
-        }
-    }
-    
-    func load() async {
-        isLoading = true
-        do {
-            let intent = SyncNotesIntent()
-            intent.database = database
-            intent.service = service
-            intent.app = app
-            try await intent.perform()
-        } catch {
-            print(error)
-        }
-        isLoading = false
-        isFirstLoad = false
-    }
-    
+
     func handleImport(_ result: Result<URL, any Error>) {
         Task.detached {
             do {

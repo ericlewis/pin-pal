@@ -59,7 +59,7 @@ struct CapturesView: View {
                     toolbar
                 }
         }
-        .task(initial)
+        .task(intent: SyncCapturesIntent())
     }
     
     var predicate: Predicate<Capture> {
@@ -114,7 +114,7 @@ struct CapturesView: View {
         } placeholder: {
             ContentUnavailableView("No captures yet", systemImage: "camera.aperture")
         }
-        .refreshable(action: reload)
+        .refreshable(intent: SyncCapturesIntent())
     }
     
     @ToolbarContentBuilder
@@ -178,40 +178,6 @@ extension CapturesView {
             
         } catch {
             
-        }
-    }
-    
-    func initial() async {
-        guard !isLoading, isFirstLoad else { return }
-        Task.detached {
-            await load()
-        }
-    }
-    
-    func load() async {
-        isLoading = true
-        do {
-            let intent = SyncCapturesIntent()
-            intent.database = database
-            intent.service = service
-            intent.app = app
-            try await intent.perform()
-        } catch {
-            print(error)
-        }
-        isLoading = false
-        isFirstLoad = false
-    }
-    
-    func reload() async {
-        do {
-            let intent = SyncCapturesIntent()
-            intent.database = database
-            intent.service = service
-            intent.app = app
-            try await intent.perform()
-        } catch {
-            print(error)
         }
     }
 }

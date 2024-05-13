@@ -476,7 +476,7 @@ public struct SearchCapturesIntent: AppIntent {
     }
 }
 
-struct SyncCapturesIntent: AppIntent {
+struct SyncCapturesIntent: AppIntent, TaskableIntent {
     public static var title: LocalizedStringResource = "Sync Captures"
 
     public init() {}
