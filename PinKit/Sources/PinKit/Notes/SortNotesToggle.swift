@@ -23,7 +23,7 @@ struct SortNotesToggle: View {
     
     var body: some View {
         if let sortBy2 {
-            Toggle(name, isOn: app.noteFilter.sort.keyPath == sortBy, intent: SortNotesIntent(sortBy: sortBy2))
+            Toggle(name, isOn: app.noteFilter.sort.keyPath == sortBy2, intent: SortNotesIntent(sortBy: sortBy2))
         } else if let sortBy {
             Toggle(name, isOn: app.noteFilter.sort.keyPath == sortBy, intent: SortNotesIntent(sortBy: sortBy))
         }
