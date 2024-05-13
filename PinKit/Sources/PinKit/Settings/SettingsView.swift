@@ -268,7 +268,7 @@ struct DangerZoneSection: View {
         } header: {
             Text("Danger Zone")
         } footer: {
-            Link(destination: URL(string: "https://www.youtube.com/watch?v=TC1oURSaYoQ&t=24s")!) {
+            Link(destination: URL(string: "https://www.youtube.com/watch?v=TC1oURSaYoQ")!) {
                 VStack {
                     Text("Made with 🍑 in Georgia")
                         .font(.footnote.weight(.bold))
@@ -278,6 +278,8 @@ struct DangerZoneSection: View {
                 .frame(maxWidth: .infinity)
                 .padding(.vertical)
             }
+            .foregroundStyle(.secondary)
+            .foregroundStyle(.primary)
         }
     }
     
