@@ -654,6 +654,11 @@ struct SyncNotesIntent: AppIntent, TaskableIntent {
     public var app: AppState
     
     public func perform() async throws -> some IntentResult {
+        
+        await MainActor.run {
+            app.isNotesLoading = true
+        }
+        
         let chunkSize = 30
         let total = try await service.notes(0, 1).totalElements
         let totalPages = (total + chunkSize - 1) / chunkSize
@@ -689,6 +694,7 @@ struct SyncNotesIntent: AppIntent, TaskableIntent {
         await MainActor.run {
             app.totalNotesToSync = 0
             app.numberOfNotesSynced = 0
+            app.isNotesLoading = false
         }
     
 

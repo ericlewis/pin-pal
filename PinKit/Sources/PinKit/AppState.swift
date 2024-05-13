@@ -60,6 +60,7 @@ public final class CaptureFilterState {
 
 @Observable public final class AppState: Sendable {
     
+    public var isNotesLoading = false
     public var totalNotesToSync = 0
     public var numberOfNotesSynced = 0
     
