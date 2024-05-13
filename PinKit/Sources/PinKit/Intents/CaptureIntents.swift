@@ -494,6 +494,11 @@ struct SyncCapturesIntent: AppIntent, TaskableIntent {
     public var app: AppState
     
     public func perform() async throws -> some IntentResult {
+        
+        await MainActor.run {
+            app.isCapturesLoading = true
+        }
+        
         let chunkSize = 30
         let total = try await service.captures(0, 1).totalElements
         let totalPages = (total + chunkSize - 1) / chunkSize
@@ -529,6 +534,7 @@ struct SyncCapturesIntent: AppIntent, TaskableIntent {
         await MainActor.run {
             app.totalCapturesToSync = 0
             app.numberOfCapturesSynced = 0
+            app.isCapturesLoading = false
         }
     
         return .result()

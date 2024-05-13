@@ -64,6 +64,7 @@ public final class CaptureFilterState {
     public var totalNotesToSync = 0
     public var numberOfNotesSynced = 0
     
+    public var isCapturesLoading = false
     public var totalCapturesToSync = 0
     public var numberOfCapturesSynced = 0
     
