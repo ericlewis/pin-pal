@@ -37,8 +37,19 @@ struct PinPalApp: App {
         sceneService = service
 
         let schema = Schema(CurrentScheme.models)
-        let modelContainerConfig = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
-        let modelContainer = try! ModelContainer(for: schema, configurations: modelContainerConfig)
+        let modelContainer: ModelContainer = {
+            do {
+                let modelContainerConfig = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
+                return try ModelContainer(for: schema, configurations: modelContainerConfig)
+            } catch {
+                let modelContainerConfig = ModelConfiguration(schema: schema, isStoredInMemoryOnly: true)
+                do {
+                    return try ModelContainer(for: schema, configurations: modelContainerConfig)
+                } catch {
+                    fatalError("\(error)")
+                }
+            }
+        }()
         sceneModelContainer = modelContainer
         
         let database = SharedDatabase(modelContainer: modelContainer).database
