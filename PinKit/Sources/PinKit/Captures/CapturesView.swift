@@ -21,10 +21,7 @@ struct CapturesView: View {
 
     @State
     private var query = ""
-    
-    @State
-    private var isLoading = false
-    
+
     @State
     private var isFirstLoad = true
 
@@ -45,7 +42,7 @@ struct CapturesView: View {
                         captureFilter.sort.order = captureFilter.order
                     }
                 }
-                .environment(\.isLoading, isLoading)
+                .environment(\.isLoading, app.isCapturesLoading)
                 .environment(\.isFirstLoad, isFirstLoad)
                 .overlay(alignment: .bottom) {
                     SyncStatusView(
@@ -59,7 +56,12 @@ struct CapturesView: View {
                     toolbar
                 }
         }
-        .task(initial)
+        .task(intent: SyncCapturesIntent())
+        .onChange(of: app.isCapturesLoading) {
+            if !app.isCapturesLoading {
+                isFirstLoad = false
+            }
+        }
     }
     
     var predicate: Predicate<Capture> {
@@ -114,7 +116,7 @@ struct CapturesView: View {
         } placeholder: {
             ContentUnavailableView("No captures yet", systemImage: "camera.aperture")
         }
-        .refreshable(action: reload)
+        .refreshable(intent: SyncCapturesIntent())
     }
     
     @ToolbarContentBuilder
@@ -160,58 +162,24 @@ struct CapturesView: View {
 extension CapturesView {
     func search() async {
         do {
-            isLoading = true
+            app.isCapturesLoading = true
             try await Task.sleep(for: .milliseconds(300))
             let intent = SearchCapturesIntent()
             intent.query = query
             intent.service = service
             guard !query.isEmpty, let result = try await intent.perform().value else {
                 self.ids = []
-                self.isLoading = false
+                app.isCapturesLoading = false
                 return
             }
             withAnimation(.snappy) {
                 self.ids = result.map(\.id)
-                isLoading = false
+                app.isCapturesLoading = false
             }
         } catch is CancellationError {
             
         } catch {
             
-        }
-    }
-    
-    func initial() async {
-        guard !isLoading, isFirstLoad else { return }
-        Task.detached {
-            await load()
-        }
-    }
-    
-    func load() async {
-        isLoading = true
-        do {
-            let intent = SyncCapturesIntent()
-            intent.database = database
-            intent.service = service
-            intent.app = app
-            try await intent.perform()
-        } catch {
-            print(error)
-        }
-        isLoading = false
-        isFirstLoad = false
-    }
-    
-    func reload() async {
-        do {
-            let intent = SyncCapturesIntent()
-            intent.database = database
-            intent.service = service
-            intent.app = app
-            try await intent.perform()
-        } catch {
-            print(error)
         }
     }
 }

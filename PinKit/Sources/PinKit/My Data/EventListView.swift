@@ -1,7 +1,7 @@
 import SwiftUI
 import SwiftData
 
-struct EventListView<A: PersistentModel, Content: View>: View {
+struct EventListView<Model: PersistentModel, Intent: SyncManager, Content: View>: View {
     
     @Environment(\.database)
     private var database
@@ -13,16 +13,13 @@ struct EventListView<A: PersistentModel, Content: View>: View {
     private var app
 
     @State
-    private var isLoading = false
-    
-    @State
     private var isFirstLoad = true
 
-    var intent: any SyncManager
-    var descriptor: FetchDescriptor<A>
-    var predicate: () -> Predicate<A>
-    var content: (A) -> Content
-    
+    var intent: Intent
+    var descriptor: FetchDescriptor<Model>
+    var predicate: () -> Predicate<Model>
+    var content: (Model) -> Content
+
     var body: some View {
         var descriptor = descriptor
         let _ = descriptor.predicate = predicate()
@@ -31,7 +28,7 @@ struct EventListView<A: PersistentModel, Content: View>: View {
         } placeholder: {
             ContentUnavailableView("No data yet", systemImage: "person.text.rectangle")
         }
-        .environment(\.isLoading, isLoading)
+        .environment(\.isLoading, app[keyPath: intent.isLoadingKeyPath])
         .environment(\.isFirstLoad, isFirstLoad)
         .overlay(alignment: .bottom) {
             SyncStatusView(
@@ -39,30 +36,8 @@ struct EventListView<A: PersistentModel, Content: View>: View {
                 total: intent.totalKeyPath
             )
         }
-        .refreshable(action: load)
-        .task(initial)
-    }
-    
-    func initial() async {
-        guard !isLoading, isFirstLoad else { return }
-        Task.detached {
-            await load()
-        }
-    }
-    
-    func load() async {
-        isLoading = true
-        do {
-            var intent = intent
-            intent.database = database
-            intent.service = service
-            intent.app = app
-            try await intent.perform()
-        } catch {
-            print(error)
-        }
-        isLoading = false
-        isFirstLoad = false
+        .refreshable(intent: intent)
+        .task(intent: intent)
     }
 }
 

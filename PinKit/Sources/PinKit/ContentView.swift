@@ -54,14 +54,7 @@ public struct ContentView: View {
         .tint(tint)
         .modifier(AuthHandlerViewModifier())
         .modifier(ToastViewModifier())
-        .task {
-            do {
-                let intent = FetchDeviceInfoIntent()
-                intent.database = database
-                intent.service = service
-                try await intent.perform()
-            } catch {}
-        }
+        .task(intent: FetchDeviceInfoIntent())
     }
 }
 

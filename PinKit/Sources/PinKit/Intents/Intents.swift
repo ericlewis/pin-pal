@@ -5,12 +5,27 @@ import SwiftUI
 import Models
 import SwiftData
 
-public protocol SyncManager: AppIntent {
+public protocol DatabaseIntent {
+    var database: any Database { get set }
+}
+
+public protocol ServiceIntent {
+    var service: HumaneCenterService { get set }
+}
+
+public protocol AppStateIntent {
+    var app: AppState { get set }
+}
+
+public typealias TaskableIntent = DatabaseIntent & ServiceIntent & AppStateIntent
+
+public protocol SyncManager: AppIntent, TaskableIntent {
     
     associatedtype Event: EventDecodable
         
     var currentKeyPath: ReferenceWritableKeyPath<AppState, Int> { get }
     var totalKeyPath: ReferenceWritableKeyPath<AppState, Int> { get }
+    var isLoadingKeyPath: ReferenceWritableKeyPath<AppState, Bool> { get }
     var domain: EventDomain { get }
 
     var app: AppState { get set }
@@ -28,6 +43,13 @@ extension SyncManager {
         type: S.Type,
         domain: EventDomain
     ) async throws {
+        
+        await MainActor.run {
+            withAnimation {
+                app[keyPath: isLoadingKeyPath] = true
+            }
+        }
+        
         let chunkSize = 80
         let total = try await service.events(domain, 0, 1).totalElements
         let totalPages = (total + chunkSize - 1) / chunkSize
@@ -112,8 +134,11 @@ extension SyncManager {
         } catch {}
 
         await MainActor.run {
-            app[keyPath: currentKeyPath] = 0
-            app[keyPath: totalKeyPath] = 0
+            withAnimation {
+                app[keyPath: currentKeyPath] = 0
+                app[keyPath: totalKeyPath] = 0
+                app[keyPath: isLoadingKeyPath] = true
+            }
         }
     }
     
@@ -402,7 +427,7 @@ extension EntityQuerySort.Ordering {
 
 // MARK: Device
 
-public struct FetchDeviceInfoIntent: AppIntent {
+public struct FetchDeviceInfoIntent: AppIntent, TaskableIntent {
     public static var title: LocalizedStringResource = "Fetch Device Info"
 
     public init() {}
@@ -415,6 +440,9 @@ public struct FetchDeviceInfoIntent: AppIntent {
     
     @Dependency
     public var database: any Database
+    
+    @Dependency
+    public var app: AppState
 
     public func perform() async throws -> some IntentResult {
         

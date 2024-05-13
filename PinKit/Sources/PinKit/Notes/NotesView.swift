@@ -17,9 +17,6 @@ struct NotesView: View {
     private var service
 
     @State
-    private var isLoading = false
-    
-    @State
     private var isFirstLoad = true
     
     @State
@@ -36,10 +33,10 @@ struct NotesView: View {
         NavigationStack {
             SearchableNotesListView(
                 filter: filter,
-                isLoading: isLoading,
+                isLoading: app.isNotesLoading,
                 isFirstLoad: isFirstLoad
             )
-            .refreshable(action: load)
+            .refreshable(intent: SyncNotesIntent())
             .searchable(text: $query)
             .overlay(alignment: .bottom) {
                 SyncStatusView(
@@ -60,8 +57,13 @@ struct NotesView: View {
             allowedContentTypes: [.plainText],
             onCompletion: handleImport
         )
-        .task(initial)
+        .task(intent: SyncNotesIntent())
         .task(id: query, search)
+        .onChange(of: app.isNotesLoading) {
+            if !app.isNotesLoading {
+                isFirstLoad = false
+            }
+        }
     }
     
     var predicate: Predicate<Note> {
@@ -127,19 +129,19 @@ struct NotesView: View {
 extension NotesView {
     func search() async {
         do {
-            isLoading = true
+            app.isNotesLoading = true
             try await Task.sleep(for: .milliseconds(300))
             let intent = SearchNotesIntent()
             intent.query = query
             intent.service = service
             guard !query.isEmpty, let result = try await intent.perform().value else {
                 self.ids = []
-                self.isLoading = false
+                app.isNotesLoading = false
                 return
             }
             withAnimation(.snappy) {
                 self.ids = result.map(\.id)
-                isLoading = false
+                app.isNotesLoading = false
             }
         } catch is CancellationError {
             
@@ -147,29 +149,7 @@ extension NotesView {
             
         }
     }
- 
-    func initial() async {
-        guard !isLoading, isFirstLoad else { return }
-        Task.detached {
-            await load()
-        }
-    }
-    
-    func load() async {
-        isLoading = true
-        do {
-            let intent = SyncNotesIntent()
-            intent.database = database
-            intent.service = service
-            intent.app = app
-            try await intent.perform()
-        } catch {
-            print(error)
-        }
-        isLoading = false
-        isFirstLoad = false
-    }
-    
+
     func handleImport(_ result: Result<URL, any Error>) {
         Task.detached {
             do {
