@@ -86,7 +86,6 @@ struct PinPalApp: App {
                         if sceneService.isLoggedIn() {
                             requestRefreshBackgroundTask(for: .notes)
                             requestRefreshBackgroundTask(for: .captures)
-                            requestRefreshBackgroundTask(for: .myData)
                         }
                     default: break
                     }
