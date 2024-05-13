@@ -83,9 +83,11 @@ struct PinPalApp: App {
                 .onChange(of: phase) { oldPhase, newPhase in
                     switch (oldPhase, newPhase) {
                     case (.inactive, .background):
-                        requestRefreshBackgroundTask(for: .notes)
-                        requestRefreshBackgroundTask(for: .captures)
-                        requestRefreshBackgroundTask(for: .myData)
+                        if sceneService.isLoggedIn() {
+                            requestRefreshBackgroundTask(for: .notes)
+                            requestRefreshBackgroundTask(for: .captures)
+                            requestRefreshBackgroundTask(for: .myData)
+                        }
                     default: break
                     }
                 }
