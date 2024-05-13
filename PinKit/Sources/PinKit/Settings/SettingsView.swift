@@ -11,6 +11,9 @@ struct SettingsView: View {
     @Environment(HumaneCenterService.self)
     private var service
 
+    @State
+    private var isLoading = false
+    
     @Query
     private var devices: [Device]
     
@@ -34,22 +37,32 @@ struct SettingsView: View {
             }
             .refreshable(action: load)
             .navigationTitle("Settings")
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button("Sign Out", role: .destructive, intent: _SignOutIntent())
+                    .tint(.red)
+                }
+            }
         }
         .task(load)
         .overlay {
-            if devices.isEmpty {
+            if devices.isEmpty, isLoading {
                 ProgressView()
+            } else if devices.isEmpty, !isLoading {
+                ContentUnavailableView("No Device yet", systemImage: "square.topthird.inset.filled")
             }
         }
     }
     
     func load() async {
+        isLoading = true
         do {
             let intent = FetchDeviceInfoIntent()
             intent.database = database
             intent.service = service
             try await intent.perform()
         } catch {}
+        isLoading = false
     }
 }
 

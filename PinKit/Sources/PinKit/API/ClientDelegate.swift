@@ -6,8 +6,11 @@ final class ClientDelegate: APIClientDelegate {
     private let userDefaults: UserDefaults = .init(suiteName: "group.com.ericlewis.Pin-Pal") ?? .standard
 
     private var accessToken: String?  {
-        didSet {
-            userDefaults.setValue(accessToken, forKey: Constants.ACCESS_TOKEN)
+        get {
+            HumaneCenterService.live().accessToken
+        }
+        set {
+            HumaneCenterService.live().accessToken = newValue
         }
     }
     
@@ -18,7 +21,6 @@ final class ClientDelegate: APIClientDelegate {
     }
     
     init() {
-        self.accessToken = userDefaults.string(forKey: Constants.ACCESS_TOKEN)
         if let d = userDefaults.string(forKey: Constants.USER_ID), let userId = UUID(uuidString: d) {
             self.userId = userId
         }

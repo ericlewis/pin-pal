@@ -477,3 +477,52 @@ public struct _ToggleDeviceBlockIntent: AppIntent {
         case noDevice
     }
 }
+
+import WebKit
+public struct _SignOutIntent: AppIntent {
+    public static var title: LocalizedStringResource = "Sign Out Account"
+
+    public init() {}
+
+    public static var openAppWhenRun: Bool = false
+    public static var isDiscoverable: Bool = false
+    
+    @Dependency
+    public var service: HumaneCenterService
+    
+    @Dependency
+    public var navigation: Navigation
+    
+    @Dependency
+    public var database: any Database
+
+    @MainActor
+    public func perform() async throws -> some IntentResult {
+        let sessionCookieStorage = URLSession.shared.configuration.httpCookieStorage
+        sessionCookieStorage?.removeCookies(since: .distantPast)
+        await WKWebsiteDataStore.default().removeData(
+            ofTypes: WKWebsiteDataStore.allWebsiteDataTypes(),
+            modifiedSince: .distantPast
+        )
+        try? await database.delete(where: #Predicate<Device>{ _ in true })
+        try? await database.delete(where: #Predicate<Note>{ _ in true })
+        try? await database.delete(where: #Predicate<Capture>{ _ in true })
+        try? await database.delete(where: #Predicate<AiMicEvent>{ _ in true })
+        try? await database.delete(where: #Predicate<TranslationEvent>{ _ in true })
+        try? await database.delete(where: #Predicate<MusicEvent>{ _ in true })
+        try? await database.delete(where: #Predicate<PhoneCallEvent>{ _ in true })
+        
+        try await database.save()
+        
+        service.accessToken = nil
+        
+        navigation.selectedTab = .notes
+        navigation.authenticationPresented = true
+        
+        return .result()
+    }
+    
+    enum Error: Swift.Error {
+       
+    }
+}

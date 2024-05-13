@@ -8,8 +8,11 @@ public struct AuthHandlerViewModifier: ViewModifier {
     @Environment(HumaneCenterService.self)
     private var api
     
-    @AppStorage("wtf")
-    private var a: Int = 0
+    @Environment(AppState.self)
+    private var app
+    
+    @Environment(\.database)
+    private var database
     
     @State
     private var authenticationWebView = AuthenticationWebViewModel()
@@ -20,7 +23,15 @@ public struct AuthHandlerViewModifier: ViewModifier {
         @Bindable var navigation = navigation
         @Bindable var webView = authenticationWebView
         content
-            .sheet(isPresented: $navigation.authenticationPresented) {
+            .sheet(isPresented: $navigation.authenticationPresented, onDismiss: {
+                Task {
+                    let intent = SyncNotesIntent()
+                    intent.database = database
+                    intent.service = api
+                    intent.app = app
+                    try await intent.perform()
+                }
+            }) {
                 AuthenticationWebView()
                     .ignoresSafeArea()
                     .environment(webView)
@@ -28,13 +39,9 @@ public struct AuthHandlerViewModifier: ViewModifier {
                         webView.load(url: URL(string: "https://humane.center/")!)
                         webView.dismissed = {
                             self.navigation.authenticationPresented = false
-                            a = 1337
                         }
                     }
                     .interactiveDismissDisabled()
-            }
-            .onAppear {
-                
             }
             .task {
                 self.navigation.authenticationPresented = !api.isLoggedIn()

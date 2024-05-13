@@ -10,7 +10,12 @@ public enum FeatureFlag: String, Codable {
     public static let shared = HumaneCenterService.live
 
     public var accessToken: String? {
-        (UserDefaults(suiteName: "group.com.ericlewis.Pin-Pal") ?? .standard).string(forKey: Constants.ACCESS_TOKEN)
+        get {
+            (UserDefaults(suiteName: "group.com.ericlewis.Pin-Pal") ?? .standard).string(forKey: Constants.ACCESS_TOKEN)
+        }
+        set {
+            (UserDefaults(suiteName: "group.com.ericlewis.Pin-Pal") ?? .standard).setValue(newValue, forKey: Constants.ACCESS_TOKEN)
+        }
     }
     
     public var notes: (Int, Int) async throws -> PageableMemoryContentEnvelope

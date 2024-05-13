@@ -43,9 +43,6 @@ struct VideoView: View {
             .onDisappear {
                 player.pause()
             }
-            .background {
-                Color.black
-            }
     }
 }
 
