@@ -25,6 +25,7 @@ public protocol SyncManager: AppIntent, TaskableIntent {
         
     var currentKeyPath: ReferenceWritableKeyPath<AppState, Int> { get }
     var totalKeyPath: ReferenceWritableKeyPath<AppState, Int> { get }
+    var isLoadingKeyPath: ReferenceWritableKeyPath<AppState, Bool> { get }
     var domain: EventDomain { get }
 
     var app: AppState { get set }
@@ -42,6 +43,13 @@ extension SyncManager {
         type: S.Type,
         domain: EventDomain
     ) async throws {
+        
+        await MainActor.run {
+            withAnimation {
+                app[keyPath: isLoadingKeyPath] = true
+            }
+        }
+        
         let chunkSize = 80
         let total = try await service.events(domain, 0, 1).totalElements
         let totalPages = (total + chunkSize - 1) / chunkSize
@@ -126,8 +134,11 @@ extension SyncManager {
         } catch {}
 
         await MainActor.run {
-            app[keyPath: currentKeyPath] = 0
-            app[keyPath: totalKeyPath] = 0
+            withAnimation {
+                app[keyPath: currentKeyPath] = 0
+                app[keyPath: totalKeyPath] = 0
+                app[keyPath: isLoadingKeyPath] = true
+            }
         }
     }
     

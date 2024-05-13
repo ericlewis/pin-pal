@@ -13,9 +13,6 @@ struct EventListView<Model: PersistentModel, Intent: SyncManager, Content: View>
     private var app
 
     @State
-    private var isLoading = false
-    
-    @State
     private var isFirstLoad = true
 
     var intent: Intent
@@ -31,7 +28,7 @@ struct EventListView<Model: PersistentModel, Intent: SyncManager, Content: View>
         } placeholder: {
             ContentUnavailableView("No data yet", systemImage: "person.text.rectangle")
         }
-        .environment(\.isLoading, isLoading)
+        .environment(\.isLoading, app[keyPath: intent.isLoadingKeyPath])
         .environment(\.isFirstLoad, isFirstLoad)
         .overlay(alignment: .bottom) {
             SyncStatusView(

@@ -349,6 +349,7 @@ struct SyncAiMicEventsIntent: AppIntent, SyncManager {
     
     var currentKeyPath: ReferenceWritableKeyPath<AppState, Int> = \.numberOfAiMicEventsSynced
     var totalKeyPath: ReferenceWritableKeyPath<AppState, Int> = \.totalAiMicEventsToSync
+    var isLoadingKeyPath: ReferenceWritableKeyPath<AppState, Bool> = \.isAiMicEventsLoading
     var domain: EventDomain = .aiMic
     
     public static var title: LocalizedStringResource = "Full Sync Ai Mic Requests"
@@ -374,6 +375,7 @@ struct SyncCallEventsIntent: AppIntent, SyncManager {
 
     var currentKeyPath: ReferenceWritableKeyPath<AppState, Int> = \.numberOfCallEventsSynced
     var totalKeyPath: ReferenceWritableKeyPath<AppState, Int> = \.totalCallEventsToSync
+    var isLoadingKeyPath: ReferenceWritableKeyPath<AppState, Bool> = \.isCallEventsLoading
     var domain: EventDomain = .calls
 
     public static var title: LocalizedStringResource = "Full Sync Phone Call Events"
@@ -399,6 +401,7 @@ struct SyncTranslationEventsIntent: AppIntent, SyncManager {
     
     var currentKeyPath: ReferenceWritableKeyPath<AppState, Int> = \.numberOfTranslationEventsSynced
     var totalKeyPath: ReferenceWritableKeyPath<AppState, Int> = \.totalTranslationEventsToSync
+    var isLoadingKeyPath: ReferenceWritableKeyPath<AppState, Bool> = \.isTranslationEventsLoading
     var domain: EventDomain = .translation
     
     public static var title: LocalizedStringResource = "Full Sync Translation Events"
@@ -425,6 +428,7 @@ struct SyncMusicEventsIntent: AppIntent, SyncManager {
     
     var currentKeyPath: ReferenceWritableKeyPath<AppState, Int> = \.numberOfMusicEventsSynced
     var totalKeyPath: ReferenceWritableKeyPath<AppState, Int> = \.totalMusicEventsToSync
+    var isLoadingKeyPath: ReferenceWritableKeyPath<AppState, Bool> = \.isMusicEventsLoading
     var domain: EventDomain = .music
 
     public static var title: LocalizedStringResource = "Full Sync Music Events"

@@ -68,15 +68,19 @@ public final class CaptureFilterState {
     public var totalCapturesToSync = 0
     public var numberOfCapturesSynced = 0
     
+    public var isAiMicEventsLoading = false
     public var totalAiMicEventsToSync = 0
     public var numberOfAiMicEventsSynced = 0
     
+    public var isCallEventsLoading = false
     public var totalCallEventsToSync = 0
     public var numberOfCallEventsSynced = 0
     
+    public var isTranslationEventsLoading = false
     public var totalTranslationEventsToSync = 0
     public var numberOfTranslationEventsSynced = 0
     
+    public var isMusicEventsLoading = false
     public var totalMusicEventsToSync = 0
     public var numberOfMusicEventsSynced = 0
     
