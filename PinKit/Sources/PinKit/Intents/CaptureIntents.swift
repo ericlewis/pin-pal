@@ -493,48 +493,97 @@ struct SyncCapturesIntent: AppIntent, TaskableIntent {
     @Dependency
     public var app: AppState
     
+    var lastSyncCount: Int {
+        get { UserDefaults.standard.integer(forKey: "BINGO_") }
+        set { UserDefaults.standard.setValue(newValue, forUndefinedKey: "BINGO_") }
+    }
+    
+    var lastSyncHash: String? {
+        get { UserDefaults.standard.string(forKey: "_BINGO_") }
+        set { UserDefaults.standard.setValue(newValue, forUndefinedKey: "_BINGO_") }
+    }
+    
     public func perform() async throws -> some IntentResult {
+        
+        func reset() async {
+            await MainActor.run {
+                withAnimation {
+                    app.isCapturesLoading = false
+                    app.numberOfCapturesSynced = 0
+                    app.totalCapturesToSync = 0
+                }
+            }
+        }
         
         await MainActor.run {
             app.isCapturesLoading = true
         }
+                
+        let first = try await service.captures(0, 1)
         
-        let chunkSize = 30
-        let total = try await service.captures(0, 1).totalElements
-        let totalPages = (total + chunkSize - 1) / chunkSize
-
-        await MainActor.run {
-            withAnimation {
-                app.totalCapturesToSync = total
+        let desc = Capture.all(limit: 1)
+        let items = try await database.fetch(desc)
+        let syncedItemsCount = try await database.count(Capture.all())
+        let total = first.totalElements
+        let itemsToSync = total - syncedItemsCount
+        
+        if itemsToSync < 0 {
+            var remainingToDelete = -itemsToSync
+            var currentPage = 0
+            let chunkSize = 20
+            while remainingToDelete > 0 {
+                let remoteCaptures = try await service.captures(currentPage, chunkSize)
+                let remoteIDs = remoteCaptures.content.map { $0.id }
+                                
+                let predicate = #Predicate<Capture> {
+                    !remoteIDs.contains($0.uuid)
+                }
+                var desc = Capture.all()
+                desc.predicate = predicate
+                let localToDeleteCount = try await database.count(desc)
+                
+                // Delete these local captures
+                try await database.delete(where: predicate)
+                try await database.save()
+                                
+                remainingToDelete -= localToDeleteCount
+                currentPage += 1
             }
-        }
-        
-        let ids = try await (0..<totalPages).concurrentMap { page in
-            let data = try await service.captures(page, chunkSize)
-            let result = try await data.content.concurrentMap(process)
-                        
+        } else if itemsToSync == 0, items.first?.uuid == first.content.first?.id {
+            // TODO: deeper comparison, probably.
+            await reset()
+            return .result()
+        } else {
+            let chunkSize = min(80, max(itemsToSync, 80))
+            let totalPages = (itemsToSync + chunkSize - 1) / chunkSize
+
             await MainActor.run {
                 withAnimation {
-                    app.numberOfCapturesSynced += result.count
+                    app.totalCapturesToSync = total
                 }
             }
-                        
-            return result
-        }
-        .flatMap({ $0 })
-                        
-        try await self.database.save()
+            
+            let ids = try await (0..<totalPages).concurrentMap { page in
+                let data = try await service.captures(page, chunkSize)
+                let result = try await data.content.concurrentMap(process)
+                await MainActor.run {
+                    withAnimation {
+                        app.numberOfCapturesSynced += result.count
+                    }
+                }
+                return result
+            }
+            .flatMap({ $0 })
+                            
+            try await self.database.save()
 
-        let predicate = #Predicate<Capture> {
-            !ids.contains($0.uuid)
-        }
-        try await self.database.delete(where: predicate)
-        try await self.database.save()
-        
-        await MainActor.run {
-            app.totalCapturesToSync = 0
-            app.numberOfCapturesSynced = 0
-            app.isCapturesLoading = false
+            let predicate = #Predicate<Capture> {
+                !ids.contains($0.uuid)
+            }
+            try await self.database.delete(where: predicate)
+            try await self.database.save()
+
+            await reset()
         }
     
         return .result()
