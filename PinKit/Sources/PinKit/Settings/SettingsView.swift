@@ -216,14 +216,17 @@ struct AppearanceSections: View {
     
     var body: some View {
         Section("Appearance") {
+#if !os(visionOS)
             ColorPicker("Theme", selection: $accentColor, supportsOpacity: false)
+#endif
             Picker("Date Format", selection: $dateFormatPreference) {
                 Text("Relative").tag(DateFormat.relative)
                 Text("Timestamp").tag(DateFormat.timestamp)
             }
             .id(accentColor)
         }
-#if os(iOS)
+#if os(macOS)
+#else
         Picker("App Icon", selection: $selectedIcon) {
             ForEach(Icon.allCases) { icon in
                 HStack {

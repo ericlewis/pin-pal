@@ -67,6 +67,11 @@ struct SearchableNotesListView: View {
                     DeleteNoteButton(note: note)
                 }
             }
+            .contentShape(Rectangle())
+            #if os(visionOS)
+            .buttonStyle(.plain)
+            .buttonBorderShape(.roundedRectangle)
+            #endif
         }
         .overlay {
             if notes.isEmpty, isSearching, !isLoading {

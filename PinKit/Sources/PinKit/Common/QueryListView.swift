@@ -89,7 +89,14 @@ struct QueryGridView<Model: PersistentModel, Content: View, Placeholder: View>: 
 
     var body: some View {
         ScrollView {
-            LazyVGrid(columns: [.init(.adaptive(minimum: 100, maximum: 300), spacing: 2)], spacing: 2) {
+            #if os(visionOS)
+            let gridItems = [GridItem(.adaptive(minimum: 160, maximum: 300), spacing: 0)]
+            let spacing: CGFloat = 0
+            #else
+            let spacing: CGFloat = 2
+            let gridItems = [GridItem(.adaptive(minimum: 100, maximum: 300), spacing: spacing)]
+            #endif
+            LazyVGrid(columns: gridItems, spacing: spacing) {
                 ForEach(data) { datum in
                     content(datum)
                 }

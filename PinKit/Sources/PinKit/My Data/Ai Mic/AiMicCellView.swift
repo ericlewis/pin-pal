@@ -16,6 +16,9 @@ struct AiMicCellView: View {
             Text(event.response)
             LabeledContent {
                 AiMicFeedbackButton(event: event, category: event.feedbackCategory)
+                #if os(visionOS)
+                    .buttonStyle(.borderless)
+                #endif
             } label: {
                 DateTextView(date: event.createdAt)
             }

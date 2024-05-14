@@ -90,6 +90,17 @@ struct PinPalApp: App {
                     default: break
                     }
                 }
+#if os(visionOS)
+                .onAppear {
+                    guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene else {
+                        fatalError()
+                    }
+                    let geometryRequest = UIWindowScene.GeometryPreferences.Vision(
+                        resizingRestrictions: .uniform
+                    )
+                    windowScene.requestGeometryUpdate(geometryRequest)
+                }
+#endif
         }
         .backgroundTask(.appRefresh(Constants.taskId(for: .notes))) {
             await handleNotesRefresh()
@@ -100,6 +111,7 @@ struct PinPalApp: App {
         .backgroundTask(.appRefresh(Constants.taskId(for: .myData))) {
             await handleMyDataRefresh()
         }
+        .defaultSize(width: 730, height: 1000)
     }
 }
 
@@ -161,12 +173,12 @@ extension PinPalApp {
     }
 }
 
-#if os(iOS)
 class AppDelegate: NSObject, UIApplicationDelegate {
 
     func application(_ application: UIApplication, configurationForConnecting connectingSceneSession: UISceneSession, options: UIScene.ConnectionOptions) -> UISceneConfiguration {
         let sceneConfiguration = UISceneConfiguration(name: "Custom Configuration", sessionRole: connectingSceneSession.role)
         sceneConfiguration.delegateClass = SceneDelegate.self
+                     
         return sceneConfiguration
     }
     
@@ -178,4 +190,3 @@ class AppDelegate: NSObject, UIApplicationDelegate {
         }
     }
 }
-#endif

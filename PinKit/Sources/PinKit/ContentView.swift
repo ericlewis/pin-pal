@@ -51,7 +51,9 @@ public struct ContentView: View {
                 }
                 .tag(Tab.settings)
         }
+        #if !os(visionOS)
         .tint(tint)
+        #endif
         .modifier(AuthHandlerViewModifier())
         .modifier(ToastViewModifier())
         .task(intent: FetchDeviceInfoIntent())

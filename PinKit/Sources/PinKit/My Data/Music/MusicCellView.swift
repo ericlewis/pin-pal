@@ -111,6 +111,10 @@ struct MusicCellView: View {
         .swipeActions(edge: .trailing, allowsFullSwipe: true) {
             DeleteEventButton(event: event)
         }
+        #if os(visionOS)
+        .buttonStyle(.plain)
+        .buttonBorderShape(.roundedRectangle)
+        #endif
     }
     
     func makeTidalTrackURL(trackID: String) -> URL? {
