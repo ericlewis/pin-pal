@@ -15,6 +15,9 @@ public struct ContentView: View {
     @Environment(HumaneCenterService.self)
     private var service
     
+    @State
+    private var network = NetworkMonitor()
+    
     public init() {
         SDWebImageManager.shared.cacheKeyFilter = SDWebImageCacheKeyFilter { url in
             if url.host() == "humane.center" {
@@ -30,26 +33,37 @@ public struct ContentView: View {
     public var body: some View {
         @Bindable var navigation = navigation
         TabView(selection: $navigation.selectedTab) {
-            NotesView()
-                .tabItem {
-                    Label("Notes", systemImage: "note.text")
+            Group {
+                NotesView()
+                    .tabItem {
+                        Label("Notes", systemImage: "note.text")
+                    }
+                    .tag(Tab.notes)
+                CapturesView()
+                    .tabItem {
+                        Label("Captures", systemImage: "camera.aperture")
+                    }
+                    .tag(Tab.captures)
+                MyDataView()
+                    .tabItem {
+                        Label("My Data", systemImage: "person.text.rectangle")
+                    }
+                    .tag(Tab.myData)
+                SettingsView()
+                    .tabItem {
+                        Label("Settings", systemImage: "gear")
+                    }
+                    .tag(Tab.settings)
+            }
+            .toolbar {
+                if !network.isConnected {
+                    ToolbarItem(placement: .status) {
+                        Label("Offline", systemImage: "wifi.slash")
+                            .labelStyle(.titleAndIcon)
+                            .imageScale(.small)
+                    }
                 }
-                .tag(Tab.notes)
-            CapturesView()
-                .tabItem {
-                    Label("Captures", systemImage: "camera.aperture")
-                }
-                .tag(Tab.captures)
-            MyDataView()
-                .tabItem {
-                    Label("My Data", systemImage: "person.text.rectangle")
-                }
-                .tag(Tab.myData)
-            SettingsView()
-                .tabItem {
-                    Label("Settings", systemImage: "gear")
-                }
-                .tag(Tab.settings)
+            }
         }
         #if !os(visionOS)
         .tint(tint)
@@ -57,6 +71,7 @@ public struct ContentView: View {
         .modifier(AuthHandlerViewModifier())
         .modifier(ToastViewModifier())
         .task(intent: FetchDeviceInfoIntent())
+        
     }
 }
 
