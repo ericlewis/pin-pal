@@ -31,6 +31,13 @@ public struct AuthHandlerViewModifier: ViewModifier {
                     intent.app = app
                     try await intent.perform()
                 }
+                Task {
+                    let intent = SyncCapturesIntent()
+                    intent.database = database
+                    intent.service = api
+                    intent.app = app
+                    try await intent.perform()
+                }
             }) {
                 AuthenticationWebView()
                     .ignoresSafeArea()

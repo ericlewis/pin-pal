@@ -654,7 +654,7 @@ struct SyncNotesIntent: AppIntent, TaskableIntent {
     public var app: AppState
     
     public func perform() async throws -> some IntentResult {
-        
+        if app.isNotesLoading { return .result() }
         await MainActor.run {
             app.isNotesLoading = true
         }

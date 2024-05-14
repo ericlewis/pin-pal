@@ -504,7 +504,7 @@ struct SyncCapturesIntent: AppIntent, TaskableIntent {
     }
     
     public func perform() async throws -> some IntentResult {
-        
+        if app.isCapturesLoading { return .result() }
         func reset() async {
             await MainActor.run {
                 withAnimation {
