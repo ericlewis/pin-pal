@@ -554,7 +554,7 @@ struct SyncCapturesIntent: AppIntent, TaskableIntent {
             await reset()
             return .result()
         } else {
-            let chunkSize = min(80, max(itemsToSync, 80))
+            let chunkSize = min(20, max(itemsToSync, 20))
             let totalPages = (itemsToSync + chunkSize - 1) / chunkSize
 
             await MainActor.run {
