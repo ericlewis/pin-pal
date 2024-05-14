@@ -100,6 +100,13 @@ struct PinPalApp: App {
                     )
                     windowScene.requestGeometryUpdate(geometryRequest)
                 }
+#elseif targetEnvironment(macCatalyst)
+                .onAppear {
+                    guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene else {
+                        fatalError()
+                    }
+                    windowScene.titlebar?.titleVisibility = .hidden
+                }
 #endif
         }
         .backgroundTask(.appRefresh(Constants.taskId(for: .notes))) {
@@ -111,7 +118,15 @@ struct PinPalApp: App {
         .backgroundTask(.appRefresh(Constants.taskId(for: .myData))) {
             await handleMyDataRefresh()
         }
+        #if os(visionOS)
         .defaultSize(width: 730, height: 1000)
+        #endif
+        .commands {
+            CommandGroup(before: CommandGroupPlacement.newItem) {
+                Button("New Note", intent: OpenNewNoteIntent())
+                    .keyboardShortcut("N", modifiers: .command)
+            }
+        }
     }
 }
 
