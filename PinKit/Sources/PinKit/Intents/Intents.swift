@@ -50,7 +50,7 @@ extension SyncManager {
             }
         }
         
-        let chunkSize = 80
+        let chunkSize = 20
         let total = try await service.events(domain, 0, 1).totalElements
         let totalPages = (total + chunkSize - 1) / chunkSize
         
