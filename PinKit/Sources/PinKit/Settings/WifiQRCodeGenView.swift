@@ -106,7 +106,7 @@ struct WifiQRCodeGenView: View {
                             }
                         }
                     }
-                    .disabled(state.name.isEmpty || state.password.isEmpty)
+                    .disabled(state.name.isEmpty || (state.securityType != .none && state.password.isEmpty))
                 }
             }
         }
