@@ -659,7 +659,7 @@ struct SyncNotesIntent: AppIntent, TaskableIntent {
             app.isNotesLoading = true
         }
         
-        let chunkSize = 30
+        let chunkSize = 20
         let total = try await service.notes(0, 1).totalElements
         let totalPages = (total + chunkSize - 1) / chunkSize
 
