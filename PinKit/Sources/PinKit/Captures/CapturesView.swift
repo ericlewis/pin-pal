@@ -116,7 +116,7 @@ struct CapturesView: View {
         } placeholder: {
             ContentUnavailableView("No captures yet", systemImage: "camera.aperture")
         }
-        .refreshable(intent: SyncCapturesIntent())
+        .refreshable(intent: SyncCapturesIntent(force: true))
     }
     
     @ToolbarContentBuilder

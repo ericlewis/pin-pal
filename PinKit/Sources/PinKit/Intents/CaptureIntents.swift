@@ -479,10 +479,18 @@ public struct SearchCapturesIntent: AppIntent {
 struct SyncCapturesIntent: AppIntent, TaskableIntent {
     public static var title: LocalizedStringResource = "Sync Captures"
 
-    public init() {}
+    public init() {
+        self.force = false
+    }
     
+    public init(force: Bool) {
+        self.force = true
+    }
+
     public static var openAppWhenRun: Bool = false
     public static var isDiscoverable: Bool = false
+    
+    var force: Bool
     
     @Dependency
     public var service: HumaneCenterService
@@ -492,16 +500,6 @@ struct SyncCapturesIntent: AppIntent, TaskableIntent {
     
     @Dependency
     public var app: AppState
-    
-    var lastSyncCount: Int {
-        get { UserDefaults.standard.integer(forKey: "BINGO_") }
-        set { UserDefaults.standard.setValue(newValue, forUndefinedKey: "BINGO_") }
-    }
-    
-    var lastSyncHash: String? {
-        get { UserDefaults.standard.string(forKey: "_BINGO_") }
-        set { UserDefaults.standard.setValue(newValue, forUndefinedKey: "_BINGO_") }
-    }
     
     public func perform() async throws -> some IntentResult {
         if app.isCapturesLoading { return .result() }
@@ -525,7 +523,7 @@ struct SyncCapturesIntent: AppIntent, TaskableIntent {
         let items = try await database.fetch(desc)
         let syncedItemsCount = try await database.count(Capture.all())
         let total = first.totalElements
-        let itemsToSync = total - syncedItemsCount
+        let itemsToSync = force ? total : total - syncedItemsCount
         
         if itemsToSync < 0 {
             var remainingToDelete = -itemsToSync
