@@ -479,18 +479,10 @@ public struct SearchCapturesIntent: AppIntent {
 struct SyncCapturesIntent: AppIntent, TaskableIntent {
     public static var title: LocalizedStringResource = "Sync Captures"
 
-    public init() {
-        self.force = false
-    }
+    public init() {}
     
-    public init(force: Bool) {
-        self.force = true
-    }
-
     public static var openAppWhenRun: Bool = false
     public static var isDiscoverable: Bool = false
-    
-    var force: Bool
     
     @Dependency
     public var service: HumaneCenterService
@@ -502,86 +494,41 @@ struct SyncCapturesIntent: AppIntent, TaskableIntent {
     public var app: AppState
     
     public func perform() async throws -> some IntentResult {
-        if app.isCapturesLoading { return .result() }
-        func reset() async {
-            await MainActor.run {
-                withAnimation {
-                    app.isCapturesLoading = false
-                    app.numberOfCapturesSynced = 0
-                    app.totalCapturesToSync = 0
-                }
+        let chunkSize = 20
+        let total = try await service.captures(0, 1).totalElements
+        let totalPages = (total + chunkSize - 1) / chunkSize
+
+        await MainActor.run {
+            withAnimation {
+                app.totalCapturesToSync = total
             }
         }
+        
+        let ids = try await (0..<totalPages).concurrentMap { page in
+            let data = try await service.captures(page, chunkSize)
+            let result = try await data.content.concurrentMap(process)
+                        
+            await MainActor.run {
+                withAnimation {
+                    app.numberOfCapturesSynced += result.count
+                }
+            }
+                        
+            return result
+        }
+        .flatMap({ $0 })
+                        
+        try await self.database.save()
+
+        let predicate = #Predicate<Capture> {
+            !ids.contains($0.uuid)
+        }
+        try await self.database.delete(where: predicate)
+        try await self.database.save()
         
         await MainActor.run {
-            app.isCapturesLoading = true
-        }
-                
-        let first = try await service.captures(0, 1)
-        
-        let desc = Capture.all(limit: 1)
-        let items = try await database.fetch(desc)
-        let syncedItemsCount = try await database.count(Capture.all())
-        let total = first.totalElements
-        let itemsToSync = force ? total : total - syncedItemsCount
-        
-        if itemsToSync < 0 {
-            var remainingToDelete = -itemsToSync
-            var currentPage = 0
-            let chunkSize = 20
-            while remainingToDelete > 0 {
-                let remoteCaptures = try await service.captures(currentPage, chunkSize)
-                let remoteIDs = remoteCaptures.content.map { $0.id }
-                                
-                let predicate = #Predicate<Capture> {
-                    !remoteIDs.contains($0.uuid)
-                }
-                var desc = Capture.all()
-                desc.predicate = predicate
-                let localToDeleteCount = try await database.count(desc)
-                
-                // Delete these local captures
-                try await database.delete(where: predicate)
-                try await database.save()
-                                
-                remainingToDelete -= localToDeleteCount
-                currentPage += 1
-            }
-        } else if itemsToSync == 0, items.first?.uuid == first.content.first?.id {
-            // TODO: deeper comparison, probably.
-            await reset()
-            return .result()
-        } else {
-            let chunkSize = min(20, max(itemsToSync, 20))
-            let totalPages = (itemsToSync + chunkSize - 1) / chunkSize
-
-            await MainActor.run {
-                withAnimation {
-                    app.totalCapturesToSync = total
-                }
-            }
-            
-            let ids = try await (0..<totalPages).concurrentMap { page in
-                let data = try await service.captures(page, chunkSize)
-                let result = try await data.content.concurrentMap(process)
-                await MainActor.run {
-                    withAnimation {
-                        app.numberOfCapturesSynced += result.count
-                    }
-                }
-                return result
-            }
-            .flatMap({ $0 })
-                            
-            try await self.database.save()
-
-            let predicate = #Predicate<Capture> {
-                !ids.contains($0.uuid)
-            }
-            try await self.database.delete(where: predicate)
-            try await self.database.save()
-
-            await reset()
+            app.totalCapturesToSync = 0
+            app.numberOfCapturesSynced = 0
         }
     
         return .result()

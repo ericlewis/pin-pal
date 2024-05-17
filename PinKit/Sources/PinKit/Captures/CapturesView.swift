@@ -56,7 +56,7 @@ struct CapturesView: View {
                     toolbar
                 }
         }
-        .task(intent: SyncCapturesIntent(force: true))
+        .task(intent: SyncCapturesIntent())
         .onChange(of: app.isCapturesLoading) {
             if !app.isCapturesLoading {
                 isFirstLoad = false
@@ -116,7 +116,7 @@ struct CapturesView: View {
         } placeholder: {
             ContentUnavailableView("No captures yet", systemImage: "camera.aperture")
         }
-        .refreshable(intent: SyncCapturesIntent(force: true))
+        .refreshable(intent: SyncCapturesIntent())
     }
     
     @ToolbarContentBuilder
