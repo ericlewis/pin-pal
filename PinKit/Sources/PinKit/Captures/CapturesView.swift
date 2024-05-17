@@ -56,7 +56,7 @@ struct CapturesView: View {
                     toolbar
                 }
         }
-        .task(intent: SyncCapturesIntent())
+        .task(intent: SyncCapturesIntent(force: true))
         .onChange(of: app.isCapturesLoading) {
             if !app.isCapturesLoading {
                 isFirstLoad = false
