@@ -520,6 +520,50 @@ public struct ReplaceNoteBodyIntent: AppIntent {
     }
 }
 
+public struct GetNoteIntent: AppIntent {
+    public static var title: LocalizedStringResource = "Get Note"
+    public static var description: IntentDescription? = .init("Get the specified note for further processing.", categoryName: "Notes")
+    public static var parameterSummary: some ParameterSummary {
+        Summary("Get \(\.$note)")
+    }
+
+    @Parameter(title: "Note")
+    public var note: NoteEntity
+    
+    public init(note: NoteEntity) {
+        self.note = note
+    }
+    
+    public init() {}
+    
+    public static var openAppWhenRun: Bool = false
+    public static var isDiscoverable: Bool = true
+    
+    @Dependency
+    public var service: HumaneCenterService
+    
+    @Dependency
+    public var database: any Database
+
+    public func perform() async throws -> some IntentResult & ReturnsValue<NoteEntity> {
+        let content = try await service.update(.init(uuid: note.id, text: note.text, title: note.title))
+        let note: NoteEnvelope = content.get()!
+        await database.insert(
+            Note(
+                uuid: note.id ?? .init(),
+                parentUUID: content.id,
+                name: note.title,
+                body: note.text,
+                isFavorite: content.favorite,
+                createdAt: content.userCreatedAt,
+                modifedAt: content.userLastModified
+            )
+        )
+        try await database.save()
+        return .result(value: .init(from: content))
+    }
+}
+
 public struct ShowNotesIntent: AppIntent {
     public static var title: LocalizedStringResource = "Show Notes"
     public static var description: IntentDescription? = .init("Get quick access to notes in Pin Pal", categoryName: "Notes")
