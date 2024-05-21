@@ -1,21 +1,22 @@
 import SwiftUI
 import AppIntents
 import SwiftData
+import MarkdownUI
 
 struct SearchableNotesListView: View {
-
+    
     @Environment(\.isSearching)
     private var isSearching
     
     @Environment(HumaneCenterService.self)
     private var service
-
+    
     @Environment(\.database)
     private var database
     
     @AccentColor
     private var accentColor
-
+    
     var isLoading: Bool
     var isFirstLoad: Bool
     
@@ -46,9 +47,16 @@ struct SearchableNotesListView: View {
                                 .font(.headline)
                                 .foregroundStyle(accentColor)
                         }
-                            
-                        Text(note.body)
-                            .foregroundStyle(.primary)
+                        Markdown(note.body)
+                            .markdownTheme(
+                                Theme()
+                                    .text {
+                                        ForegroundColor(.primary)
+                                    }
+                                    .link {
+                                        ForegroundColor(accentColor)
+                                    }
+                            )
                         LabeledContent {
                             
                         } label: {
@@ -68,10 +76,10 @@ struct SearchableNotesListView: View {
                 }
             }
             .contentShape(Rectangle())
-            #if os(visionOS)
+#if os(visionOS)
             .buttonStyle(.plain)
             .buttonBorderShape(.roundedRectangle)
-            #endif
+#endif
         }
         .overlay {
             if notes.isEmpty, isSearching, !isLoading {
