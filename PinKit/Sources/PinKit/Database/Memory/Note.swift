@@ -1,15 +1,17 @@
 import SwiftData
 import Foundation
 
-public typealias Note = SchemaV1._Note_
+public typealias Note = SchemaV1._Note__
 
 extension SchemaV1 {
     
     @Model
-    public class _Note_ {
+    public class _Note__ {
         
         @Attribute(.unique)
         public let uuid: UUID
+        
+        @Attribute(.unique)
         public let parentUUID: UUID
         
         public let name: String
